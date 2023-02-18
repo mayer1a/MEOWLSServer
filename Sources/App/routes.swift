@@ -16,5 +16,8 @@ func routes(_ app: Application) throws {
     let signInController = SignInController()
     app.post("signin", use: signInController.signIn)
 
+    let logoutController = LogoutController()
+    app.post("logout", use: logoutController.logout)
+
     try app.register(collection: TodoController())
 }
