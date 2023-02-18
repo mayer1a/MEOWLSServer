@@ -22,5 +22,8 @@ func routes(_ app: Application) throws {
     let editProfileController = EditProfileController()
     app.post("edit-profile", use: editProfileController.edit)
 
+    let getCatalogController = GetCatalogController()
+    app.post("catalog", use: getCatalogController.get)
+
     try app.register(collection: TodoController())
 }
