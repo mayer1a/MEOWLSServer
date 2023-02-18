@@ -25,5 +25,8 @@ func routes(_ app: Application) throws {
     let getCatalogController = GetCatalogController()
     app.post("catalog", use: getCatalogController.get)
 
+    let getProductController = GetProductController()
+    app.post("product", use: getProductController.get)
+
     try app.register(collection: TodoController())
 }
