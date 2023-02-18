@@ -1,5 +1,5 @@
 //
-//  RegisterRequest.swift
+//  SignUpRequest.swift
 //  
 //
 //  Created by Artem Mayer on 18.02.2023.
@@ -7,7 +7,7 @@
 
 import Vapor
 
-struct RegisterRequest: Content {
+struct SignUpRequest: Content {
     var id_user: Int
     var username: String
     var password: String
