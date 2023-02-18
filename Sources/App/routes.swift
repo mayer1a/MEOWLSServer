@@ -13,5 +13,8 @@ func routes(_ app: Application) throws {
     let regController = SignUpController()
     app.post("signup", use: regController.signUp)
 
+    let signInController = SignInController()
+    app.post("signin", use: signInController.signIn)
+
     try app.register(collection: TodoController())
 }
