@@ -19,5 +19,8 @@ func routes(_ app: Application) throws {
     let logoutController = LogoutController()
     app.post("logout", use: logoutController.logout)
 
+    let editProfileController = EditProfileController()
+    app.post("edit-profile", use: editProfileController.edit)
+
     try app.register(collection: TodoController())
 }
