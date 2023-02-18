@@ -20,11 +20,11 @@ class SignInController {
 
         print(body)
 
-        let user = User(
-            id_user: 123,
-            user_login: "geekbrains",
-            user_name: "John",
-            user_lastname: "Doe")
+        let user = UserMainInfo(
+            user_id: 123,
+            username: "geekbrains",
+            name: "John",
+            lastname: "Doe")
 
         let response = SignInResponse(
             result: 1,
