@@ -9,5 +9,5 @@ import Vapor
 
 struct LogoutResponse: Content {
     var result: Int
-    var error_message: String? = nil
+    var error_message: String?
 }

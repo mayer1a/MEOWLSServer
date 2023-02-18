@@ -13,17 +13,14 @@ class SignUpController {
 
     func signUp(_ req: Request) throws -> EventLoopFuture<SignUpResponse> {
         guard
-            let body = try? req.content.decode(SignUpRequest.self)
+            let body = try? req.content.decode(Profile.self)
         else {
             throw Abort(.badRequest)
         }
 
         print(body)
 
-        let response = SignUpResponse(
-            result: 1,
-            user_message: "Регистрация прошла успешно!",
-            error_message: nil)
+        let response = SignUpResponse(result: 1, user_message: "Регистрация прошла успешно!")
         
         return req.eventLoop.future(response)
     }

@@ -13,7 +13,7 @@ class EditProfileController {
 
     func edit(_ req: Request) throws -> EventLoopFuture<EditProfileResponse> {
         guard
-            let body = try? req.content.decode(EditProfileRequest.self)
+            let body = try? req.content.decode(Profile.self)
         else {
             throw Abort(.badRequest)
         }
