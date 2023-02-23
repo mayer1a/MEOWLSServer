@@ -10,8 +10,23 @@ func routes(_ app: Application) throws {
         "Hello, world!"
     }
 
-    let controller = AuthController()
-    app.post("register", use: controller.register)
+    let regController = SignUpController()
+    app.post("signup", use: regController.signUp)
+
+    let signInController = SignInController()
+    app.post("signin", use: signInController.signIn)
+
+    let logoutController = LogoutController()
+    app.post("logout", use: logoutController.logout)
+
+    let editProfileController = EditProfileController()
+    app.post("edit-profile", use: editProfileController.edit)
+
+    let getCatalogController = GetCatalogController()
+    app.post("catalog", use: getCatalogController.get)
+
+    let getProductController = GetProductController()
+    app.post("product", use: getProductController.get)
 
     try app.register(collection: TodoController())
 }
