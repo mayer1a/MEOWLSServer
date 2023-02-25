@@ -28,5 +28,8 @@ func routes(_ app: Application) throws {
     let getProductController = GetProductController()
     app.post("product", use: getProductController.get)
 
+    let getReviewsController = GetReviewsController()
+    app.get("reviews", use: getReviewsController.get)
+
     try app.register(collection: TodoController())
 }
