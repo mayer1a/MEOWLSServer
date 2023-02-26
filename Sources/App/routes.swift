@@ -37,5 +37,8 @@ func routes(_ app: Application) throws {
     let approveReviewController = ApproveReviewController()
     app.post("approve-review", use: approveReviewController.approveReview)
 
+    let removeReviewController = RemoveReviewController()
+    app.post("remove-review", use: removeReviewController.removeReview)
+
     try app.register(collection: TodoController())
 }
