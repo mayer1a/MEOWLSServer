@@ -7,6 +7,8 @@
 
 import Vapor
 
+// MARK: - LogoutController
+
 class LogoutController {
 
     // MARK: - Functions

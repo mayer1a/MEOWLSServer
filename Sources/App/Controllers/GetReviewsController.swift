@@ -7,6 +7,8 @@
 
 import Vapor
 
+// MARK: - GetReviewsController
+
 class GetReviewsController {
 
     // MARK: - Functions

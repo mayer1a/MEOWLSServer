@@ -7,6 +7,8 @@
 
 import Vapor
 
+// MARK: - SignInController
+
 class SignInController {
 
     // MARK: - Functions

@@ -7,6 +7,8 @@
 
 import Vapor
 
+// MARK: - GetProductRequest
+
 struct GetProductRequest: Content {
     var product_id: Int
 }

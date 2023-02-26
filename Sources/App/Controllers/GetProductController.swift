@@ -7,6 +7,8 @@
 
 import Vapor
 
+// MARK: - GetProductController
+
 class GetProductController {
 
     // MARK: - Functions

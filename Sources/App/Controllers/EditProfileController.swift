@@ -7,6 +7,8 @@
 
 import Vapor
 
+// MARK: - EditProfileController
+
 class EditProfileController {
 
     // MARK: - Functions

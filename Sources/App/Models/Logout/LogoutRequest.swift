@@ -7,6 +7,8 @@
 
 import Vapor
 
+// MARK: - LogoutRequest
+
 struct LogoutRequest: Content {
     var user_id: Int
 }

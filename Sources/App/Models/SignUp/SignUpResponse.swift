@@ -7,6 +7,8 @@
 
 import Vapor
 
+// MARK: - SignUpResponse
+
 struct SignUpResponse: Content {
     var result: Int
     var user_message: String?

@@ -7,6 +7,8 @@
 
 import Vapor
 
+// MARK: - GetCatalogController
+
 class GetCatalogController {
 
     // MARK: - Functions
