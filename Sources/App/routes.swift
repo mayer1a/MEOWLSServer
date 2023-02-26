@@ -34,5 +34,8 @@ func routes(_ app: Application) throws {
     let addReviewController = AddReviewController()
     app.post("add-review", use: addReviewController.addReview)
 
+    let approveReviewController = ApproveReviewController()
+    app.post("approve-review", use: approveReviewController.approveReview)
+
     try app.register(collection: TodoController())
 }
