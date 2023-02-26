@@ -31,5 +31,8 @@ func routes(_ app: Application) throws {
     let getReviewsController = GetReviewsController()
     app.get("reviews", use: getReviewsController.get)
 
+    let addReviewController = AddReviewController()
+    app.post("add-review", use: addReviewController.addReview)
+
     try app.register(collection: TodoController())
 }
