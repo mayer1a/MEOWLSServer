@@ -11,4 +11,5 @@ import Vapor
 
 struct GetReviewsRequest: Content {
     var product_id: Int
+    var page_number: Int
 }
