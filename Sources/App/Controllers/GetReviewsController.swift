@@ -15,7 +15,7 @@ class GetReviewsController {
 
     func get(_ req: Request) throws -> EventLoopFuture<GetReviewsResponse> {
         guard
-            let body = try? req.content.decode(GetReviewsRequest.self)
+            let body = try? req.query.decode(GetReviewsRequest.self)
         else {
             throw Abort(.badRequest)
         }
@@ -30,7 +30,7 @@ class GetReviewsController {
                 description: "Хорошая мышь"),
             Review(
                 review_id: 112,
-                product_id: 123,
+                product_id: 456,
                 description: "Стоит своих денег!")
         ]
 
