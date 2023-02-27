@@ -7,6 +7,8 @@
 
 import Vapor
 
+// MARK: - SignInRequest
+
 struct SignInRequest: Content {
     var username: String
     var password: String

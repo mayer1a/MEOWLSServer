@@ -7,6 +7,8 @@
 
 import Vapor
 
+// MARK: - GetCatalogRequest
+
 struct GetCatalogRequest: Content {
     var page_number: Int
     var category_id: Int

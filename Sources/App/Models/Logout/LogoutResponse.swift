@@ -7,6 +7,8 @@
 
 import Vapor
 
+// MARK: - LogoutResponse
+
 struct LogoutResponse: Content {
     var result: Int
     var error_message: String?
