@@ -15,7 +15,7 @@ class SignUpController {
 
     func signUp(_ req: Request) throws -> EventLoopFuture<SignUpResponse> {
         guard
-            let body = try? req.content.decode(Profile.self)
+            let body = try? req.content.decode(SignUpRequest.self)
         else {
             throw Abort(.badRequest)
         }
