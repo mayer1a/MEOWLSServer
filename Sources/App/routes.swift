@@ -42,5 +42,8 @@ func routes(_ app: Application) throws {
     let removeReviewController = RemoveReviewController()
     app.post("remove-review", use: removeReviewController.removeReview)
 
+    let addProductController = AddProductController()
+    app.post("add-product", use: addProductController.addProduct)
+
     try app.register(collection: TodoController())
 }
