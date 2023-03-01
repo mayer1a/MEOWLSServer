@@ -25,10 +25,10 @@ func routes(_ app: Application) throws {
     app.post("edit-profile", use: editProfileController.edit)
 
     let getCatalogController = GetCatalogController()
-    app.post("catalog", use: getCatalogController.get)
+    app.get("catalog", use: getCatalogController.get)
 
     let getProductController = GetProductController()
-    app.post("product", use: getProductController.get)
+    app.get("product", use: getProductController.get)
 
     let getReviewsController = GetReviewsController()
     app.get("reviews", use: getReviewsController.get)
