@@ -48,5 +48,8 @@ func routes(_ app: Application) throws {
     let removeProductController = RemoveProductController()
     app.post("remove-product", use: removeProductController.removeProduct)
 
+    let payBasketController = PayBasketController()
+    app.post("pay-basket", use: payBasketController.pay)
+
     try app.register(collection: TodoController())
 }
