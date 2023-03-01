@@ -9,9 +9,7 @@ import Vapor
 
 // MARK: - DetailedProductInfo
 
-struct DetailedProductInfo: Content {
-    var product_name: String
-    var product_price: Int
+struct DetailedProduct: Content {
     var product_description: String
 }
 
@@ -19,6 +17,6 @@ struct DetailedProductInfo: Content {
 
 struct GetProductResponse: Content {
     var result: Int
-    var product: DetailedProductInfo?
+    var product: DetailedProduct?
     var error_message: String?
 }

@@ -1,22 +1,15 @@
 //
-//  Profile.swift
-//  
+//  EditProfileRequest.swift
+//
 //
 //  Created by Artem Mayer on 18.02.2023.
 //
 
 import Vapor
 
-// MARK: - Gender
+// MARK: - EditProfileRequest
 
-enum Gender: String, Content {
-    case m
-    case w
-}
-
-// MARK: - Profile
-
-struct Profile: Content {
+struct EditProfileRequest: Content {
     var user_id: Int
     var username: String
     var password: String

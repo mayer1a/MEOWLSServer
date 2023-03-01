@@ -15,7 +15,7 @@ class GetCatalogController {
 
     func get(_ req: Request) throws -> EventLoopFuture<GetCatalogResponse> {
         guard
-            let body = try? req.content.decode(GetCatalogRequest.self)
+            let body = try? req.query.decode(GetCatalogRequest.self)
         else {
             throw Abort(.badRequest)
         }
@@ -23,11 +23,11 @@ class GetCatalogController {
         print(body)
 
         let products = [
-            ProductMainInfo(
+            Product(
                 product_id: 123,
                 product_name: "Ноутбук",
                 product_price: 45600),
-            ProductMainInfo(
+            Product(
                 product_id: 456,
                 product_name: "Компьютерная мышь",
                 product_price: 1000)

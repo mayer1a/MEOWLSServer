@@ -15,17 +15,14 @@ class GetProductController {
 
     func get(_ req: Request) throws -> EventLoopFuture<GetProductResponse> {
         guard
-            let body = try? req.content.decode(GetProductRequest.self)
+            let body = try? req.query.decode(GetProductRequest.self)
         else {
             throw Abort(.badRequest)
         }
 
         print(body)
 
-        let product = DetailedProductInfo(
-                product_name: "Ноутбук",
-                product_price: 45600,
-                product_description: "[Подробное описание товара]")
+        let product = DetailedProduct(product_description: "[Подробное описание товара]")
 
         let response = GetProductResponse(result: 1, product: product)
 
