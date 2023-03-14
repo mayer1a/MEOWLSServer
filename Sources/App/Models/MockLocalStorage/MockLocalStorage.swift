@@ -11,15 +11,15 @@ final class LocalStorage {
 
     // MARK: - Functions
 
-    func isPairExists(email key: String, password value: String) -> Int? {
-        hashedStorage.isUserExists(key: key, value: value)
+    func getExistsUserId(email key: String, password value: String) -> Int? {
+        hashedStorage.getExistsUserId(key: key, value: value)
     }
 
     @discardableResult
     func create(user: SignUpRequest) -> Int? {
         guard
             !users.contains(where: { $0 == user }),
-            hashedStorage.isUserExists(key: user.email, value: user.password) == nil
+            hashedStorage.getExistsUserId(key: user.email, value: user.password) == nil
         else {
             return nil
         }
@@ -46,8 +46,8 @@ final class LocalStorage {
         }
 
         guard let email = updateEmail(of: existsUser.element.email, with: user.email) else { return false }
-        let newRawUser = RawUpdateUserModel()
 
+        let newRawUser = RawUpdateUserModel()
         newRawUser.name = !user.name.isEmpty ? user.name : existsUser.element.name
         newRawUser.lastname = !user.lastname.isEmpty ? user.lastname : existsUser.element.lastname
         newRawUser.username = !user.username.isEmpty ? user.username : existsUser.element.username
@@ -62,20 +62,10 @@ final class LocalStorage {
         return true
     }
 
-    enum KeyPairssd: String {
-        case email
-        case name
-        case lastname
-        case username
-        case bio
-        case credit_card
-        case gender
-    }
-
     @discardableResult
     func delete(by email: String, password: String) -> Bool {
         guard
-            let userId = hashedStorage.isUserExists(key: email, value: password),
+            let userId = hashedStorage.getExistsUserId(key: email, value: password),
             let userIndex = users.enumerated().first(where: { $0.element.user_id == userId })?.offset
         else {
             return false
@@ -90,7 +80,7 @@ final class LocalStorage {
 
     func deleteAll(removerEmail: String, removerPassword: String) {
         guard
-            let userId = hashedStorage.isUserExists(key: removerEmail, value: removerPassword),
+            let userId = hashedStorage.getExistsUserId(key: removerEmail, value: removerPassword),
             users.contains(where: { $0.user_id == userId }),
             adminsStorage.isAdminExists(with: userId)
         else {
@@ -163,21 +153,20 @@ private final class HashedStorage {
     // MARK: - Functions
 
     func create(key: String, value: String, relatedId: Int) {
-        hashedValues[key] = value.hashValue
-        emailIdPairs[key] = relatedId
-        //
+        hashedValues.updateValue(value.hashValue, forKey: key)
+        emailIdPairs.updateValue(relatedId, forKey: key)
     }
 
-    func isUserExists(key: String, value: String) -> Int? {
+    func getExistsUserId(key: String, value: String) -> Int? {
         guard hashedValues[key] == value.hashValue else { return nil }
         return emailIdPairs[key]
     }
 
     @discardableResult
     func updatePassword(key: String, of oldValue: String, with newValue: String) -> Bool {
-        guard isUserExists(key: key, value: oldValue) != nil else { return false }
+        guard getExistsUserId(key: key, value: oldValue) != nil else { return false }
 
-        hashedValues[key] = newValue.hashValue
+        hashedValues.updateValue(newValue.hashValue, forKey: key)
         return true
     }
 
@@ -185,18 +174,18 @@ private final class HashedStorage {
     func updateEmail(key: String, with newValue: String) -> Bool {
         guard let relatedId = emailIdPairs[key], let relatedHashedValue = hashedValues[key] else { return false }
 
-        hashedValues.removeValue(forKey: key)
-        emailIdPairs.removeValue(forKey: key)
-
         hashedValues[newValue] = relatedHashedValue
         emailIdPairs[newValue] = relatedId
+
+        hashedValues.removeValue(forKey: key)
+        emailIdPairs.removeValue(forKey: key)
 
         return true
     }
 
     @discardableResult
     func delete(key: String, value: String) -> Bool {
-        guard isUserExists(key: key, value: value) != nil else { return false }
+        guard getExistsUserId(key: key, value: value) != nil else { return false }
 
         hashedValues.removeValue(forKey: key)
         emailIdPairs.removeValue(forKey: key)

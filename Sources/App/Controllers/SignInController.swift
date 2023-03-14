@@ -32,7 +32,7 @@ class SignInController {
 
         print(requestUserData)
 
-        let userId = localStorage.isPairExists(email: requestUserData.email, password: requestUserData.password)
+        let userId = localStorage.getExistsUserId(email: requestUserData.email, password: requestUserData.password)
         var response: SignInResponse
 
         if let userId {
