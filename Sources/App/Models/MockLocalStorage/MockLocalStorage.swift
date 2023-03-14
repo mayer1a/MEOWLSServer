@@ -151,9 +151,9 @@ final class LocalStorage {
     }
 }
 
-typealias ID = Int
+fileprivate typealias ID = Int
 
-final class HashedStorage {
+private final class HashedStorage {
 
     // MARK: - Typealiases
 
@@ -215,7 +215,7 @@ final class HashedStorage {
 
 }
 
-final class AdminsStorage {
+private final class AdminsStorage {
 
     // MARK: - Constructions
 
