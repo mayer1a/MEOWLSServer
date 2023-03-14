@@ -11,8 +11,11 @@ import Vapor
 
 struct EditProfileRequest: Content {
     var user_id: Int
+    var name: String
+    var lastname: String
     var username: String
-    var password: String
+    var old_password: String?
+    var new_password: String?
     var email: String
     var gender: Gender
     var credit_card: String
