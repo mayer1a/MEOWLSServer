@@ -7,7 +7,7 @@ func routes(_ app: Application) throws {
     let localStorage = LocalStorage()
 
     app.get { req async in
-        "GBShop Server running on [\(Date().ISO8601Format())]"
+        "GBShop Server running on [\(Date().description)]"
     }
 
     app.get("hello") { req async -> String in
