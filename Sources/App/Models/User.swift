@@ -28,7 +28,7 @@ struct User: Content, Equatable {
     }
 
     static func == (lhs: User, rhs: SignUpRequest) -> Bool {
-        lhs.username == rhs.username && lhs.email == rhs.email
+        lhs.username == rhs.username || lhs.email == rhs.email
     }
 
 }
