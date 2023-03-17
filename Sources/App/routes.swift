@@ -1,5 +1,6 @@
 import Fluent
 import Vapor
+import Foundation
 
 // MARK: - Functions
 
