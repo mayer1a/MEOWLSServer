@@ -4,24 +4,26 @@ import Vapor
 // MARK: - Functions
 
 func routes(_ app: Application) throws {
+    let localStorage = LocalStorage()
+
     app.get { req async in
-        "It works!"
+        "GBShop Server running on [\(Date().ISO8601Format())]"
     }
 
     app.get("hello") { req async -> String in
         "Hello, world!"
     }
 
-    let regController = SignUpController()
+    let regController = SignUpController(localStorage: localStorage)
     app.post("signup", use: regController.signUp)
 
-    let signInController = SignInController()
+    let signInController = SignInController(localStorage: localStorage)
     app.post("signin", use: signInController.signIn)
 
     let logoutController = LogoutController()
     app.post("logout", use: logoutController.logout)
 
-    let editProfileController = EditProfileController()
+    let editProfileController = EditProfileController(localStorage: localStorage)
     app.post("edit-profile", use: editProfileController.edit)
 
     let getCatalogController = GetCatalogController()

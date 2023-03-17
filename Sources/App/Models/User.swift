@@ -9,13 +9,26 @@ import Vapor
 
 // MARK: - User
 
-struct User: Content {
+struct User: Content, Equatable {
     var user_id: Int
-    var username: String
     var name: String
+    var lastname: String
+    var username: String
     var email: String
     var credit_card: String
-    var lastname: String
     var gender: Gender
     var bio: String
+
+    static func == (lhs: User, rhs: User) -> Bool {
+        lhs.user_id == rhs.user_id
+    }
+
+    static func == (lhs: User, rhs: EditProfileRequest) -> Bool {
+        lhs.user_id == rhs.user_id
+    }
+
+    static func == (lhs: User, rhs: SignUpRequest) -> Bool {
+        lhs.username == rhs.username && lhs.email == rhs.email
+    }
+
 }

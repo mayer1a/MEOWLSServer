@@ -7,9 +7,11 @@
 
 import Vapor
 
-// MARK: - SignUpResponse
+// MARK: - SignUpRequest
 
 struct SignUpRequest: Content {
+    var name: String
+    var lastname: String
     var username: String
     var password: String
     var email: String
