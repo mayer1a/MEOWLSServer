@@ -11,6 +11,7 @@ import Vapor
 
 struct DetailedProduct: Content {
     var product_description: String
+    var images: [String]
 }
 
 // MARK: - GetProductResponse
