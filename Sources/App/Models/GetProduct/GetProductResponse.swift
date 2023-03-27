@@ -7,12 +7,6 @@
 
 import Vapor
 
-// MARK: - DetailedProductInfo
-
-struct DetailedProduct: Content {
-    var product_description: String
-}
-
 // MARK: - GetProductResponse
 
 struct GetProductResponse: Content {

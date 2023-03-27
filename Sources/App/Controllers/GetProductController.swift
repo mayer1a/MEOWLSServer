@@ -22,9 +22,15 @@ class GetProductController {
 
         print(body)
 
-        let product = DetailedProduct(product_description: "[Подробное описание товара]")
+        guard
+            body.product_id > 0,
+            let detailedProduct = MockDetailedProducts.shared.products[body.product_id]
+        else {
+            let response = GetProductResponse(result: 0, error_message: "Товар не найден. Неверный id!")
+            return req.eventLoop.future(response)
+        }
 
-        let response = GetProductResponse(result: 1, product: product)
+        let response = GetProductResponse(result: 1, product: detailedProduct)
 
         return req.eventLoop.future(response)
     }
