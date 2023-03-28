@@ -12,5 +12,6 @@ import Vapor
 struct GetReviewsResponse: Content {
     var result: Int
     var reviews: [Review]?
+    var next_page: Int?
     var error_message: String?
 }

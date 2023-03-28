@@ -13,5 +13,7 @@ struct Review: Content {
     var review_id: Int
     var product_id: Int
     var user_id: Int?
-    var description: String
+    let rating: Int
+    let date: TimeInterval
+    var body: String
 }
