@@ -19,8 +19,12 @@ final class BasketController {
         }
 
         print(model)
-        
-        let isAdded = MockBasket.shared.addProduct(to: model.user_id, by: model.product_id, of: model.quantity)
+
+        let element = model.basket_element
+        let isAdded = MockBasket.shared.addProduct(
+            to: model.user_id,
+            by: element.product.product_id,
+            of: element.quantity)
 
         guard isAdded else {
             let response = AddProductResponse(result: 0, error_message: "Товар отсутствует на складе!")
@@ -57,10 +61,11 @@ final class BasketController {
 
         print(model)
 
+        let element = model.basket_element
         let isEdited = MockBasket.shared.editProductQuantity(
             userId: model.user_id,
-            productId: model.product_id,
-            quantity: model.new_quantity)
+            productId: element.product.product_id,
+            quantity: element.quantity)
 
         guard isEdited else {
             let response = EditProductResponse(result: 0, error_message: "Товар отсутствует в корзине!")

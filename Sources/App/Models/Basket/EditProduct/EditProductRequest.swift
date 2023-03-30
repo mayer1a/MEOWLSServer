@@ -11,6 +11,5 @@ import Vapor
 
 struct EditProductRequest: Content {
     var user_id: Int
-    var product_id: Int
-    var new_quantity: Int
+    var basket_element: BasketElement
 }
