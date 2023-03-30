@@ -10,5 +10,6 @@ import Vapor
 // MARK: - RemoveProductRequest
 
 struct RemoveProductRequest: Content {
+    var user_id: Int
     var product_id: Int
 }
