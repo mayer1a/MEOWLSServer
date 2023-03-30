@@ -44,14 +44,11 @@ func routes(_ app: Application) throws {
     let removeReviewController = RemoveReviewController()
     app.post("remove-review", use: removeReviewController.removeReview)
 
-    let addProductController = AddProductController()
-    app.post("add-product", use: addProductController.addProduct)
-
-    let removeProductController = RemoveProductController()
-    app.post("remove-product", use: removeProductController.removeProduct)
-
-    let payBasketController = PayBasketController()
-    app.post("pay-basket", use: payBasketController.pay)
+    let basketController = BasketController()
+    app.post("add-product", use: basketController.addProduct)
+    app.post("remove-product", use: basketController.removeProduct)
+    app.post("edit-product", use: basketController.editProductQuantity)
+    app.post("pay-basket", use: basketController.pay)
 
     try app.register(collection: TodoController())
 }
