@@ -62,8 +62,8 @@ final class MockBasket {
         return true
     }
 
-    func getBasket(for userId: UserId) -> UserBasket? {
-        baskets[userId]
+    func getBasket(for userId: UserId) -> Basket? {
+        baskets[userId]?.getBasket()
     }
     
     func clearAfterPurchase(for userId: UserId) {
@@ -126,18 +126,27 @@ final class UserBasket {
         return true
     }
 
-    func getBasket() -> [Product: Quantity] {
-        let basket = basket.reduce(into: [Product: Quantity]()) { partialResult, element in
+    func getBasket() -> Basket {
+        let basketElements = basket.reduce(into: [BasketElement]()) { partialResult, element in
             guard let product = MockProducts.shared.products.first(where: { $0.product_id == element.key }) else {
                 return
             }
-            partialResult[product] = element.value
+            partialResult.append(.init(product: product, quantity: element.value))
         }
 
-        return basket
+        let basketAmount = getBasketAmount(from: basketElements)
+        return Basket(amount: basketAmount, products_quantity: basketElements.count, products: basketElements)
     }
 
     func isExists(productId: ProductId) -> Bool {
         basket.keys.contains(where: { $0 == productId })
+    }
+
+    // MARK: - Private functions
+
+    private func getBasketAmount(from basketElements: [BasketElement]) -> Int {
+        basketElements.reduce(0) { partialResult, element in
+            partialResult + element.product.product_price * element.quantity
+        }
     }
 }
