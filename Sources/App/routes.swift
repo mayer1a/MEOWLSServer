@@ -49,6 +49,7 @@ func routes(_ app: Application) throws {
     app.post("remove-product", use: basketController.removeProduct)
     app.post("edit-product", use: basketController.editProductQuantity)
     app.post("pay-basket", use: basketController.pay)
+    app.get("basket", use: basketController.getUserBasket)
 
     try app.register(collection: TodoController())
 }
