@@ -72,6 +72,23 @@ final class BasketController {
         return req.eventLoop.future(response)
     }
 
+    func getUserBasket(_ req: Request) throws -> EventLoopFuture<GetBasketResponse> {
+        guard let model = try? req.query.decode(GetBasketRequest.self) else {
+            throw Abort(.badRequest)
+        }
+
+        print(model)
+
+        guard let userBasket = MockBasket.shared.getBasket(for: model.user_id) else {
+            let response = GetBasketResponse(result: 0, error_message: "Корзина не найдена!")
+            return req.eventLoop.future(response)
+        }
+
+        let response = GetBasketResponse(result: 1, basket: userBasket)
+
+        return req.eventLoop.future(response)
+    }
+
     func pay(_ req: Request) throws -> EventLoopFuture<PayBasketResponse> {
         guard let model = try? req.content.decode(PayBasketRequest.self) else {
             throw Abort(.badRequest)
@@ -84,8 +101,7 @@ final class BasketController {
             return req.eventLoop.future(response)
         }
 
-        let basketAmount = getBasketAmount(userBasket)
-        let isBasketPaid = emulatedBankRequest(purchaseAmount: basketAmount)
+        let isBasketPaid = emulatedBankRequest(purchaseAmount: userBasket.amount)
 
         guard isBasketPaid else {
             let response = PayBasketResponse(result: 0, error_message: "Отказ со стороны банка!")
@@ -103,11 +119,5 @@ final class BasketController {
 
     private func emulatedBankRequest(purchaseAmount: Int) -> Bool {
         purchaseAmount <= 47500
-    }
-
-    private func getBasketAmount(_ basket: UserBasket) -> Int {
-        basket.getBasket().reduce(0) { partialResult, element in
-            partialResult + element.key.product_price * element.value
-        }
     }
 }
