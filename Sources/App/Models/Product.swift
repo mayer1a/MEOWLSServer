@@ -9,7 +9,7 @@ import Vapor
 
 // MARK: - ProductMainInfo
 
-struct Product: Content {
+struct Product: Content, Hashable {
     var product_id: Int
     var product_name: String
     var product_category: String

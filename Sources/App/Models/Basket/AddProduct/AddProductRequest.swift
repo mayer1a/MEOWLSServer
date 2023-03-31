@@ -10,6 +10,6 @@ import Vapor
 // MARK: - AddProductRequest
 
 struct AddProductRequest: Content {
-    var product_id: Int
-    var quantity: Int
+    var user_id: Int
+    var basket_element: BasketElement
 }
