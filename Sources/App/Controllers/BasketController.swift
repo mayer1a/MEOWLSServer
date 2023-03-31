@@ -13,7 +13,7 @@ final class BasketController {
 
     // MARK: - Functions
 
-    func addProduct(_ req: Request) throws -> EventLoopFuture<AddProductResponse> {
+    func addProduct(_ req: Request) throws -> EventLoopFuture<GetBasketResponse> {
         guard let model = try? req.content.decode(AddProductRequest.self) else {
             throw Abort(.badRequest)
         }
@@ -21,40 +21,39 @@ final class BasketController {
         print(model)
 
         let element = model.basket_element
-        let isAdded = MockBasket.shared.addProduct(
+        let userBasket = MockBasket.shared.addProduct(
             to: model.user_id,
             by: element.product.product_id,
             of: element.quantity)
 
-        guard isAdded else {
-            let response = AddProductResponse(result: 0, error_message: "Товар отсутствует на складе!")
+        guard let userBasket else {
+            let response = GetBasketResponse(result: 0, error_message: "Товар отсутствует на складе!")
             return req.eventLoop.future(response)
         }
 
-        let response = AddProductResponse(result: 1)
+        let response = GetBasketResponse(result: 1, basket: userBasket)
         return req.eventLoop.future(response)
     }
 
-    func removeProduct(_ req: Request) throws -> EventLoopFuture<RemoveProductResponse> {
+    func removeProduct(_ req: Request) throws -> EventLoopFuture<GetBasketResponse> {
         guard let model = try? req.content.decode(RemoveProductRequest.self) else {
             throw Abort(.badRequest)
         }
 
         print(model)
         
-        let isRemoved = MockBasket.shared.removeProduct(userId: model.user_id, productId: model.product_id)
+        let userBasket = MockBasket.shared.removeProduct(userId: model.user_id, productId: model.product_id)
 
-        guard isRemoved else {
-            let response = RemoveProductResponse(result: 0, error_message: "Товар отсутствует в корзине!")
+        guard let userBasket else {
+            let response = GetBasketResponse(result: 0, error_message: "Товар отсутствует в корзине!")
             return req.eventLoop.future(response)
         }
 
-        let response = RemoveProductResponse(result: 1)
-
+        let response = GetBasketResponse(result: 1, basket: userBasket)
         return req.eventLoop.future(response)
     }
 
-    func editProductQuantity(_ req: Request) throws -> EventLoopFuture<EditProductResponse> {
+    func editProductQuantity(_ req: Request) throws -> EventLoopFuture<GetBasketResponse> {
         guard let model = try? req.content.decode(EditProductRequest.self) else {
             throw Abort(.badRequest)
         }
@@ -62,18 +61,17 @@ final class BasketController {
         print(model)
 
         let element = model.basket_element
-        let isEdited = MockBasket.shared.editProductQuantity(
+        let userBasket = MockBasket.shared.editProductQuantity(
             userId: model.user_id,
             productId: element.product.product_id,
             quantity: element.quantity)
 
-        guard isEdited else {
-            let response = EditProductResponse(result: 0, error_message: "Товар отсутствует в корзине!")
+        guard let userBasket else {
+            let response = GetBasketResponse(result: 0, error_message: "Товар отсутствует в корзине!")
             return req.eventLoop.future(response)
         }
 
-        let response = EditProductResponse(result: 1)
-
+        let response = GetBasketResponse(result: 1, basket: userBasket)
         return req.eventLoop.future(response)
     }
 
@@ -90,7 +88,6 @@ final class BasketController {
         }
 
         let response = GetBasketResponse(result: 1, basket: userBasket)
-
         return req.eventLoop.future(response)
     }
 
@@ -109,7 +106,7 @@ final class BasketController {
         let isBasketPaid = emulatedBankRequest(purchaseAmount: userBasket.amount)
 
         guard isBasketPaid else {
-            let response = PayBasketResponse(result: 0, error_message: "Отказ со стороны банка!")
+            let response = PayBasketResponse(result: -1, error_message: "Отказ со стороны банка!")
             return req.eventLoop.future(response)
         }
 
