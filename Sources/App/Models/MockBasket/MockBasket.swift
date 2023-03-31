@@ -22,44 +22,46 @@ final class MockBasket {
     // MARK: - Functions
 
     @discardableResult
-    func addProduct(to userIdBasket: UserId, by productId: Int, of quantity: Int) -> Bool {
+    func addProduct(to userId: UserId, by productId: Int, of quantity: Int) -> Basket? {
         guard let product = MockProducts.shared.products.first(where: { $0.product_id == productId }) else {
-            baskets[userIdBasket]?.removeProduct(id: productId)
-            return false
+            baskets[userId]?.removeProduct(id: productId)
+            return nil
         }
 
-        if let userBasket = baskets[userIdBasket] {
+        if let userBasket = baskets[userId] {
             userBasket.addProduct(id: product.product_id, quantity: quantity)
         } else {
-            baskets[userIdBasket] = UserBasket(productId: productId, quantity: quantity)
+            baskets[userId] = UserBasket(productId: productId, quantity: quantity)
         }
 
-        return true
+        return getBasket(for: userId)
     }
 
     @discardableResult
-    func removeProduct(userId: UserId, productId: Int) -> Bool {
-        guard let userBasket = baskets[userId] else {
-            return false
+    func removeProduct(userId: UserId, productId: Int) -> Basket? {
+        guard
+            let userBasket = baskets[userId],
+            userBasket.removeProduct(id: productId)
+        else {
+            return nil
         }
 
-        userBasket.removeProduct(id: productId)
-        return true
+        return getBasket(for: userId)
     }
 
     @discardableResult
-    func editProductQuantity(userId: UserId, productId: Int, quantity: Int) -> Bool {
+    func editProductQuantity(userId: UserId, productId: Int, quantity: Int) -> Basket? {
         guard
             let userBasket = baskets[userId],
             let product = MockProducts.shared.products.first(where: { $0.product_id == productId })
         else {
             baskets[userId]?.removeProduct(id: productId)
-            return false
+            return nil
         }
 
         userBasket.editProduct(id: product.product_id, quantity: quantity)
 
-        return true
+        return getBasket(for: userId)
     }
 
     func getBasket(for userId: UserId) -> Basket? {
@@ -127,15 +129,19 @@ final class UserBasket {
     }
 
     func getBasket() -> Basket {
+        var totalQuantity = 0
         let basketElements = basket.reduce(into: [BasketElement]()) { partialResult, element in
             guard let product = MockProducts.shared.products.first(where: { $0.product_id == element.key }) else {
                 return
             }
+
             partialResult.append(.init(product: product, quantity: element.value))
+            totalQuantity += element.value
         }
 
         let basketAmount = getBasketAmount(from: basketElements)
-        return Basket(amount: basketAmount, products_quantity: basketElements.count, products: basketElements)
+
+        return Basket(amount: basketAmount, products_quantity: totalQuantity, products: basketElements)
     }
 
     func isExists(productId: ProductId) -> Bool {
