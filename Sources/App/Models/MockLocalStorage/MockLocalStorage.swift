@@ -9,10 +9,37 @@ import Vapor
 
 final class LocalStorage {
 
+    // MARK: - Constructions
+
+    init() {
+        let initialAdminUser = SignUpRequest(
+            name: "Admin",
+            lastname: "Admin",
+            username: "adminadmin",
+            password: "Password0000",
+            email: "adminadmin@adm.in",
+            gender: .indeterminate,
+            credit_card: "0000000000000000",
+            bio: "I'm an admin person")
+
+        create(user: initialAdminUser)
+
+        guard let userId = getExistsUserId(email: initialAdminUser.email, password: initialAdminUser.password) else {
+            print("ERROR: Initial user isn't admin!")
+            return
+        }
+
+        addAdmin(userId: userId)
+    }
+
     // MARK: - Functions
 
     func getExistsUserId(email key: String, password value: String) -> Int? {
         hashedStorage.getExistsUserId(key: key, value: value)
+    }
+
+    func userIsAdmin(userId: Int) -> Bool {
+        adminsStorage.isAdminExists(with: userId)
     }
 
     @discardableResult
@@ -97,6 +124,16 @@ final class LocalStorage {
         hashedStorage.create(key: removerEmail, value: removerPassword, relatedId: userId)
     }
 
+    @discardableResult
+    func addAdmin(userId: Int) -> Bool {
+        adminsStorage.addAdmin(with: userId)
+    }
+
+    @discardableResult
+    func deleteAdmin(removerId: Int, removeId: Int) -> Bool {
+        adminsStorage.deleteAdmin(removerId: removerId, removeId: removeId)
+    }
+
     // MARK: - Private properties
 
     private let hashedStorage = HashedStorage()
@@ -148,17 +185,17 @@ private final class HashedStorage {
     // MARK: - Typealiases
 
     typealias Email = String
-    typealias PasswordHash = Int
+    typealias PasswordHash = String
 
     // MARK: - Functions
 
     func create(key: String, value: String, relatedId: Int) {
-        hashedValues.updateValue(value.hashValue, forKey: key)
+        hashedValues.updateValue(value, forKey: key)
         emailIdPairs.updateValue(relatedId, forKey: key)
     }
 
     func getExistsUserId(key: String, value: String) -> Int? {
-        guard hashedValues[key] == value.hashValue else { return nil }
+        guard hashedValues[key] == value else { return nil }
         return emailIdPairs[key]
     }
 
@@ -166,7 +203,7 @@ private final class HashedStorage {
     func updatePassword(key: String, of oldValue: String, with newValue: String) -> Bool {
         guard getExistsUserId(key: key, value: oldValue) != nil else { return false }
 
-        hashedValues.updateValue(newValue.hashValue, forKey: key)
+        hashedValues.updateValue(newValue, forKey: key)
         return true
     }
 
