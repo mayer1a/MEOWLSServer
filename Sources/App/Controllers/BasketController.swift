@@ -7,7 +7,7 @@
 
 import Vapor
 
-// MARK: - AddProductController
+// MARK: - BasketController
 
 final class BasketController {
 
@@ -20,6 +20,11 @@ final class BasketController {
 
         print(model)
 
+        guard model.basket_element.quantity > 0 else {
+            let response = GetBasketResponse(result: 0, error_message: "Количество добавляемого товара должно быть больше 0!")
+            return req.eventLoop.future(response)
+        }
+        
         let element = model.basket_element
         let userBasket = MockBasket.shared.addProduct(
             to: model.user_id,
