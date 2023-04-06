@@ -1,19 +1,78 @@
 //
 //  MockProductsReviews.swift
-//  
+//
 //
 //  Created by Artem Mayer on 28.03.2023.
 //
 
 import Vapor
 
-struct MockProductsReviews {
+typealias ReviewId = Int
 
-    // MARK: - Properties
+final class MockProductsReviews {
 
-    static let shared = MockProductsReviews()
+    // MARK: - Functions
 
-    let reviews: [Review] = [
+    func addReview(_ review: AddReviewRequest) -> Int {
+        let lastId = reviews.last?.review_id
+        let nextId = lastId != nil ? lastId! + 1 : 100
+
+        let review = Review(
+            review_id: nextId,
+            product_id: review.product_id,
+            user_id: review.user_id,
+            rating: review.rating,
+            date: review.date,
+            body: review.body)
+
+        reviews.append(review)
+
+        return nextId
+    }
+
+    @discardableResult
+    func approveReview(id: ReviewId) -> Bool {
+        guard isReviewExists(id: id), !isApprovedReview(id: id) else {
+            return false
+        }
+
+        approvedReviews.append(id)
+        return true
+    }
+
+    func deleteReview(id: ReviewId) {
+        reviews.removeAll { $0.review_id == id }
+    }
+
+    func getReview(id: ReviewId) -> Review? {
+        reviews.first { $0.review_id == id }
+    }
+
+    func getReviews(productId: Int) -> [Review] {
+        reviews.compactMap { review in review.product_id == productId ? review : nil }
+    }
+
+    func isReviewExists(id: ReviewId) -> Bool {
+        reviews.contains { $0.review_id == id }
+    }
+
+    func isReviewExists(_ model: AddReviewRequest) -> Bool {
+        guard let userId = model.user_id else { return false }
+
+        return reviews.contains { review in
+            review.product_id == model.product_id && review.body == model.body && review.user_id == userId
+        }
+    }
+
+    func isApprovedReview(id: ReviewId) -> Bool {
+        approvedReviews.contains { $0 == id }
+    }
+
+    // MARK: - Private properties
+
+    private var approvedReviews: [ReviewId] = []
+
+    private var reviews: [Review] = [
         Review(
             review_id: 101,
             product_id: 18320,
@@ -195,11 +254,4 @@ struct MockProductsReviews {
             date: 1676135735,
             body: "Мои питомцы обожают этот корм! Они просто кушают его как обалденные. Я очень довольна качеством данного корма. Это действительно высококачественный продукт, который мои питомцы едят с удовольствием.")
     ]
-
-    // MARK: - Constructions
-
-    private init() {}
 }
-
-
-

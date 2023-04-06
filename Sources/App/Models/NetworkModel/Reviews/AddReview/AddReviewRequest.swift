@@ -12,5 +12,7 @@ import Vapor
 struct AddReviewRequest: Content {
     var user_id: Int?
     var product_id: Int
-    var description: String
+    var rating: Int
+    var date: TimeInterval
+    var body: String
 }

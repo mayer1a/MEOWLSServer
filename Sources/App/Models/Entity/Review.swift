@@ -16,4 +16,5 @@ struct Review: Content {
     let rating: Int
     let date: TimeInterval
     var body: String
+    var isApproved: Bool = false
 }
