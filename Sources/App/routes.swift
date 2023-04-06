@@ -5,6 +5,7 @@ import Vapor
 
 func routes(_ app: Application) throws {
     let localStorage = LocalStorage()
+    let reviewsStorage = MockProductsReviews()
 
     app.get { req async in
         "GBShop Server running on [\(Date().description)]"
@@ -20,7 +21,7 @@ func routes(_ app: Application) throws {
     let signInController = SignInController(localStorage: localStorage)
     app.post("signin", use: signInController.signIn)
 
-    let logoutController = LogoutController()
+    let logoutController = LogoutController(localStorage: localStorage)
     app.post("logout", use: logoutController.logout)
 
     let editProfileController = EditProfileController(localStorage: localStorage)
@@ -32,17 +33,11 @@ func routes(_ app: Application) throws {
     let getProductController = GetProductController()
     app.get("product", use: getProductController.get)
 
-    let getReviewsController = GetReviewsController()
-    app.get("reviews", use: getReviewsController.get)
-
-    let addReviewController = AddReviewController()
-    app.post("add-review", use: addReviewController.addReview)
-
-    let approveReviewController = ApproveReviewController()
-    app.post("approve-review", use: approveReviewController.approveReview)
-
-    let removeReviewController = RemoveReviewController()
-    app.post("remove-review", use: removeReviewController.removeReview)
+    let reviewsController = ReviewsController(localStorage: localStorage, reviewsStorage: reviewsStorage)
+    app.get("reviews", use: reviewsController.get)
+    app.post("add-review", use: reviewsController.addReview)
+    app.post("approve-review", use: reviewsController.approveReview)
+    app.post("remove-review", use: reviewsController.removeReview)
 
     let basketController = BasketController()
     app.post("add-product", use: basketController.addProduct)
