@@ -1,5 +1,5 @@
 //
-//  GetProductController.swift
+//  ProductController.swift
 //  
 //
 //  Created by Artem Mayer on 18.02.2023.
@@ -7,25 +7,18 @@
 
 import Vapor
 
-// MARK: - GetProductController
+// MARK: - ProductController
 
-class GetProductController {
-
-    // MARK: - Functions
+final class ProductController {
 
     func get(_ req: Request) throws -> EventLoopFuture<GetProductResponse> {
-        guard
-            let body = try? req.query.decode(GetProductRequest.self)
-        else {
+        guard let body = try? req.query.decode(GetProductRequest.self) else {
             throw Abort(.badRequest)
         }
 
         print(body)
 
-        guard
-            body.product_id > 0,
-            let detailedProduct = MockDetailedProducts.shared.products[body.product_id]
-        else {
+        guard body.product_id > 0, let detailedProduct = MockDetailedProducts.shared.products[body.product_id] else {
             let response = GetProductResponse(result: 0, error_message: "Товар не найден. Неверный id!")
             return req.eventLoop.future(response)
         }
@@ -34,4 +27,5 @@ class GetProductController {
 
         return req.eventLoop.future(response)
     }
+    
 }

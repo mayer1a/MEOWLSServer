@@ -6,11 +6,12 @@
 //
 
 import Vapor
+import Fluent
 
 // MARK: - Gender
 
 enum Gender: String, Content {
-    case man = "Мужской"
-    case woman = "Женский"
-    case indeterminate = "Другой"
+    case man
+    case woman
+    case indeterminate
 }

@@ -9,24 +9,16 @@ import Vapor
 
 // MARK: - SignUpController
 
-class SignUpController {
+final class SignUpController {
 
-    // MARK: - Properties
+    private let localStorage: LocalStorage
 
-    let localStorage: LocalStorage
-
-    // MARK: - Constructions
-
-    required init(localStorage: LocalStorage) {
+    init(localStorage: LocalStorage) {
         self.localStorage = localStorage
     }
 
-    // MARK: - Functions
-
     func signUp(_ req: Request) throws -> EventLoopFuture<SignUpResponse> {
-        guard
-            let requestUserData = try? req.content.decode(SignUpRequest.self)
-        else {
+        guard let requestUserData = try? req.content.decode(SignUpRequest.self) else {
             throw Abort(.badRequest)
         }
 
@@ -43,4 +35,5 @@ class SignUpController {
 
         return req.eventLoop.future(response)
     }
+    
 }

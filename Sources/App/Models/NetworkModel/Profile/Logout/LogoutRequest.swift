@@ -10,5 +10,5 @@ import Vapor
 // MARK: - LogoutRequest
 
 struct LogoutRequest: Content {
-    var user_id: Int
+    var user_id: UUID
 }

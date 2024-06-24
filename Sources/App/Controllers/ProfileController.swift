@@ -1,5 +1,5 @@
 //
-//  EditProfileController.swift
+//  ProfileController.swift
 //
 //
 //  Created by Artem Mayer on 18.02.2023.
@@ -9,24 +9,16 @@ import Vapor
 
 // MARK: - EditProfileController
 
-class EditProfileController {
+final class ProfileController {
 
-    // MARK: - Properties
+    private let localStorage: LocalStorage
 
-    let localStorage: LocalStorage
-
-    // MARK: - Constructions
-
-    required init(localStorage: LocalStorage) {
+    init(localStorage: LocalStorage) {
         self.localStorage = localStorage
     }
 
-    // MARK: - Functions
-
     func edit(_ req: Request) throws -> EventLoopFuture<EditProfileResponse> {
-        guard
-            let requestUserModel = try? req.content.decode(EditProfileRequest.self)
-        else {
+        guard let requestUserModel = try? req.content.decode(EditProfileRequest.self) else {
             throw Abort(.badRequest)
         }
 
@@ -44,4 +36,5 @@ class EditProfileController {
 
         return req.eventLoop.future(response)
     }
+
 }

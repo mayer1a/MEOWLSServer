@@ -12,15 +12,16 @@ final class LocalStorage {
     // MARK: - Constructions
 
     init() {
-        let initialAdminUser = SignUpRequest(
-            name: "Admin",
-            lastname: "Admin",
-            username: "adminadmin",
-            password: "Password0000",
-            email: "adminadmin@adm.in",
-            gender: .indeterminate,
-            credit_card: "0000000000000000",
-            bio: "I'm an admin person")
+        let initialAdminUser = SignUpRequest(surname: nil, name: "Artem", patronymic: nil, birthday: nil, gender: .man, email: "m1a@gmail.com", phone: nil, password: "abcdef1", confirm_password: "abcdef1", credit_card: nil)
+//        SignUpRequest(
+//            name: "Admin",
+//            lastname: "Admin",
+//            username: "adminadmin",
+//            password: "Password0000",
+//            email: "adminadmin@adm.in",
+//            gender: .indeterminate,
+//            credit_card: "0000000000000000",
+//            bio: "I'm an admin person")
 
         create(user: initialAdminUser)
 
@@ -34,16 +35,16 @@ final class LocalStorage {
 
     // MARK: - Functions
 
-    func getExistsUserId(email key: String, password value: String) -> Int? {
+    func getExistsUserId(email key: String, password value: String) -> UUID? {
         hashedStorage.getExistsUserId(key: key, value: value)
     }
 
-    func userIsAdmin(userId: Int) -> Bool {
+    func userIsAdmin(userId: UUID) -> Bool {
         adminsStorage.isAdminExists(with: userId)
     }
 
     @discardableResult
-    func create(user: SignUpRequest) -> Int? {
+    func create(user: SignUpRequest) -> UUID? {
         guard
             !users.contains(where: { $0 == user }),
             hashedStorage.getExistsUserId(key: user.email, value: user.password) == nil
@@ -60,8 +61,8 @@ final class LocalStorage {
         return id
     }
 
-    func read(by userId: Int) -> User? {
-        users.first(where: { $0.user_id == userId })
+    func read(by userId: UUID) -> User? {
+        users.first(where: { $0.id == userId })
     }
 
     @discardableResult
@@ -72,17 +73,17 @@ final class LocalStorage {
             guard isSuccess else { return false }
         }
 
-        guard let email = updateEmail(of: existsUser.element.email, with: user.email) else { return false }
+        guard let newEmail = user.email, let email = updateEmail(of: existsUser.element.email, with: newEmail) else { return false }
 
         let newRawUser = RawUpdateUserModel()
-        newRawUser.name = !user.name.isEmpty ? user.name : existsUser.element.name
-        newRawUser.lastname = !user.lastname.isEmpty ? user.lastname : existsUser.element.lastname
-        newRawUser.username = !user.username.isEmpty ? user.username : existsUser.element.username
-        newRawUser.bio = !user.bio.isEmpty ? user.bio : existsUser.element.bio
-        newRawUser.credit_card = !user.credit_card.isEmpty ? user.credit_card : existsUser.element.credit_card
-        newRawUser.gender = user.gender
-        newRawUser.email = email
-        newRawUser.user_id = existsUser.element.user_id
+//        newRawUser.name = !user.name.isEmpty ? user.name : existsUser.element.name
+//        newRawUser.lastname = !user.lastname.isEmpty ? user.lastname : existsUser.element.lastname
+//        newRawUser.username = !user.username.isEmpty ? user.username : existsUser.element.username
+//        newRawUser.bio = !user.bio.isEmpty ? user.bio : existsUser.element.bio
+//        newRawUser.credit_card = !user.credit_card.isEmpty ? user.credit_card : existsUser.element.credit_card
+//        newRawUser.gender = user.gender
+//        newRawUser.email = email
+//        newRawUser.user_id = existsUser.element.user_id
 
         users[existsUser.offset] = modelFactory.construct(from: newRawUser)
 
@@ -93,7 +94,7 @@ final class LocalStorage {
     func delete(by email: String, password: String) -> Bool {
         guard
             let userId = hashedStorage.getExistsUserId(key: email, value: password),
-            let userIndex = users.enumerated().first(where: { $0.element.user_id == userId })?.offset
+            let userIndex = users.enumerated().first(where: { $0.element.id == userId })?.offset
         else {
             return false
         }
@@ -108,7 +109,7 @@ final class LocalStorage {
     func deleteAll(removerEmail: String, removerPassword: String) {
         guard
             let userId = hashedStorage.getExistsUserId(key: removerEmail, value: removerPassword),
-            users.contains(where: { $0.user_id == userId }),
+            users.contains(where: { $0.id == userId }),
             adminsStorage.isAdminExists(with: userId)
         else {
             return
@@ -116,21 +117,22 @@ final class LocalStorage {
 
         hashedStorage.deleteAll()
         users.removeAll { user in
-            guard user.user_id != userId else { return false }
-
-            adminsStorage.deleteAdmin(removerId: userId, removeId: user.user_id)
+            guard user.id != userId else { return false }
+            if let id = user.id {
+                adminsStorage.deleteAdmin(removerId: userId, removeId: id)
+            }
             return true
         }
         hashedStorage.create(key: removerEmail, value: removerPassword, relatedId: userId)
     }
 
     @discardableResult
-    func addAdmin(userId: Int) -> Bool {
+    func addAdmin(userId: UUID) -> Bool {
         adminsStorage.addAdmin(with: userId)
     }
 
     @discardableResult
-    func deleteAdmin(removerId: Int, removeId: Int) -> Bool {
+    func deleteAdmin(removerId: UUID, removeId: UUID) -> Bool {
         adminsStorage.deleteAdmin(removerId: removerId, removeId: removeId)
     }
 
@@ -139,15 +141,11 @@ final class LocalStorage {
     private let hashedStorage = HashedStorage()
     private let modelFactory = UserModelFactory()
     private let adminsStorage = AdminsStorage()
-    private var last_used_id: Int = 99
+    private var last_used_id: UUID = .init()
     private var users: [User] = []
 
-    private var next_id: Int {
-        get {
-            last_used_id += 1
-            return last_used_id
-        }
-
+    private var next_id: UUID {
+        last_used_id
     }
 
     // MARK: - Private functions
@@ -165,9 +163,9 @@ final class LocalStorage {
     }
 
     @discardableResult
-    private func updateEmail(of oldEmail: String, with newEmail: String) -> String? {
+    private func updateEmail(of oldEmail: String?, with newEmail: String) -> String? {
         if !newEmail.isEmpty, oldEmail != newEmail {
-            let isSuccess = hashedStorage.updateEmail(key: oldEmail, with: newEmail)
+            let isSuccess = hashedStorage.updateEmail(key: oldEmail ?? "", with: newEmail)
 
             guard isSuccess else { return nil }
 
@@ -178,7 +176,7 @@ final class LocalStorage {
     }
 }
 
-fileprivate typealias ID = Int
+fileprivate typealias ID = UUID
 
 private final class HashedStorage {
 
@@ -189,12 +187,12 @@ private final class HashedStorage {
 
     // MARK: - Functions
 
-    func create(key: String, value: String, relatedId: Int) {
+    func create(key: String, value: String, relatedId: UUID) {
         hashedValues.updateValue(value, forKey: key)
         emailIdPairs.updateValue(relatedId, forKey: key)
     }
 
-    func getExistsUserId(key: String, value: String) -> Int? {
+    func getExistsUserId(key: String, value: String) -> UUID? {
         guard hashedValues[key] == value else { return nil }
         return emailIdPairs[key]
     }
