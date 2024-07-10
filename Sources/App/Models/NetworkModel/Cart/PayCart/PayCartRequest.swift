@@ -1,5 +1,5 @@
 //
-//  PayBasketRequest.swift
+//  PayCartRequest.swift
 //  
 //
 //  Created by Artem Mayer on 29.03.2023.
@@ -7,8 +7,8 @@
 
 import Vapor
 
-// MARK: - PayBasketRequest
+// MARK: - PayCartRequest
 
-struct PayBasketRequest: Content {
+struct PayCartRequest: Content {
     var user_id: Int
 }

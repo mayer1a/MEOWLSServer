@@ -9,24 +9,16 @@ import Vapor
 
 // MARK: - LogoutController
 
-class LogoutController {
+final class LogoutController {
 
-    // MARK: - Properties
-
-    let localStorage: LocalStorage
-
-    // MARK: - Constructions
+    private let localStorage: LocalStorage
 
     init(localStorage: LocalStorage) {
         self.localStorage = localStorage
     }
 
-    // MARK: - Functions
-
     func logout(_ req: Request) throws -> EventLoopFuture<LogoutResponse> {
-        guard
-            let model = try? req.content.decode(LogoutRequest.self)
-        else {
+        guard let model = try? req.content.decode(LogoutRequest.self) else {
             throw Abort(.badRequest)
         }
 
@@ -43,4 +35,5 @@ class LogoutController {
 
         return req.eventLoop.future(response)
     }
+    
 }

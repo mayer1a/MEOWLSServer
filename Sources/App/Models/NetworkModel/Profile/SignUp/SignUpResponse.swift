@@ -11,6 +11,6 @@ import Vapor
 
 struct SignUpResponse: Content {
     var result: Int
-    var user_id: Int?
+    var user_id: UUID?
     var user_message: String
 }

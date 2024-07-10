@@ -11,19 +11,13 @@ import Vapor
 
 final class ReviewsController {
 
-    // MARK: - Properties
-
-    let localStorage: LocalStorage
-    let reviewsStorage: MockProductsReviews
-
-    // MARK: - Constructions
+    private let localStorage: LocalStorage
+    private let reviewsStorage: MockProductsReviews
 
     init(localStorage: LocalStorage, reviewsStorage: MockProductsReviews) {
         self.localStorage = localStorage
         self.reviewsStorage = reviewsStorage
     }
-
-    // MARK: - Functions
 
     func addReview(_ req: Request) throws -> EventLoopFuture<AddReviewResponse> {
         guard let model = try? req.content.decode(AddReviewRequest.self) else {
@@ -37,20 +31,24 @@ final class ReviewsController {
         var isUserExists = true
 
         if let userId = model.user_id {
-            isUserExists = localStorage.read(by: userId) != nil
+//            isUserExists = localStorage.read(by: userId) != nil
         }
 
         var response: AddReviewResponse
 
         if isProductExists, isUserExists, !isReviewExists {
             let reviewId = reviewsStorage.addReview(model)
-            response = AddReviewResponse(result: 1, user_message: "Ваш отзыв c идентификатором \"\(reviewId)\" был передан на модерацию")
+            response = AddReviewResponse(result: 1,
+                                         user_message: "Ваш отзыв c идентификатором \"\(reviewId)\" был передан на модерацию")
         } else if !isProductExists {
-            response = AddReviewResponse(result: 0, user_message: "Товара с указанным id не существует!")
+            response = AddReviewResponse(result: 0,
+                                         user_message: "Товара с указанным id не существует!")
         } else if !isUserExists {
-            response = AddReviewResponse(result: 0, user_message: "Пользователя с указанным id не существует!")
+            response = AddReviewResponse(result: 0,
+                                         user_message: "Пользователя с указанным id не существует!")
         } else {
-            response = AddReviewResponse(result: 0, user_message: "Данный отзыв уже существует!")
+            response = AddReviewResponse(result: 0,
+                                         user_message: "Данный отзыв уже существует!")
         }
 
         return req.eventLoop.future(response)
@@ -64,7 +62,7 @@ final class ReviewsController {
         print(model)
 
         let isReviewExists = reviewsStorage.isReviewExists(id: model.review_id)
-        let isAdminUser = LocalStorage().userIsAdmin(userId: model.user_id)
+        let isAdminUser = false//LocalStorage().userIsAdmin(userId: model.user_id)
         var response: ApproveReviewResponse
 
         if isReviewExists, isAdminUser {
@@ -86,7 +84,7 @@ final class ReviewsController {
         print(model)
 
         let isReviewExists = reviewsStorage.isReviewExists(id: model.review_id)
-        let isAdminUser = LocalStorage().userIsAdmin(userId: model.user_id)
+        let isAdminUser = false//LocalStorage().userIsAdmin(userId: model.user_id)
         var response: RemoveReviewResponse
 
         if isReviewExists, isAdminUser {
@@ -155,4 +153,5 @@ final class ReviewsController {
 
         return req.eventLoop.future(response)
     }
+    
 }

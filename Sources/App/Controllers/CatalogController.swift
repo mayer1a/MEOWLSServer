@@ -1,5 +1,5 @@
 //
-//  GetCatalogController.swift
+//  CatalogController.swift
 //
 //
 //  Created by Artem Mayer on 18.02.2023.
@@ -7,16 +7,17 @@
 
 import Vapor
 
-// MARK: - GetCatalogController
+// MARK: - CatalogController
 
-class GetCatalogController {
+final class CatalogController: RouteCollection {
 
-    // MARK: - Functions
+    func boot(routes: RoutesBuilder) throws {
+        let builder = routes.grouped("catalog")
+        builder.get(use: getCatalog)
+    }
 
-    func get(_ req: Request) throws -> EventLoopFuture<GetCatalogResponse> {
-        guard
-            let body = try? req.query.decode(GetCatalogRequest.self)
-        else {
+    private func getCatalog(_ req: Request) throws -> EventLoopFuture<GetCatalogResponse> {
+        guard let body = try? req.query.decode(GetCatalogRequest.self) else {
             throw Abort(.badRequest)
         }
 
@@ -58,4 +59,5 @@ class GetCatalogController {
 
         return req.eventLoop.future(response)
     }
+    
 }

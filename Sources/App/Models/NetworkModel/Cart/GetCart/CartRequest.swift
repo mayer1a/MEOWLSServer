@@ -1,5 +1,5 @@
 //
-//  GetBasketRequest.swift
+//  CartRequest.swift
 //  
 //
 //  Created by Artem Mayer on 30.03.2023.
@@ -7,9 +7,9 @@
 
 import Vapor
 
-// MARK: - GetBasketRequest
+// MARK: - CartRequest
 
-struct GetBasketRequest: Content {
+struct CartRequest: Content {
     var user_id: Int
 }
 

@@ -1,5 +1,5 @@
 //
-//  Basket.swift
+//  Cart.swift
 //  
 //
 //  Created by Artem Mayer on 30.03.2023.
@@ -9,8 +9,8 @@ import Vapor
 
 // MARK: - Basket
 
-struct Basket: Content {
+struct Cart: Content {
     var amount: Int
     var products_quantity: Int
-    var products: [BasketElement]
+    var products: [CartItem]
 }

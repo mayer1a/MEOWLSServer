@@ -10,14 +10,16 @@ import Vapor
 // MARK: - EditProfileRequest
 
 struct EditProfileRequest: Content {
-    var user_id: Int
-    var name: String
-    var lastname: String
-    var username: String
+    
+    var id: UUID
+    var surname: String?
+    var name: String?
+    var patronymic: String?
+    var birthday: Date?
+    var gender: Gender?
     var old_password: String?
     var new_password: String?
-    var email: String
-    var gender: Gender
-    var credit_card: String
-    var bio: String
+    var email: String?
+    var credit_card: String?
+    
 }

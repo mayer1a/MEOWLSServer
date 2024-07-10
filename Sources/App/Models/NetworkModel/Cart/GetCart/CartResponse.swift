@@ -1,5 +1,5 @@
 //
-//  GetBasketResponse.swift
+//  CartResponse.swift
 //  
 //
 //  Created by Artem Mayer on 30.03.2023.
@@ -7,10 +7,10 @@
 
 import Vapor
 
-// MARK: - GetBasketResponse
+// MARK: - CartResponse
 
-struct GetBasketResponse: Content {
+struct CartResponse: Content {
     var result: Int
-    var basket: Basket?
+    var cart: Cart?
     var error_message: String?
 }
