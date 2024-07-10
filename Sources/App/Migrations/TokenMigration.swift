@@ -5,7 +5,6 @@
 //  Created by Artem Mayer on 21.06.2024.
 //
 
-import Vapor
 import Fluent
 
 struct TokenMigration: AsyncMigration {
@@ -16,6 +15,7 @@ struct TokenMigration: AsyncMigration {
             .field("value", .string, .required)
             .field("expired", .date)
             .field("userID", .uuid, .required, .references("users", "id", onDelete: .cascade))
+            .unique(on: "value")
             .create()
     }
 
