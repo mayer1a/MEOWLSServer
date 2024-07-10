@@ -32,7 +32,5 @@ let package = Package(
 )
 
 var swiftSettings: [SwiftSetting] {
-    [
-        .enableUpcomingFeature("DisableOutwardActorInference")
-    ]
+    [.enableUpcomingFeature("DisableOutwardActorInference")]
 }

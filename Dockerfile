@@ -7,9 +7,9 @@ RUN echo "[ BUILD IMAGE ]"
 
 # Install OS updates and, if needed, sqlite3
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-  && apt-get -q update \
-  && apt-get -q dist-upgrade -y \
-  && apt-get install -y libjemalloc-dev
+    && apt-get -q update \
+    && apt-get -q dist-upgrade -y \
+    && apt-get install -y libjemalloc-dev
 
 # Set up a build area
 WORKDIR /build
@@ -50,10 +50,10 @@ RUN echo "[ RUN IMAGE ]"
 
 # Make sure all system packages are up to date, and install only essential packages.
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-  && apt-get -q update \
-  && apt-get -q dist-upgrade -y \
-  && apt-get -q install -y libjemalloc2 ca-certificates tzdata \
-  && rm -r /var/lib/apt/lists/*
+    && apt-get -q update \
+    && apt-get -q dist-upgrade -y \
+    && apt-get -q install -y libjemalloc2 ca-certificates tzdata \
+    && rm -r /var/lib/apt/lists/*
 
 # Create a vapor user and group with /app as its home directory
 RUN useradd --user-group --create-home --system --skel /dev/null --home-dir /app vapor
