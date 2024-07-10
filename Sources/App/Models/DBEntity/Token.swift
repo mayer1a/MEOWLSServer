@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Token.swift
 //  
 //
 //  Created by Artem Mayer on 21.06.2024.
@@ -40,21 +40,18 @@ extension Token {
 
     static func generate(for user: User) throws -> Token {
         let value = [UInt8].random(count: 32).base64
-        print("[USER ID REQUIRED] \(try user.requireID())")
         return try Token(value: value, expired: Date.now + tokenLifeTime, userID: user.requireID())
     }
 
 }
 
-extension Token: ModelTokenAuthenticatable {
-
-    typealias User = App.User
+extension Token: ModelCustomTokenAuthenticatable {
 
     static let valueKey = \Token.$value
     static let userKey = \Token.$user
 
     var isValid: Bool {
-        true
+        Date.now < expired
     }
 
 }

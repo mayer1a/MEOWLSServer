@@ -69,9 +69,9 @@ final class LocalStorage {
     func update(user: EditProfileRequest) -> Bool {
         guard let existsUser = users.enumerated().first(where: { $0.element == user }) else { return false }
 
-        if let isSuccess = updatePassword(key: existsUser.element.email, of: user.old_password, with: user.new_password) {
-            guard isSuccess else { return false }
-        }
+//        if let isSuccess = updatePassword(key: existsUser.element.email, of: user.old_password, with: user.new_password) {
+//            guard isSuccess else { return false }
+//        }
 
         guard let newEmail = user.email, let email = updateEmail(of: existsUser.element.email, with: newEmail) else { return false }
 

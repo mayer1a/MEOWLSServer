@@ -12,7 +12,7 @@ struct UserModelFactory {
     // MARK: - Functions
 
     func construct(from user: SignUpRequest, with id: UUID) -> User {
-        User(id: .init(), surname: "", name: "", patronymic: "", birthday: nil, gender: nil, email: "", password: "", phone: nil, credit_card: "")
+        User(id: .init(), surname: "", name: "", patronymic: "", birthday: nil, gender: nil, email: nil, passwordHash: "", phone: "", role: .user)
 //        User(
 //            user_id: id,
 //            name: user.name,
@@ -25,6 +25,6 @@ struct UserModelFactory {
     }
 
     func construct(from user: RawUpdateUserModel) -> User {
-        User(id: .init(), surname: "", name: "", patronymic: "", birthday: nil, gender: nil, email: "", password: "", phone: nil, credit_card: "")
+        User(id: .init(), surname: "", name: "", patronymic: "", birthday: nil, gender: nil, email: nil, passwordHash: "", phone: "", role: .user)
     }
 }

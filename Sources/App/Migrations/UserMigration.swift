@@ -1,17 +1,17 @@
 //
-//  CreateUserMigration.swift
+//  UserMigration.swift
 //
 //
 //  Created by Artem Mayer on 21.06.2024.
 //
 
-import Vapor
 import Fluent
 
-struct CreateUserMigration: AsyncMigration {
+struct UserMigration: AsyncMigration {
 
     func prepare(on database: Database) async throws {
         let gender = try await database.enum("Gender").read()
+        let role = try await database.enum("Role").read()
         try await database.schema("users")
             .id()
             .field("surname", .string)
@@ -19,10 +19,10 @@ struct CreateUserMigration: AsyncMigration {
             .field("patronymic", .string)
             .field("birthday", .date)
             .field("gender", gender)
-            .field("email", .string, .required)
-            .field("password", .string, .required)
-            .field("phone", .string)
-            .field("credit_card", .string)
+            .field("email", .string)
+            .field("passwordHash", .string, .required)
+            .field("phone", .string, .required)
+            .field("role", role, .required)
             .unique(on: "email")
             .unique(on: "phone")
             .create()

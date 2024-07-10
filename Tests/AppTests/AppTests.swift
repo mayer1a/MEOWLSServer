@@ -7,7 +7,7 @@ final class AppTests: XCTestCase {
 
     override func setUp() async throws {
         self.app = try await Application.make(.testing)
-        try await configure(app)
+        try await Configuration.configure(app)
     }
 
     override func tearDown() async throws {

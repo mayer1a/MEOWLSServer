@@ -1,14 +1,13 @@
 //
-//  CreateGenderMigration.swift
+//  GenderMigration.swift
 //
 //
 //  Created by Artem Mayer on 21.06.2024.
 //
 
-import Vapor
 import Fluent
 
-struct CreateGenderMigration: AsyncMigration {
+struct GenderMigration: AsyncMigration {
 
     func prepare(on database: Database) async throws {
         _ = try await database.enum("Gender")

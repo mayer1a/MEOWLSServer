@@ -6,9 +6,6 @@
 //
 
 import Vapor
-import Fluent
-
-// MARK: - Gender
 
 enum Gender: String, Content {
     case man
