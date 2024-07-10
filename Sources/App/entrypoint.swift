@@ -20,7 +20,7 @@ enum Entrypoint {
         app.middleware.use(CustomErrorMiddleware())
 
         do {
-            try await configure(app)
+            try await Configuration.configure(app)
         } catch {
             app.logger.report(error: error)
             try? await app.asyncShutdown()

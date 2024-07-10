@@ -9,60 +9,61 @@ import Fluent
 import FluentPostgresDriver
 import Vapor
 
-// MARK: - Configures application
+// MARK: - Configure application
 
-public func configure(_ app: Application) async throws {
-    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+struct Configuration {
 
-    setupLogger(for: app)
+    public static func configure(_ app: Application) async throws {
+        app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
-    try await connectDatabase(for: app)
-    try await setupMigrations(for: app)
+        setupLogger(for: app)
 
-    app.routes.defaultMaxBodySize = "500kb"
+        try await connectDatabase(for: app)
+        try await setupMigrations(for: app)
 
-    try registerRoutes(for: app)
-}
+        app.routes.defaultMaxBodySize = "500kb"
 
-private func connectDatabase(for app: Application) async throws {
-    guard
-        let hostname = Environment.get("DATABASE_HOST"),
-        let username = Environment.get("DATABASE_USERNAME"),
-        let password = Environment.get("DATABASE_PASSWORD"),
-        let name = Environment.get("DATABASE_NAME")
-    else {
-        debugPrint("[ERROR] ENVIRONMENTS DOES NOT FOUND")
-        throw Abort(.serviceUnavailable)
+        try RegisterRoutes.register(for: app)
     }
-    print("\n\n------------------------------------------------------------------------------")
-    print("[DATABASE_HOST]: \(hostname)")
-    print("[DATABASE_USERNAME]: \(username)")
-    print("[DATABASE_PASSWORD]: \(password)")
-    print("[DATABASE_NAME]: \(name)")
-    print("------------------------------------------------------------------------------\n\n")
-    let sqlConfig = SQLPostgresConfiguration(hostname: hostname,
-                                             port: SQLPostgresConfiguration.ianaPortNumber,
-                                             username: username,
-                                             password: password,
-                                             database: name,
-                                             tls: .disable)
 
-    app.databases.use(.postgres(configuration: sqlConfig), as: .psql, isDefault: true)
-}
+    private static func connectDatabase(for app: Application) async throws {
+        guard
+            let hostname = Environment.get("DATABASE_HOST"),
+            let username = Environment.get("DATABASE_USERNAME"),
+            let password = Environment.get("DATABASE_PASSWORD"),
+            let name = Environment.get("DATABASE_NAME")
+        else {
+            debugPrint("[ERROR] ENVIRONMENTS DOES NOT FOUND")
+            throw Abort(.serviceUnavailable)
+        }
+        
+        let sqlConfig = SQLPostgresConfiguration(hostname: hostname,
+                                                 port: SQLPostgresConfiguration.ianaPortNumber,
+                                                 username: username,
+                                                 password: password,
+                                                 database: name,
+                                                 tls: .disable)
 
-private func setupLogger(for app: Application) {
-    #if DEBUG
-        app.logger.logLevel = .debug
-    #else
-        app.logger.logLevel = .notice
-    #endif
-}
+        app.databases.use(.postgres(configuration: sqlConfig), as: .psql, isDefault: true)
+    }
 
-private func setupMigrations(for app: Application) async throws {
-    app.migrations.add(GenderMigration())
-    app.migrations.add(UserRoleMigration())
-    app.migrations.add(UserMigration())
-    app.migrations.add(TokenMigration())
+    private static func setupLogger(for app: Application) {
+        #if DEBUG
+            app.logger.logLevel = .debug
+        #else
+            app.logger.logLevel = .notice
+        #endif
+    }
 
-    try await app.autoMigrate()
+    private static func setupMigrations(for app: Application) async throws {
+        app.migrations.add(GenderMigration())
+        app.migrations.add(UserRoleMigration())
+        app.migrations.add(UserMigration())
+        app.migrations.add(TokenMigration())
+
+        try await app.autoMigrate()
+    }
+
+    private init() {}
+
 }
