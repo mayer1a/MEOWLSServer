@@ -14,61 +14,66 @@
 # Run migrations: docker-compose run migrate
 #       Stop all: docker-compose down (add -v to wipe db)
 #
-version: '3.7'
 
 volumes:
-  db_data:
+  postgres_data:
 
 x-shared_environment: &shared_environment
   LOG_LEVEL: ${LOG_LEVEL:-debug}
-  DATABASE_HOST: db
-  DATABASE_NAME: vapor_database
-  DATABASE_USERNAME: vapor_username
-  DATABASE_PASSWORD: vapor_password
-  
+  DATABASE_HOST: postgres
+  DATABASE_NAME: MEOWLS
+  DATABASE_USERNAME: meowls_username
+  DATABASE_PASSWORD: meowls_1234567890_password
+  DATABASE_PORT: 5432
+
 services:
   app:
-    image: g-b-shop-server:latest
+    image: mayer1a/gbshopserver:latest
+    container_name: app
+    restart: always
     build:
       context: .
     environment:
       <<: *shared_environment
     depends_on:
-      - db
+      - postgres
     ports:
       - '8080:8080'
-    # user: '0' # uncomment to run as root for testing purposes even though Dockerfile defines 'vapor' user.
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8080"]
   migrate:
-    image: g-b-shop-server:latest
+    image: mayer1a/gbshopserver:latest
     build:
       context: .
     environment:
       <<: *shared_environment
     depends_on:
-      - db
+      - postgres
     command: ["migrate", "--yes"]
     deploy:
       replicas: 0
   revert:
-    image: g-b-shop-server:latest
+    image: mayer1a/gbshopserver:latest
     build:
       context: .
     environment:
       <<: *shared_environment
     depends_on:
-      - db
+      - postgres
     command: ["migrate", "--revert", "--yes"]
     deploy:
       replicas: 0
-  db:
-    image: postgres:14-alpine
+  postgres:
+    restart: unless-stopped
+    image: mayer1a/gbshoppostgres:16-alpine
+    container_name: postgres
     volumes:
-      - db_data:/var/lib/postgresql/data/pgdata
+      - postgres_data:/var/lib/postgresql/data
     environment:
-      PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_USER: vapor_username
-      POSTGRES_PASSWORD: vapor_password
-      POSTGRES_DB: vapor_database
+      POSTGRES_DB: MEOWLS
+      POSTGRES_PASSWORD: meowls_1234567890_password
+      POSTGRES_USER: meowls_username
+      POSTGRES_HOST: localhost
     ports:
       - '5432:5432'
