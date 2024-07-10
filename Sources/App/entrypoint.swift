@@ -1,3 +1,10 @@
+//
+//  Entrypoint.swift
+//
+//
+//  Created by Artem Mayer on 26.06.2024.
+//
+
 import Vapor
 import Logging
 
@@ -6,9 +13,11 @@ enum Entrypoint {
 
     static func main() async throws {
         var env = try Environment.detect()
+
         try LoggingSystem.bootstrap(from: &env)
 
         let app = try await Application.make(env)
+        app.middleware.use(CustomErrorMiddleware())
 
         do {
             try await configure(app)
