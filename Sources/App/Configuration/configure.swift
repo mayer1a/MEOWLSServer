@@ -60,9 +60,15 @@ struct Configuration {
         app.migrations.add(UserRoleMigration())
         app.migrations.add(UserMigration())
         app.migrations.add(TokenMigration())
+        addImageMigrations(for: app)
         addProductMigrations(for: app)
 
         try await app.autoMigrate()
+    }
+
+    private static func addImageMigrations(for app: Application) {
+        app.migrations.add(CreateImage())
+        app.migrations.add(CreateImageDimension())
     }
 
     private static func addProductMigrations(for app: Application) {
@@ -77,6 +83,7 @@ struct Configuration {
         app.migrations.add(CreateSectionType())
         app.migrations.add(CreateSection())
     }
+
     private init() {}
 
 }
