@@ -1,5 +1,5 @@
 //
-//  GenderMigration.swift
+//  CreateGender.swift
 //
 //
 //  Created by Artem Mayer on 21.06.2024.
@@ -7,7 +7,7 @@
 
 import Fluent
 
-struct GenderMigration: AsyncMigration {
+struct CreateGender: AsyncMigration {
 
     func prepare(on database: Database) async throws {
         _ = try await database.enum("Gender")

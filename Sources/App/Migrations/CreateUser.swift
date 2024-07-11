@@ -1,5 +1,5 @@
 //
-//  UserMigration.swift
+//  CreateUser.swift
 //
 //
 //  Created by Artem Mayer on 21.06.2024.
@@ -7,7 +7,7 @@
 
 import Fluent
 
-struct UserMigration: AsyncMigration {
+struct CreateUser: AsyncMigration {
 
     func prepare(on database: Database) async throws {
         let gender = try await database.enum("Gender").read()

@@ -56,15 +56,19 @@ struct Configuration {
     }
 
     private static func setupMigrations(for app: Application) async throws {
-        app.migrations.add(GenderMigration())
-        app.migrations.add(UserRoleMigration())
-        app.migrations.add(UserMigration())
-        app.migrations.add(TokenMigration())
+        addUserMigrations(for: app)
         addImageMigrations(for: app)
         addCategoryMigrations(for: app)
         addProductMigrations(for: app)
 
         try await app.autoMigrate()
+    }
+
+    private static func addUserMigrations(for app: Application) {
+        app.migrations.add(CreateGender())
+        app.migrations.add(CreateUserRole())
+        app.migrations.add(CreateUser())
+        app.migrations.add(CreateToken())
     }
 
     private static func addImageMigrations(for app: Application) {

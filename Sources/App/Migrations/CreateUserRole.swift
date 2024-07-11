@@ -1,13 +1,13 @@
 //
-//  UserRoleMigration.swift
-//  
+//  CreateUserRole.swift
+//
 //
 //  Created by Artem Mayer on 29.06.2024.
 //
 
 import Fluent
 
-struct UserRoleMigration: AsyncMigration {
+struct CreateUserRole: AsyncMigration {
 
     func prepare(on database: Database) async throws {
         _ = try await database.enum("Role")

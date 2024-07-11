@@ -1,5 +1,5 @@
 //
-//  TokenMigration.swift
+//  CreateToken.swift
 //  
 //
 //  Created by Artem Mayer on 21.06.2024.
@@ -7,7 +7,7 @@
 
 import Fluent
 
-struct TokenMigration: AsyncMigration {
+struct CreateToken: AsyncMigration {
 
     func prepare(on database: Database) async throws {
         try await database.schema("tokens")
