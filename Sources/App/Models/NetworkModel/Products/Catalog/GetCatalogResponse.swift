@@ -11,7 +11,7 @@ import Vapor
 
 struct GetCatalogResponse: Content {
     var result: Int
-    var products: [Product]?
+    var products: [_Product]?
     var next_page: Int?
     var error_message: String?
 }

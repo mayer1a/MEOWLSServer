@@ -10,6 +10,6 @@ import Vapor
 // MARK: - CartItem
 
 struct CartItem: Content {
-    var product: Product
+    var product: _Product
     var quantity: Int
 }

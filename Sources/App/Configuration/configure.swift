@@ -60,10 +60,23 @@ struct Configuration {
         app.migrations.add(UserRoleMigration())
         app.migrations.add(UserMigration())
         app.migrations.add(TokenMigration())
+        addProductMigrations(for: app)
 
         try await app.autoMigrate()
     }
 
+    private static func addProductMigrations(for app: Application) {
+        app.migrations.add(CreateProduct())
+        app.migrations.add(CreateProductProperty())
+        app.migrations.add(CreateProductVariant())
+        app.migrations.add(CreatePropertyValue())
+        app.migrations.add(CreatePrice())
+        app.migrations.add(CreateBadge())
+        app.migrations.add(CreateAvailabilityType())
+        app.migrations.add(CreateAvailabilityInfo())
+        app.migrations.add(CreateSectionType())
+        app.migrations.add(CreateSection())
+    }
     private init() {}
 
 }
