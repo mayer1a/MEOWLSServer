@@ -61,6 +61,7 @@ struct Configuration {
         app.migrations.add(UserMigration())
         app.migrations.add(TokenMigration())
         addImageMigrations(for: app)
+        addCategoryMigrations(for: app)
         addProductMigrations(for: app)
 
         try await app.autoMigrate()
@@ -69,6 +70,10 @@ struct Configuration {
     private static func addImageMigrations(for app: Application) {
         app.migrations.add(CreateImage())
         app.migrations.add(CreateImageDimension())
+    }
+
+    private static func addCategoryMigrations(for app: Application) {
+        app.migrations.add(CreateCategory())
     }
 
     private static func addProductMigrations(for app: Application) {
@@ -82,6 +87,13 @@ struct Configuration {
         app.migrations.add(CreateAvailabilityInfo())
         app.migrations.add(CreateSectionType())
         app.migrations.add(CreateSection())
+
+        addProductPivotMigrations(for: app)
+    }
+
+    private static func addProductPivotMigrations(for app: Application) {
+        app.migrations.add(CreateProductImagesPivot())
+        app.migrations.add(CreateProductVariantBadgePivot())
     }
 
     private init() {}
