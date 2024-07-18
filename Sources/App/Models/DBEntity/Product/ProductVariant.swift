@@ -33,27 +33,25 @@ final class ProductVariant: Model, Content, @unchecked Sendable {
     @Siblings(through: ProductVariantBadgePivot.self, from: \.$productVariant, to: \.$badge)
     var badges: [Badge]
 
-    @Field(key: "property_value_ids")
-    var propertyValueIDs: [Int]?
+    @Siblings(through: ProductVariantsPropertyValues.self, from: \.$productVariant, to: \.$propertyValue)
+    var propertyValues: [PropertyValue]
 
     enum CodingKeys: String, CodingKey {
-        case id
-        case article
+        case id, product, article
         case shortName = "short_name"
         case price
         case availabilityInfo = "availability_info"
         case badges
-        case propertyValueIDs = "property_value_ids"
+        case propertyValues = "property_values"
     }
 
     init() {}
 
-    init(id: UUID? = nil, productID: Product.IDValue, article: String, shortName: String, propertyValueIDs: [Int]?) {
+    init(id: UUID? = nil, productID: Product.IDValue, article: String, shortName: String) {
         self.id = id
         self.$product.id = productID
         self.article = article
         self.shortName = shortName
-        self.propertyValueIDs = propertyValueIDs
     }
 
 }

@@ -18,6 +18,7 @@ struct CreateProduct: AsyncMigration {
             .field("allow_quick_buy", .string, .required)
             .field("default_variant_article", .string)
             .field("delivery_conditions_url", .string)
+            .unique(on: "code")
             .create()
     }
 

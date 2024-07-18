@@ -13,9 +13,8 @@ struct CreatePropertyValue: AsyncMigration {
         try await database.schema("property_values")
             .id()
             .field("value", .string, .required)
-            .field("product_id", .uuid, .references("products", "id"))
             .field("product_property_id", .uuid, .required, .references("product_properties", "id", onDelete: .cascade))
-            .unique(on: "value")
+            .unique(on: "value", "product_property_id")
             .create()
     }
 

@@ -19,7 +19,10 @@ struct Configuration {
         setupLogger(for: app)
 
         try await connectDatabase(for: app)
-        try await setupMigrations(for: app)
+        
+        #if DEBUG
+            try await setupMigrations(for: app)
+        #endif
 
         app.routes.defaultMaxBodySize = "500kb"
 
@@ -71,13 +74,13 @@ struct Configuration {
         app.migrations.add(CreateToken())
     }
 
+    private static func addCategoryMigrations(for app: Application) {
+        app.migrations.add(CreateCategory())
+    }
+
     private static func addImageMigrations(for app: Application) {
         app.migrations.add(CreateImage())
         app.migrations.add(CreateImageDimension())
-    }
-
-    private static func addCategoryMigrations(for app: Application) {
-        app.migrations.add(CreateCategory())
     }
 
     private static func addProductMigrations(for app: Application) {
@@ -98,6 +101,7 @@ struct Configuration {
     private static func addProductPivotMigrations(for app: Application) {
         app.migrations.add(CreateProductImagesPivot())
         app.migrations.add(CreateProductVariantBadgePivot())
+        app.migrations.add(CreateProductVariantsPropertyValuesPivot())
     }
 
     private init() {}

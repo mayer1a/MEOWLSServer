@@ -12,6 +12,7 @@ struct CreateImage: AsyncMigration {
     func prepare(on database: Database) async throws {
         try await database.schema("images")
             .id()
+            .field("category_id", .uuid, .references("categories", "id", onDelete: .cascade))
             .field("small", .string)
             .field("medium", .string)
             .field("large", .string)

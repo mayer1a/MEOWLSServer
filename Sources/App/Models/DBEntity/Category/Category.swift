@@ -18,26 +18,28 @@ final class Category: Model, @unchecked Sendable {
     @Field(key: "code")
     var code: String
 
+    @Field(key: "name")
+    var name: String
+
     @OptionalParent(key: "parent_id")
     var parent: Category?
-
-    @Field(key: "count")
-    var count: Int
 
     @Children(for: \.$category)
     var products: [Product]
 
-    @Field(key: "child_categories")
-    var childCategories: [UUID]
+    @Children(for: \.$parent)
+    var childCategories: [Category]
+
+    @OptionalChild(for: \.$category)
+    var image: Image?
 
     init() {}
 
-    init(id: UUID? = nil, code: String, parent: Category.IDValue?, count: Int, childCategories: [UUID]) {
+    init(id: UUID? = nil, code: String, name: String, parent: Category.IDValue?) {
         self.id = id
         self.code = code
+        self.name = name
         self.$parent.id = parent
-        self.count = count
-        self.childCategories = childCategories
     }
 
 }

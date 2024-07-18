@@ -21,7 +21,7 @@ final class AvailabilityInfo: Model, Content, @unchecked Sendable {
     @Field(key: "type")
     var type: AvailabilityType
 
-    @Field(key: "delivery_duration")
+    @OptionalField(key: "delivery_duration")
     var deliveryDuration: Int?
 
     @Field(key: "count")

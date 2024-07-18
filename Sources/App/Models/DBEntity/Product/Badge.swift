@@ -21,7 +21,7 @@ final class Badge: Model, Content, @unchecked Sendable {
     @Field(key: "title")
     var title: String
 
-    @Field(key: "text")
+    @OptionalField(key: "text")
     var text: String?
 
     @Field(key: "background_color")

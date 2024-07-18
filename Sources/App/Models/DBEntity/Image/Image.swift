@@ -18,16 +18,19 @@ final class Image: Model, Content, @unchecked Sendable {
     @Siblings(through: ProductImagePivot.self, from: \.$image, to: \.$product)
     var products: [Product]
 
-    @Field(key: "small")
+    @OptionalParent(key: "category_id")
+    var category: Category?
+
+    @OptionalField(key: "small")
     var small: String?
 
-    @Field(key: "medium")
+    @OptionalField(key: "medium")
     var medium: String?
 
-    @Field(key: "large")
+    @OptionalField(key: "large")
     var large: String?
 
-    @Field(key: "original")
+    @OptionalField(key: "original")
     var original: String?
 
     @OptionalChild(for: \.$image)
@@ -36,12 +39,14 @@ final class Image: Model, Content, @unchecked Sendable {
     init() {}
 
     init(id: UUID? = nil,
+         categoryID: Category.IDValue?,
          small: String?,
          medium: String?,
          large: String?,
          original: String?) {
 
         self.id = id
+        self.$category.id = categoryID
         self.small = small
         self.medium = medium
         self.large = large

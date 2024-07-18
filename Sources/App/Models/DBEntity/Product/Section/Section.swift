@@ -27,7 +27,7 @@ final class Section: Model, Content, @unchecked Sendable {
     @Field(key: "text")
     var text: String
 
-    @Field(key: "link")
+    @OptionalField(key: "link")
     var link: String?
 
     init() {}

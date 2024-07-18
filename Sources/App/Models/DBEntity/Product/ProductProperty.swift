@@ -15,9 +15,6 @@ final class ProductProperty: Model, Content, @unchecked Sendable {
     @ID(key: .id)
     var id: UUID?
 
-    @Parent(key: "product_id")
-    var product: Product
-
     @Field(key: "name")
     var name: String
 
@@ -28,13 +25,12 @@ final class ProductProperty: Model, Content, @unchecked Sendable {
     var selectable: Bool
 
     @Children(for: \.$productProperty)
-    var propertyValueID: [PropertyValue]
+    var propertyValues: [PropertyValue]
 
     init() {}
     
-    init(id: UUID? = nil, productID: Product.IDValue, name: String, code: String, selectable: Bool) {
+    init(id: UUID? = nil, name: String, code: String, selectable: Bool) {
         self.id = id
-        self.$product.id = productID
         self.name = name
         self.code = code
         self.selectable = selectable

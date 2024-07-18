@@ -13,10 +13,9 @@ struct CreateCategory: AsyncMigration {
         try await database.schema("categories")
             .id()
             .field("code", .string, .required)
+            .field("name", .string, .required)
             .field("parent_id", .uuid, .references("categories", "id", onDelete: .cascade))
-            .field("count", .int, .required)
-            .field("childCategories", .array(of: .string), .required)
-            .unique(on: "code")
+            .unique(on: "parent_id", "code")
             .create()
     }
 

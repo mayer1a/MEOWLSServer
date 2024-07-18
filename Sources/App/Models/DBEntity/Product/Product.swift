@@ -33,26 +33,19 @@ final class Product: Model, Content, @unchecked Sendable {
     @Children(for: \.$product)
     var variants: [ProductVariant]
 
-    @Children(for: \.$product)
-    var properties: [ProductProperty]
-
-    @Children(for: \.$product)
-    var propertyValues: [PropertyValue]
-
-    @Field(key: "default_variant_article")
+    @OptionalField(key: "default_variant_article")
     var defaultVariantArticle: String?
 
-    @Field(key: "delivery_conditions_url")
+    @OptionalField(key: "delivery_conditions_url")
     var deliveryConditionsURL: String?
 
     @Children(for: \.$product)
     var sections: [Section]
 
     enum CodingKeys: String, CodingKey {
-        case id, name, code, images
+        case id, category, name, code, images
         case allowQuickBuy = "allow_quick_buy"
-        case price, badges, variants, properties
-        case propertyValues = "property_values"
+        case variants
         case defaultVariantArticle = "default_variant_article"
         case deliveryConditionsURL = "delivery_conditions_url"
         case sections
