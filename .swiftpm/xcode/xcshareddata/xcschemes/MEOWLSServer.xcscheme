@@ -63,10 +63,16 @@
             ReferencedContainer = "container:">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "migrate"
+            isEnabled = "NO">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "DATABASE_HOST"
-            value = "95.164.117.226"
+            value = "postgres.artemayer.ru"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable

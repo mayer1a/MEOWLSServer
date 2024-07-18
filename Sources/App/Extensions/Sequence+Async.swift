@@ -19,6 +19,18 @@ extension Sequence {
         return result
     }
 
+    func asyncCompactMap<T>(_ transform: (Element) async throws -> T?) async rethrows -> [T] {
+        var result = [T]()
+
+        for element in self {
+            guard let value = try await transform(element) else { continue }
+
+            result.append(value)
+        }
+
+        return result
+    }
+
     func asyncForEach(_ operation: (Element) async throws -> Void) async rethrows {
         for element in self {
             try await operation(element)
