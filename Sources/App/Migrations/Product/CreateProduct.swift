@@ -12,10 +12,9 @@ struct CreateProduct: AsyncMigration {
     func prepare(on database: Database) async throws {
         try await database.schema("products")
             .id()
-            .field("category_id", .uuid, .required, .references("categories", "id", onDelete: .cascade))
             .field("name", .string, .required)
             .field("code", .string, .required)
-            .field("allow_quick_buy", .string, .required)
+            .field("allow_quick_buy", .bool, .required)
             .field("default_variant_article", .string)
             .field("delivery_conditions_url", .string)
             .unique(on: "code")

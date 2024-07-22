@@ -16,6 +16,7 @@ struct CreateBadge: AsyncMigration {
             .field("text", .string)
             .field("background_color", .string, .required)
             .field("tint_color", .string, .required)
+            .unique(on: "title", "text")
             .create()
     }
 
