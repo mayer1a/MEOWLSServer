@@ -18,7 +18,7 @@ final class AvailabilityInfo: Model, Content, @unchecked Sendable {
     @Parent(key: "product_variant_id")
     var productVariant: ProductVariant
 
-    @Field(key: "type")
+    @Enum(key: "type")
     var type: AvailabilityType
 
     @OptionalField(key: "delivery_duration")
@@ -35,7 +35,12 @@ final class AvailabilityInfo: Model, Content, @unchecked Sendable {
 
     init() {}
 
-    init(id: UUID? = nil, productVariant: Product.IDValue, type: AvailabilityType, deliveryDuration: Int?, count: Int) {
+    init(id: UUID? = nil,
+         productVariant: ProductVariant.IDValue,
+         type: AvailabilityType,
+         deliveryDuration: Int?,
+         count: Int) {
+        
         self.id = id
         self.$productVariant.id = productVariant
         self.type = type

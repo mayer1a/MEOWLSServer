@@ -15,8 +15,8 @@ final class Product: Model, Content, @unchecked Sendable {
     @ID(key: .id)
     var id: UUID?
 
-    @Parent(key: "category_id")
-    var category: Category
+    @Siblings(through: CategoriesProductsPivot.self, from: \.$product, to: \.$category)
+    var categories: [Category]
 
     @Field(key: "name")
     var name: String
@@ -28,7 +28,7 @@ final class Product: Model, Content, @unchecked Sendable {
     var images: [Image]
 
     @Field(key: "allow_quick_buy")
-    var allowQuickBuy: String
+    var allowQuickBuy: Bool
 
     @Children(for: \.$product)
     var variants: [ProductVariant]
@@ -43,7 +43,7 @@ final class Product: Model, Content, @unchecked Sendable {
     var sections: [Section]
 
     enum CodingKeys: String, CodingKey {
-        case id, category, name, code, images
+        case id, categories, name, code, images
         case allowQuickBuy = "allow_quick_buy"
         case variants
         case defaultVariantArticle = "default_variant_article"
@@ -54,15 +54,13 @@ final class Product: Model, Content, @unchecked Sendable {
     init() { }
 
     init(id: UUID? = nil,
-         categoryID: Category.IDValue,
          name: String,
          code: String,
-         allowQuickBuy: String,
+         allowQuickBuy: Bool,
          defaultVariantArticle: String?,
          deliveryConditionsURL: String?) {
 
         self.id = id
-        self.$category.id = categoryID
         self.name = name
         self.code = code
         self.allowQuickBuy = allowQuickBuy

@@ -10,9 +10,17 @@ import Vapor
 extension AvailabilityInfo {
 
     enum AvailabilityType: String, Content {
-        case available
-        case delivery
+        
+        case available = "available"
+        case delivery = "delivery"
         case notAvailable = "not_available"
+
+        enum CodingKeys: String, CodingKey {
+            case available
+            case delivery
+            case notAvailable = "not_available"
+        }
+        
     }
 
 }

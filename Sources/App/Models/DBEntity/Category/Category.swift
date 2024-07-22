@@ -24,7 +24,7 @@ final class Category: Model, @unchecked Sendable {
     @OptionalParent(key: "parent_id")
     var parent: Category?
 
-    @Children(for: \.$category)
+    @Siblings(through: CategoriesProductsPivot.self, from: \.$category, to: \.$product)
     var products: [Product]
 
     @Children(for: \.$parent)

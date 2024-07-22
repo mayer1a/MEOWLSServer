@@ -39,7 +39,7 @@ final class Image: Model, Content, @unchecked Sendable {
     init() {}
 
     init(id: UUID? = nil,
-         categoryID: Category.IDValue?,
+         categoryID: Category.IDValue? = nil,
          small: String?,
          medium: String?,
          large: String?,

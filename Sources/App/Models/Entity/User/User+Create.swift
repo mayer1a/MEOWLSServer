@@ -19,6 +19,11 @@ extension User {
         var phone: String
         var password: String
         var confirmPassword: String
+
+        enum CodingKeys: String, CodingKey {
+            case surname, name, patronymic, birthday, gender, email, phone, password
+            case confirmPassword = "confirm_password"
+        }
     }
 
 }
