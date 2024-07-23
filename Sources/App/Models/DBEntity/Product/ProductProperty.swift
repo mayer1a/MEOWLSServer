@@ -36,4 +36,9 @@ final class ProductProperty: Model, Content, @unchecked Sendable {
         self.selectable = selectable
     }
 
+    enum CodingKeys: String, CodingKey {
+        case id, name, code, selectable
+        case propertyValues = "property_values"
+    }
+
 }

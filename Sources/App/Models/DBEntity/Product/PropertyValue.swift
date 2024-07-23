@@ -24,19 +24,19 @@ final class PropertyValue: Model, Content, @unchecked Sendable {
     @Field(key: "value")
     var value: String
 
-    enum CodingKeys: String, CodingKey {
-        case id
-        case productProperty = "product_property"
-        case productVariants = "product_variants"
-        case value
-    }
-
     init() {}
 
     init(id: UUID? = nil, propertyID: ProductProperty.IDValue, value: String) {
         self.id = id
         self.$productProperty.id = propertyID
         self.value = value
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case productProperty = "product_property"
+        case productVariants = "product_variants"
+        case value
     }
 
 }

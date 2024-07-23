@@ -29,11 +29,6 @@ final class Price: Model, Content, @unchecked Sendable {
     @Field(key: "price")
     var price: Double
 
-    enum CodingKeys: String, CodingKey {
-        case originalPrice = "original_price"
-        case discount, price
-    }
-
     init() {}
 
     init(id: UUID? = nil,
@@ -47,6 +42,13 @@ final class Price: Model, Content, @unchecked Sendable {
         self.originalPrice = originalPrice
         self.discount = discount
         self.price = price
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case productVariant = "product_variant"
+        case originalPrice = "original_price"
+        case discount, price
     }
 
 }

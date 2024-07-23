@@ -10,8 +10,15 @@ import Vapor
 extension Section {
 
     enum SectionType: String, Content {
+
         case textExpandable = "text_expandable"
         case textModal = "text_modal"
+
+        enum CodingKeys: String, CodingKey {
+            case textExpandable = "text_expandable"
+            case textModal = "text_modal"
+        }
+
     }
 
 }

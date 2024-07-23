@@ -42,4 +42,10 @@ final class Category: Model, @unchecked Sendable {
         self.$parent.id = parent
     }
 
+    enum CodingKeys: String, CodingKey {
+        case id, code, name, parent, products
+        case childCategories = "child_categories"
+        case image
+    }
+    
 }

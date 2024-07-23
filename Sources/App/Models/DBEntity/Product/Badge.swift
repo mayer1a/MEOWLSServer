@@ -30,12 +30,6 @@ final class Badge: Model, Content, @unchecked Sendable {
     @Field(key: "tint_color")
     var tintColor: HEXColor
 
-    enum CodingKeys: String, CodingKey {
-        case title, icon, text
-        case backgroundColor = "background_color"
-        case tintColor = "tint_color"
-    }
-
     init() {}
 
     init(id: UUID? = nil, title: String, text: String?, backgroundColor: HEXColor, tintColor: HEXColor) {
@@ -44,6 +38,14 @@ final class Badge: Model, Content, @unchecked Sendable {
         self.text = text
         self.backgroundColor = backgroundColor
         self.tintColor = tintColor
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case productsVariants = "products_variants"
+        case title, text
+        case backgroundColor = "background_color"
+        case tintColor = "tint_color"
     }
 
 }

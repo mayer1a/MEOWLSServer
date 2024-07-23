@@ -42,14 +42,6 @@ final class Product: Model, Content, @unchecked Sendable {
     @Children(for: \.$product)
     var sections: [Section]
 
-    enum CodingKeys: String, CodingKey {
-        case id, categories, name, code, images
-        case allowQuickBuy = "allow_quick_buy"
-        case variants
-        case defaultVariantArticle = "default_variant_article"
-        case deliveryConditionsURL = "delivery_conditions_url"
-        case sections
-    }
 
     init() { }
 
@@ -66,6 +58,14 @@ final class Product: Model, Content, @unchecked Sendable {
         self.allowQuickBuy = allowQuickBuy
         self.defaultVariantArticle = defaultVariantArticle
         self.deliveryConditionsURL = deliveryConditionsURL
+
+    enum CodingKeys: String, CodingKey {
+        case id, categories, name, code, images
+        case allowQuickBuy = "allow_quick_buy"
+        case variants
+        case defaultVariantArticle = "default_variant_article"
+        case deliveryConditionsURL = "delivery_conditions_url"
+        case sections
     }
 
 }

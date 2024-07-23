@@ -53,4 +53,10 @@ final class Image: Model, Content, @unchecked Sendable {
         self.original = original
     }
 
+    enum CodingKeys: String, CodingKey {
+        case id, products, category
+        case mainBanner = "main_banner"
+        case small, medium, large, original, dimension
+    }
+
 }

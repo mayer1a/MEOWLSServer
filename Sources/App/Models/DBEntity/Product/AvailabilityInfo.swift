@@ -28,6 +28,8 @@ final class AvailabilityInfo: Model, Content, @unchecked Sendable {
     var count: Int
 
     enum CodingKeys: String, CodingKey {
+        case id
+        case productVariant = "product_variant"
         case type
         case deliveryDuration = "delivery_duration"
         case count
