@@ -42,6 +42,11 @@ final class Product: Model, Content, @unchecked Sendable {
     @Children(for: \.$product)
     var sections: [Section]
 
+    @OptionalParent(key: "main_banner_id")
+    var mainBanner: MainBanner?
+
+    @OptionalParent(key: "sale_id")
+    var sale: Sale?
 
     init() { }
 
@@ -50,7 +55,9 @@ final class Product: Model, Content, @unchecked Sendable {
          code: String,
          allowQuickBuy: Bool,
          defaultVariantArticle: String?,
-         deliveryConditionsURL: String?) {
+         deliveryConditionsURL: String?,
+         mainBannerID: MainBanner.IDValue? = nil,
+         saleID: Sale.IDValue? = nil) {
 
         self.id = id
         self.name = name
@@ -58,6 +65,9 @@ final class Product: Model, Content, @unchecked Sendable {
         self.allowQuickBuy = allowQuickBuy
         self.defaultVariantArticle = defaultVariantArticle
         self.deliveryConditionsURL = deliveryConditionsURL
+        self.$mainBanner.id = mainBannerID
+        self.$sale.id = saleID
+    }
 
     enum CodingKeys: String, CodingKey {
         case id, categories, name, code, images
@@ -66,6 +76,8 @@ final class Product: Model, Content, @unchecked Sendable {
         case defaultVariantArticle = "default_variant_article"
         case deliveryConditionsURL = "delivery_conditions_url"
         case sections
+        case mainBanner = "main_banner"
+        case sale
     }
 
 }

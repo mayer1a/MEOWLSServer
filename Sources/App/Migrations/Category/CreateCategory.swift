@@ -15,6 +15,7 @@ struct CreateCategory: AsyncMigration {
             .field("code", .string, .required)
             .field("name", .string, .required)
             .field("parent_id", .uuid, .references("categories", "id", onDelete: .cascade))
+            .field("main_banner_id", .uuid, .references("main_banners", "id", onDelete: .setNull))
             .unique(on: "parent_id", "code")
             .create()
     }

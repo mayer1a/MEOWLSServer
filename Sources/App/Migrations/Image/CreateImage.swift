@@ -17,6 +17,8 @@ struct CreateImage: AsyncMigration {
             .field("medium", .string)
             .field("large", .string)
             .field("original", .string)
+            .field("main_banner_id", .uuid, .references("main_banners", "id", onDelete: .cascade))
+            .field("sale_id", .uuid, .references("sales", "id", onDelete: .cascade))
             .create()
     }
 

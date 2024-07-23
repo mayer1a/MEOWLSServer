@@ -21,6 +21,12 @@ final class Image: Model, Content, @unchecked Sendable {
     @OptionalParent(key: "category_id")
     var category: Category?
 
+    @OptionalParent(key: "main_banner_id")
+    var mainBanner: MainBanner?
+
+    @OptionalParent(key: "sale_id")
+    var sale: Sale?
+
     @OptionalField(key: "small")
     var small: String?
 
@@ -40,6 +46,8 @@ final class Image: Model, Content, @unchecked Sendable {
 
     init(id: UUID? = nil,
          categoryID: Category.IDValue? = nil,
+         mainBannerID: MainBanner.IDValue? = nil,
+         saleID: Sale.IDValue? = nil,
          small: String?,
          medium: String?,
          large: String?,
@@ -47,6 +55,8 @@ final class Image: Model, Content, @unchecked Sendable {
 
         self.id = id
         self.$category.id = categoryID
+        self.$mainBanner.id = mainBannerID
+        self.$sale.id = saleID
         self.small = small
         self.medium = medium
         self.large = large
@@ -56,7 +66,7 @@ final class Image: Model, Content, @unchecked Sendable {
     enum CodingKeys: String, CodingKey {
         case id, products, category
         case mainBanner = "main_banner"
-        case small, medium, large, original, dimension
+        case sale, small, medium, large, original, dimension
     }
 
 }

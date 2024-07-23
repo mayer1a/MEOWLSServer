@@ -33,19 +33,33 @@ final class Category: Model, @unchecked Sendable {
     @OptionalChild(for: \.$category)
     var image: Image?
 
+    @OptionalChild(for: \.$category)
+    var productsSet: MainBanner.Redirect.ProductsSet?
+
+    @OptionalParent(key: "main_banner_id")
+    var mainBanner: MainBanner?
+
     init() {}
 
-    init(id: UUID? = nil, code: String, name: String, parent: Category.IDValue?) {
+    init(id: UUID? = nil,
+         code: String,
+         name: String,
+         parent: Category.IDValue?,
+         mainBannerID: MainBanner.IDValue? = nil) {
+        
         self.id = id
         self.code = code
         self.name = name
         self.$parent.id = parent
+        self.$mainBanner.id = mainBannerID
     }
 
     enum CodingKeys: String, CodingKey {
         case id, code, name, parent, products
         case childCategories = "child_categories"
         case image
+        case productsSet = "products_set"
+        case mainBanner = "main_banner"
     }
     
 }
