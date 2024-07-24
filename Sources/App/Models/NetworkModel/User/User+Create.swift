@@ -9,7 +9,7 @@ import Vapor
 
 extension User {
 
-    struct Create: Content {
+    struct CreateDTO: Content {
         var surname: String?
         var name: String?
         var patronymic: String?
@@ -28,7 +28,7 @@ extension User {
 
 }
 
-extension User.Create {
+extension User.CreateDTO {
 
     func toUser(with role: UserRole) throws -> User {
         try User(surname: surname,

@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension User.Create: UserValidatable {
+extension User.CreateDTO: UserValidatable {
 
     func validate() throws {
         try validate(password: password, confirmPassword: confirmPassword)

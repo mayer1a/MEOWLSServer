@@ -14,12 +14,6 @@ extension AvailabilityInfo {
         case available = "available"
         case delivery = "delivery"
         case notAvailable = "not_available"
-
-        enum CodingKeys: String, CodingKey {
-            case available
-            case delivery
-            case notAvailable = "not_available"
-        }
         
     }
 

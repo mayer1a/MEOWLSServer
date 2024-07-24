@@ -9,7 +9,7 @@ import Vapor
 
 extension User {
 
-    struct Update: Content {
+    struct UpdateDTO: Content {
         var surname: String?
         var name: String?
         var patronymic: String?
@@ -30,7 +30,7 @@ extension User {
 
 extension User {
 
-    func update(with newUser: User.Update) throws {
+    func update(with newUser: User.UpdateDTO) throws {
         surname = newUser.surname
         name = newUser.name
         patronymic = newUser.patronymic

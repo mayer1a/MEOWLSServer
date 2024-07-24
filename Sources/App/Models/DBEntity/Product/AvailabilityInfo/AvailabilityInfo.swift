@@ -27,14 +27,6 @@ final class AvailabilityInfo: Model, Content, @unchecked Sendable {
     @Field(key: "count")
     var count: Int
 
-    enum CodingKeys: String, CodingKey {
-        case id
-        case productVariant = "product_variant"
-        case type
-        case deliveryDuration = "delivery_duration"
-        case count
-    }
-
     init() {}
 
     init(id: UUID? = nil,

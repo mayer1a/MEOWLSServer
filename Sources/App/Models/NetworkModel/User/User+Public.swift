@@ -9,7 +9,7 @@ import Vapor
 
 extension User {
 
-    struct Public: Content {
+    struct PublicDTO: Content {
 
         var id: UUID?
         var surname: String?

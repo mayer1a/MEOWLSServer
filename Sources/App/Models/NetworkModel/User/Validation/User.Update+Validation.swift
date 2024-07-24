@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension User.Update: UserValidatable {
+extension User.UpdateDTO: UserValidatable {
 
     func validate() throws {
         if password != nil || confirmPassword != nil {
