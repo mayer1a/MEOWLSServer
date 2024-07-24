@@ -48,6 +48,9 @@ final class Product: Model, Content, @unchecked Sendable {
     @OptionalParent(key: "sale_id")
     var sale: Sale?
 
+    @Siblings(through: FavoritesProductsPivot.self, from: \.$product, to: \.$favorites)
+    var favorites: [Favorites]
+
     init() { }
 
     init(id: UUID? = nil,

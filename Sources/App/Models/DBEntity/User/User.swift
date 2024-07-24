@@ -47,6 +47,9 @@ final class User: Model, Content, @unchecked Sendable {
     @Enum(key: "role")
     var role: UserRole
 
+    @OptionalChild(for: \.$user)
+    var favorites: Favorites?
+
     init(id: UUID? = nil,
          surname: String?,
          name: String?,
