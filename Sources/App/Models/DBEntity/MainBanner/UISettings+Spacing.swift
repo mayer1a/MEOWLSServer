@@ -35,12 +35,6 @@ extension MainBanner.UISettings {
             self.bottom = bottom
         }
 
-        enum CodingKeys: String, CodingKey {
-            case id
-            case uiSettings = "ui_settings"
-            case top, bottom
-        }
-
     }
 
 }

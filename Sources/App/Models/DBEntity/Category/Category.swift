@@ -53,13 +53,5 @@ final class Category: Model, @unchecked Sendable {
         self.$parent.id = parent
         self.$mainBanner.id = mainBannerID
     }
-
-    enum CodingKeys: String, CodingKey {
-        case id, code, name, parent, products
-        case childCategories = "child_categories"
-        case image
-        case productsSet = "products_set"
-        case mainBanner = "main_banner"
-    }
     
 }

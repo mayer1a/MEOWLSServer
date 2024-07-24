@@ -44,11 +44,4 @@ final class Price: Model, Content, @unchecked Sendable {
         self.price = price
     }
 
-    enum CodingKeys: String, CodingKey {
-        case id
-        case productVariant = "product_variant"
-        case originalPrice = "original_price"
-        case discount, price
-    }
-
 }

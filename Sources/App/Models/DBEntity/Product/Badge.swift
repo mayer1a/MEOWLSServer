@@ -39,13 +39,5 @@ final class Badge: Model, Content, @unchecked Sendable {
         self.backgroundColor = backgroundColor
         self.tintColor = tintColor
     }
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case productsVariants = "products_variants"
-        case title, text
-        case backgroundColor = "background_color"
-        case tintColor = "tint_color"
-    }
 
 }

@@ -13,11 +13,6 @@ extension MainBanner.Redirect {
         
         case object
         case productsCollection = "products_collection"
-
-        enum CodingKeys: String, CodingKey {
-            case object
-            case productsCollection = "products_collection"
-        }
         
     }
 

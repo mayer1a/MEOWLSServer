@@ -23,8 +23,8 @@ struct UserController: RouteCollection {
         tokenAuthGroup.post("delete", use: delete)
     }
 
-    @Sendable private func create(_ request: Request) async throws -> User.Public {
-        let createUser = try request.content.decode(User.Create.self)
+    @Sendable private func create(_ request: Request) async throws -> User.PublicDTO {
+        let createUser = try request.content.decode(User.CreateDTO.self)
         try createUser.validate()
         let isAdmin = try await User.query(on: request.db).count() < 1
         let user = try createUser.toUser(with: isAdmin ? .admin : .user)
@@ -44,7 +44,7 @@ struct UserController: RouteCollection {
         return try await user.convertToPublic(with: token)
     }
 
-    @Sendable private func login(_ request: Request) async throws -> User.Public {
+    @Sendable private func login(_ request: Request) async throws -> User.PublicDTO {
         let user = try request.auth.require(User.self)
 
         try await user.$token.get(on: request.db)?.delete(on: request.db)
@@ -54,8 +54,8 @@ struct UserController: RouteCollection {
         return try await user.convertToPublic(with: userToken)
     }
 
-    @Sendable private func edit(_ request: Request) async throws -> User.Public {
-        let newUser = try request.content.decode(User.Update.self)
+    @Sendable private func edit(_ request: Request) async throws -> User.PublicDTO {
+        let newUser = try request.content.decode(User.UpdateDTO.self)
         try newUser.validate()
 
         let user = try request.auth.require(User.self)

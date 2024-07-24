@@ -45,13 +45,4 @@ final class ProductVariant: Model, Content, @unchecked Sendable {
         self.shortName = shortName
     }
 
-    enum CodingKeys: String, CodingKey {
-        case id, product, article
-        case shortName = "short_name"
-        case price
-        case availabilityInfo = "availability_info"
-        case badges
-        case propertyValues = "property_values"
-    }
-
 }

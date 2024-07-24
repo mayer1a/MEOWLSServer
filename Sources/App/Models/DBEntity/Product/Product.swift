@@ -69,15 +69,4 @@ final class Product: Model, Content, @unchecked Sendable {
         self.$sale.id = saleID
     }
 
-    enum CodingKeys: String, CodingKey {
-        case id, categories, name, code, images
-        case allowQuickBuy = "allow_quick_buy"
-        case variants
-        case defaultVariantArticle = "default_variant_article"
-        case deliveryConditionsURL = "delivery_conditions_url"
-        case sections
-        case mainBanner = "main_banner"
-        case sale
-    }
-
 }

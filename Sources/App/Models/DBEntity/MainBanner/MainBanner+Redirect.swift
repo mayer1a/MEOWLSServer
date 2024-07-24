@@ -41,15 +41,6 @@ extension MainBanner {
             self.url = url
         }
 
-        enum CodingKeys: String, CodingKey {
-            case id
-            case mainBanner = "main_banner"
-            case redirectType = "redirect_type"
-            case sale
-            case productsSet = "products_set"
-            case url
-        }
-
     }
 
 }

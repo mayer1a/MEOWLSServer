@@ -41,5 +41,4 @@ final class Section: Model, Content, @unchecked Sendable {
         self.link = link
     }
 
-
 }

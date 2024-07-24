@@ -49,15 +49,6 @@ extension MainBanner.UISettings {
             self.bottomRight = bottomRight
         }
 
-        enum CodingKeys: String, CodingKey {
-            case id
-            case uiSettings = "ui_settings"
-            case topLeft = "top_left"
-            case topRight = "top_right"
-            case bottomLeft = "bottom_left"
-            case bottomRight = "bottom_right"
-        }
-
     }
 
 }
