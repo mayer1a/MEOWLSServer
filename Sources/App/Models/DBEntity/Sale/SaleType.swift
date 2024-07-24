@@ -7,9 +7,13 @@
 
 import Vapor
 
-enum SaleType: String, Content {
+extension Sale {
 
-    case online
-    case offline
+    enum SaleType: String, Content {
+
+        case online
+        case offline
+
+    }
 
 }
