@@ -35,7 +35,7 @@ final class User: Model, Content, @unchecked Sendable {
     @Field(key: "email")
     var email: String?
 
-    @Field(key: "passwordHash")
+    @Field(key: "password_hash")
     var passwordHash: String
 
     @Field(key: "phone")
@@ -74,23 +74,6 @@ final class User: Model, Content, @unchecked Sendable {
 
 }
 
-#warning("REMOVE BEFORE PUSH")
-extension User: Equatable {
-
-    static func ==(lhs: User, rhs: User) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    static func ==(lhs: User, rhs: EditProfileRequest) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    static func ==(lhs: User, rhs: SignUpRequest) -> Bool {
-        lhs.phone == rhs.phone || lhs.email == rhs.email
-    }
-
-}
-
 extension User: ModelAuthenticatable {
 
     static let usernameKey = \User.$phone
@@ -100,17 +83,17 @@ extension User: ModelAuthenticatable {
         try Bcrypt.verify(password, created: self.passwordHash)
     }
 
-    func convertToPublic(with token: Token? = nil) async throws -> User.Public {
-        User.Public(id: id,
-                    surname: surname,
-                    name: name,
-                    patronymic: patronymic,
-                    birthday: birthday,
-                    gender: gender,
-                    email: email,
-                    phone: phone,
-                    token: token?.value,
-                    role: role)
+    func convertToPublic(with token: Token? = nil) async throws -> User.PublicDTO {
+        User.PublicDTO(id: id,
+                       surname: surname,
+                       name: name,
+                       patronymic: patronymic,
+                       birthday: birthday,
+                       gender: gender,
+                       email: email,
+                       phone: phone,
+                       token: token?.value,
+                       role: role)
     }
 
 }

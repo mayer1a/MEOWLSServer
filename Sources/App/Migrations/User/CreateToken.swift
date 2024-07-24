@@ -14,7 +14,7 @@ struct CreateToken: AsyncMigration {
             .id()
             .field("value", .string, .required)
             .field("expired", .date)
-            .field("userID", .uuid, .required, .references("users", "id", onDelete: .cascade))
+            .field("user_id", .uuid, .required, .references("users", "id", onDelete: .cascade))
             .unique(on: "value")
             .create()
     }

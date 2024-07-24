@@ -16,9 +16,10 @@ struct CreateSale: AsyncMigration {
             .field("code", .string, .required)
             .field("sale_type", saleType)
             .field("title", .string, .required)
-            .field("startDate", .date, .required)
-            .field("endDate", .date, .required)
+            .field("start_date", .date, .required)
+            .field("end_date", .date, .required)
             .field("disclaimer", .string, .required)
+            .field("redirect_id", .uuid, .references("main_banners_redirects", "id"))
             .create()
     }
 

@@ -8,6 +8,8 @@
 import Vapor
 
 enum UserRole: String, Content {
+    
     case admin
     case user
+    
 }

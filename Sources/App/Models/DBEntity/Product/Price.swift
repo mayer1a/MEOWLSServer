@@ -19,7 +19,7 @@ final class Price: Model, Content, @unchecked Sendable {
     var productVariant: ProductVariant
 
     /// Old price
-    @Field(key: "originalPrice")
+    @Field(key: "original_price")
     var originalPrice: Double
 
     @OptionalField(key: "discount")

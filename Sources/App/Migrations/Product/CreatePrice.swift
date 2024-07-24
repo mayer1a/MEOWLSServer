@@ -13,7 +13,7 @@ struct CreatePrice: AsyncMigration {
         try await database.schema("prices")
             .id()
             .field("product_variant_id", .uuid, .required, .references("product_variants", "id", onDelete: .cascade))
-            .field("originalPrice", .double, .required)
+            .field("original_price", .double, .required)
             .field("discount", .double)
             .field("price", .double, .required)
             .create()

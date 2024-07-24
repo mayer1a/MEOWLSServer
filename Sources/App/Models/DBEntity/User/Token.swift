@@ -22,7 +22,7 @@ final class Token: Model, Content, @unchecked Sendable {
     @Field(key: "expired")
     var expired: Date
 
-    @Parent(key: "userID")
+    @Parent(key: "user_id")
     var user: User
 
     init() {}
