@@ -11,11 +11,9 @@ import Vapor
 
 final class ReviewsController {
 
-    private let localStorage: LocalStorage
     private let reviewsStorage: MockProductsReviews
 
-    init(localStorage: LocalStorage, reviewsStorage: MockProductsReviews) {
-        self.localStorage = localStorage
+    init(reviewsStorage: MockProductsReviews) {
         self.reviewsStorage = reviewsStorage
     }
 

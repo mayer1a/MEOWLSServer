@@ -17,7 +17,6 @@ import Vapor
 /// + reviews
 /// + basket
 func registerGETRoutes(for app: Application,
-                       with storage: LocalStorage,
                        _ productController: ProductController,
                        _ reviewsController: ReviewsController,
                        _ cartController: CartController) {
