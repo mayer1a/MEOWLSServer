@@ -67,6 +67,7 @@ struct Configuration {
         addSalesMigrations(for: app)
         addFavoritesMigrations(for: app)
         addPromoCodesMigrations(for: app)
+        addCartMigrations(for: app)
 
         try await app.autoMigrate()
     }
@@ -138,6 +139,9 @@ struct Configuration {
         app.migrations.add(CreatePromoCodesUsersPivot())
     }
 
+    private static func addCartMigrations(for app: Application) {
+        app.migrations.add(CreateCartItem())
+    }
     private init() {}
 
 }

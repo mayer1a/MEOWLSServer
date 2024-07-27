@@ -8,3 +8,7 @@
 import Foundation
 
 typealias HEXColor = String
+
+typealias AvailabilityInfoDTO = ProductDTO.ProductVariantDTO.AvailabilityInfoDTO
+typealias PriceDTO = ProductDTO.ProductVariantDTO.PriceDTO
+typealias BadgeDTO = ProductDTO.ProductVariantDTO.BadgeDTO
