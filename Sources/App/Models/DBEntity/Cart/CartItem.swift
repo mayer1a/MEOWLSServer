@@ -15,6 +15,9 @@ final class CartItem: Model, @unchecked Sendable {
     @ID(key: .id)
     var id: UUID?
 
+    @OptionalParent(key: "cart_id")
+    var cart: Cart?
+
     @Field(key: "product_id")
     var productID: UUID
 

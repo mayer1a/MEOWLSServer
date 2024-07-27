@@ -39,6 +39,9 @@ final class PromoCode: Model, @unchecked Sendable {
     @Siblings(through: PromoCodesUsersPivot.self, from: \.$promoCode, to: \.$user)
     var usedUsers: [User]
 
+    @Siblings(through: CartsPromoCodesPivot.self, from: \.$promoCode, to: \.$cart)
+    var cart: [Cart]
+
     init() {}
 
     init(id: UUID? = nil, 

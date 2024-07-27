@@ -140,7 +140,10 @@ struct Configuration {
     }
 
     private static func addCartMigrations(for app: Application) {
+        app.migrations.add(CreateCart())
         app.migrations.add(CreateCartItem())
+        app.migrations.add(CreateSummary())
+        app.migrations.add(CreateCartsPromoCodesPivot())
     }
     private init() {}
 
