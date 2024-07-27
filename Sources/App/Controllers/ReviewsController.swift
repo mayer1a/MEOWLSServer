@@ -25,7 +25,7 @@ final class ReviewsController {
         print(model)
 
         let isReviewExists = reviewsStorage.isReviewExists(model)
-        let isProductExists = MockProducts.shared.products.contains(where: { $0.product_id == model.product_id })
+        let isProductExists = false
         var isUserExists = true
 
         if let userId = model.user_id {
@@ -38,15 +38,9 @@ final class ReviewsController {
             let reviewId = reviewsStorage.addReview(model)
             response = AddReviewResponse(result: 1,
                                          user_message: "Ваш отзыв c идентификатором \"\(reviewId)\" был передан на модерацию")
-        } else if !isProductExists {
-            response = AddReviewResponse(result: 0,
-                                         user_message: "Товара с указанным id не существует!")
-        } else if !isUserExists {
-            response = AddReviewResponse(result: 0,
-                                         user_message: "Пользователя с указанным id не существует!")
         } else {
             response = AddReviewResponse(result: 0,
-                                         user_message: "Данный отзыв уже существует!")
+                                         user_message: "Товара с указанным id не существует!")
         }
 
         return req.eventLoop.future(response)

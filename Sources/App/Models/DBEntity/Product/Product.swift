@@ -51,6 +51,9 @@ final class Product: Model, Content, @unchecked Sendable {
     @Siblings(through: FavoritesProductsPivot.self, from: \.$product, to: \.$favorites)
     var favorites: [Favorites]
 
+    @Siblings(through: PromoCodesProductsPivot.self, from: \.$product, to: \.$promoCode)
+    var promoCodes: [PromoCode]
+
     init() { }
 
     init(id: UUID? = nil,

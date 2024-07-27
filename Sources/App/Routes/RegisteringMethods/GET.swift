@@ -18,8 +18,7 @@ import Vapor
 /// + basket
 func registerGETRoutes(for app: Application,
                        _ productController: ProductController,
-                       _ reviewsController: ReviewsController,
-                       _ cartController: CartController) {
+                       _ reviewsController: ReviewsController) {
 
     let protected = app.grouped(UserAuthenticator())
     protected.get("hello", ":x") { req -> String in

@@ -50,6 +50,11 @@ final class User: Model, Content, @unchecked Sendable {
     @OptionalChild(for: \.$user)
     var favorites: Favorites?
 
+    @Siblings(through: PromoCodesUsersPivot.self, from: \.$user, to: \.$promoCode)
+    var usedPromoCodes: [PromoCode]
+
+    init() {}
+
     init(id: UUID? = nil,
          surname: String?,
          name: String?,
@@ -72,8 +77,6 @@ final class User: Model, Content, @unchecked Sendable {
         self.phone = phone
         self.role = role
     }
-
-    init() {}
 
 }
 

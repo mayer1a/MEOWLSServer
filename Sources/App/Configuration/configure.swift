@@ -1,5 +1,5 @@
 //
-//  Configure.swift
+//  Configuration.swift
 //
 //
 //  Created by Artem Mayer on 26.06.2024.
@@ -63,6 +63,10 @@ struct Configuration {
         addImageMigrations(for: app)
         addCategoryMigrations(for: app)
         addProductMigrations(for: app)
+        addMainBannerMigrations(for: app)
+        addSalesMigrations(for: app)
+        addFavoritesMigrations(for: app)
+        addPromoCodesMigrations(for: app)
 
         try await app.autoMigrate()
     }
@@ -102,6 +106,36 @@ struct Configuration {
         app.migrations.add(CreateProductImagesPivot())
         app.migrations.add(CreateProductVariantBadgePivot())
         app.migrations.add(CreateProductVariantsPropertyValuesPivot())
+        app.migrations.add(CreateCategoriesProductsPivot())
+    }
+
+    private static func addMainBannerMigrations(for app: Application) {
+        app.migrations.add(CreateMainBannerPlaceType())
+        app.migrations.add(CreateRedirectRedirectType())
+        app.migrations.add(CreateMainBanner())
+        app.migrations.add(CreateMainBannerRedirect())
+        app.migrations.add(CreateMainBannerUISettings())
+        app.migrations.add(CreateRedirectProductsSet())
+        app.migrations.add(CreateUISettingsCornerRadius())
+        app.migrations.add(CreateUISettingsMetric())
+        app.migrations.add(CreateUISettingsSpacing())
+    }
+
+    private static func addSalesMigrations(for app: Application) {
+        app.migrations.add(CreateSaleType())
+        app.migrations.add(CreateSale())
+    }
+
+    private static func addFavoritesMigrations(for app: Application) {
+        app.migrations.add(CreateFavorites())
+        app.migrations.add(CreateFavoritesProductsPivot())
+    }
+
+    private static func addPromoCodesMigrations(for app: Application) {
+        app.migrations.add(CreateDiscountType())
+        app.migrations.add(CreatePromoCode())
+        app.migrations.add(CreatePromoCodesProductsPivot())
+        app.migrations.add(CreatePromoCodesUsersPivot())
     }
 
     private init() {}

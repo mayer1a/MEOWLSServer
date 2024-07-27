@@ -29,7 +29,7 @@ final class CatalogController: RouteCollection {
         }
 
         let elementsInCollection = 20
-        let productsLastIndex = MockProducts.shared.products.count - 1
+        let productsLastIndex = 0
         var range: ClosedRange<Int>
 
         if body.page_number == 1 {
@@ -49,12 +49,12 @@ final class CatalogController: RouteCollection {
             range = startIndex...endIndex
         }
 
-        let products = Array(MockProducts.shared.products[range])
+//        let products = Array(MockProducts.shared.products[range])
         let nextPage = range.last ?? .max < productsLastIndex ? body.page_number + 1 : nil
 
         let response = GetCatalogResponse(
             result: 1,
-            products: products,
+            products: nil,
             next_page: nextPage)
 
         return req.eventLoop.future(response)

@@ -40,7 +40,10 @@ struct UserController: RouteCollection {
         try await user.update(on: request.db)
 
         request.auth.login(user)
-        
+
+//        let favorites = Favorites(userID: try user.requireID())
+//        try await favorites.save(on: request.db)
+
         return try await user.convertToPublic(with: token)
     }
 
