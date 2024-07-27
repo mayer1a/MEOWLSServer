@@ -50,11 +50,17 @@ final class User: Model, Content, @unchecked Sendable {
     @OptionalChild(for: \.$user)
     var favorites: Favorites?
 
+    @Children(for: \.$user)
+    var orders: [Order]
+
     @OptionalChild(for: \.$user)
     var cart: Cart?
 
     @Siblings(through: PromoCodesUsersPivot.self, from: \.$user, to: \.$promoCode)
     var usedPromoCodes: [PromoCode]
+
+    @OptionalChild(for: \.$user)
+    var address: Address?
 
     init() {}
 

@@ -18,6 +18,8 @@ final class Summary: Model, @unchecked Sendable {
     @OptionalParent(key: "cart_id")
     var cart: Cart?
 
+    @OptionalParent(key: "order_id")
+    var order: Order?
 
     @Field(key: "name")
     var name: String
@@ -26,5 +28,13 @@ final class Summary: Model, @unchecked Sendable {
     var value: Double
 
     init() {}
+
+    init(id: UUID? = nil, cartID: Cart.IDValue? = nil, orderID: Order.IDValue? = nil, name: String, value: Double) {
+        self.id = id
+        self.$cart.id = cartID
+        self.$order.id = orderID
+        self.name = name
+        self.value = value
+    }
 
 }

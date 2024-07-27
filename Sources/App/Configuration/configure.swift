@@ -68,6 +68,7 @@ struct Configuration {
         addFavoritesMigrations(for: app)
         addPromoCodesMigrations(for: app)
         addCartMigrations(for: app)
+        addDeliveryMigrations(for: app)
 
         try await app.autoMigrate()
     }
@@ -141,10 +142,30 @@ struct Configuration {
 
     private static func addCartMigrations(for app: Application) {
         app.migrations.add(CreateCart())
+
+        addOrderMigrations(for: app)
+        
         app.migrations.add(CreateCartItem())
         app.migrations.add(CreateSummary())
         app.migrations.add(CreateCartsPromoCodesPivot())
     }
+
+    private static func addOrderMigrations(for app: Application) {
+        app.migrations.add(CreateStatusCode())
+        app.migrations.add(CreatePaymentType())
+        
+        app.migrations.add(CreateOrder())
+    }
+
+    private static func addDeliveryMigrations(for app: Application) {
+        app.migrations.add(CreateDeliveryType())
+        app.migrations.add(CreateDelivery())
+        app.migrations.add(CreateAddress())
+        app.migrations.add(CreateCity())
+        app.migrations.add(CreateDeliveryTimeInterval())
+        app.migrations.add(CreateLocation())
+    }
+
     private init() {}
 
 }

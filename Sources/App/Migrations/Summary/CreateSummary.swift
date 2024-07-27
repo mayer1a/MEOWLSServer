@@ -13,6 +13,7 @@ struct CreateSummary: AsyncMigration {
         try await database.schema("summaries")
             .id()
             .field("cart_id", .uuid, .references("carts", "id", onDelete: .cascade))
+            .field("order_id", .uuid, .references("orders", "id", onDelete: .cascade))
             .field("name", .string, .required)
             .field("value", .double, .required)
             .create()
