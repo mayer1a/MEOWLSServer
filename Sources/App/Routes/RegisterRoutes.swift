@@ -15,9 +15,8 @@ struct RegisterRoutes {
     static func register(for app: Application) throws {
 
         // For render.com
-        app.get("health-check") { req async throws in DummyResponse() }
+        app.get("health-check") { _ async throws in DummyResponse() }
 
-        try app.register(collection: CartController())
         try app.register(collection: CatalogController())
         try app.register(collection: UserController())
 

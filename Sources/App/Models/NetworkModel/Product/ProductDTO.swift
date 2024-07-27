@@ -12,13 +12,17 @@ struct ProductDTO: Content {
     let id: UUID
     let name: String
     let code: String
+    /// Only one image if not for detailed product
     let images: [ImageDTO]
     let allowQuickBuy: Bool
     let variants: [ProductVariantDTO]
-    let productProperties: [ProductPropertyDTO]
+    /// Only for detailed product
+    let productProperties: [ProductPropertyDTO]?
     let defaultVariantArticle: String?
+    /// Only for detailed product if url exists
     let deliveryConditionsURL: String?
-    let sections: [SectionDTO]
+    /// Only for detailed product
+    let sections: [SectionDTO]?
 
     enum CodingKeys: String, CodingKey {
         case id, name, code, images

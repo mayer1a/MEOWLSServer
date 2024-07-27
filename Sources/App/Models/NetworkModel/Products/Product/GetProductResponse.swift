@@ -11,6 +11,6 @@ import Vapor
 
 struct GetProductResponse: Content {
     var result: Int
-    var product: DetailedProduct?
+    var product: Product?
     var error_message: String?
 }

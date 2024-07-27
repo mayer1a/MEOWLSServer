@@ -11,7 +11,6 @@ extension ProductDTO {
 
     struct SectionDTO: Content {
 
-        let id: UUID
         let title: String
         let type: Section.SectionType
         let text: String
