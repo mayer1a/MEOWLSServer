@@ -24,7 +24,8 @@ struct Configuration {
         #if DEBUG
             try await setupMigrations(for: app)
         #endif
-
+        
+        app.caches.use(.memory)
         app.routes.defaultMaxBodySize = "500kb"
 
         try RegisterRoutes.register(for: app)

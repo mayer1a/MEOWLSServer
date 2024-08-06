@@ -18,6 +18,7 @@ struct CreateCategory: AsyncMigration {
             .field("main_banner_id", .uuid, .references("main_banners", "id", onDelete: .setNull))
             .unique(on: "parent_id", "code")
             .create()
+                .field("has_children", .bool, .required, .sql(.default(SQLLiteral.boolean(false))))
     }
 
     func revert(on database: Database) async throws {

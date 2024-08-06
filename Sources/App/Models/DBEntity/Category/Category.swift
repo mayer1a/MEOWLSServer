@@ -30,6 +30,9 @@ final class Category: Model, @unchecked Sendable {
     @Children(for: \.$parent)
     var childCategories: [Category]
 
+    @Boolean(key: "has_children")
+    var hasChildren: Bool
+
     @OptionalChild(for: \.$category)
     var image: Image?
 
