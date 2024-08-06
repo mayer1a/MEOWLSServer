@@ -10,6 +10,7 @@ import Fluent
 struct CreateProductVariant: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("product_variants")
             .id()
             .field("product_id", .uuid, .required, .references("products", "id", onDelete: .cascade))

@@ -10,6 +10,7 @@ import Fluent
 struct CreateRedirectProductsSet: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("main_banners_products_sets")
             .id()
             .field("redirect_id", .uuid, .required, .references("main_banners_redirects", "id", onDelete: .cascade))

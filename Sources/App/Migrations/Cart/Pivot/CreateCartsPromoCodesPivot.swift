@@ -10,6 +10,7 @@ import Fluent
 struct CreateCartsPromoCodesPivot: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("carts+promo_codes")
             .id()
             .field("cart_id", .uuid, .required,.references("carts", "id", onDelete: .cascade))

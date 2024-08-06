@@ -8,36 +8,40 @@
 import Vapor
 import Fluent
 
-final class Badge: Model, Content, @unchecked Sendable {
-    
-    static let schema = "badges"
+extension ProductVariant {
 
-    @ID(key: .id)
-    var id: UUID?
+    final class Badge: Model, Content, @unchecked Sendable {
 
-    @Siblings(through: ProductVariantBadgePivot.self, from: \.$badge, to: \.$productVariant)
-    var productsVariants: [ProductVariant]
+        static let schema = "badges"
 
-    @Field(key: "title")
-    var title: String
+        @ID(key: .id)
+        var id: UUID?
 
-    @OptionalField(key: "text")
-    var text: String?
+        @Siblings(through: ProductVariantBadgePivot.self, from: \.$badge, to: \.$productVariant)
+        var productsVariants: [ProductVariant]
 
-    @Field(key: "background_color")
-    var backgroundColor: HEXColor
+        @Field(key: "title")
+        var title: String
 
-    @Field(key: "tint_color")
-    var tintColor: HEXColor
+        @OptionalField(key: "text")
+        var text: String?
 
-    init() {}
+        @Field(key: "background_color")
+        var backgroundColor: HEXColor
 
-    init(id: UUID? = nil, title: String, text: String?, backgroundColor: HEXColor, tintColor: HEXColor) {
-        self.id = id
-        self.title = title
-        self.text = text
-        self.backgroundColor = backgroundColor
-        self.tintColor = tintColor
+        @Field(key: "tint_color")
+        var tintColor: HEXColor
+
+        init() {}
+
+        init(id: UUID? = nil, title: String, text: String?, backgroundColor: HEXColor, tintColor: HEXColor) {
+            self.id = id
+            self.title = title
+            self.text = text
+            self.backgroundColor = backgroundColor
+            self.tintColor = tintColor
+        }
+
     }
 
 }

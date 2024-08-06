@@ -8,32 +8,53 @@
 import Vapor
 import Fluent
 
-final class ProductProperty: Model, Content, @unchecked Sendable {
+extension Product {
 
-    static let schema = "product_properties"
+    final class ProductProperty: Model, Content, @unchecked Sendable, Hashable {
 
-    @ID(key: .id)
-    var id: UUID?
+        static let schema = "product_properties"
 
-    @Field(key: "name")
-    var name: String
+        @ID(key: .id)
+        var id: UUID?
 
-    @Field(key: "code")
-    var code: String
+        @Field(key: "name")
+        var name: String
 
-    @Field(key: "selectable")
-    var selectable: Bool
+        @Field(key: "code")
+        var code: String
 
-    @Children(for: \.$productProperty)
-    var propertyValues: [PropertyValue]
+        @Field(key: "selectable")
+        var selectable: Bool
 
-    init() {}
-    
-    init(id: UUID? = nil, name: String, code: String, selectable: Bool) {
-        self.id = id
-        self.name = name
-        self.code = code
-        self.selectable = selectable
+        @Children(for: \.$productProperty)
+        var propertyValues: [PropertyValue]
+
+        init() {}
+
+        init(id: UUID? = nil, name: String, code: String, selectable: Bool) {
+            self.id = id
+            self.name = name
+            self.code = code
+            self.selectable = selectable
+        }
+
     }
 
 }
+
+extension ProductProperty {
+
+    var identifier: String {
+        id?.uuidString ?? UUID().uuidString
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(identifier)
+    }
+
+    static func == (lhs: ProductProperty, rhs: ProductProperty) -> Bool {
+        lhs.id == rhs.id && lhs.code == rhs.code
+    }
+
+}
+

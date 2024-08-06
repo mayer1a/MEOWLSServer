@@ -18,7 +18,7 @@ extension MainBanner.UISettings {
         var id: UUID?
 
         @Parent(key: "ui_settings_id")
-        var uiSettings: MainBanner.UISettings
+        var uiSettings: UISettings
 
         @Field(key: "top")
         var top: Int
@@ -28,7 +28,7 @@ extension MainBanner.UISettings {
 
         init() {}
 
-        init(id: UUID? = nil, uiSettingsID: MainBanner.UISettings.IDValue, top: Int, bottom: Int) {
+        init(id: UUID? = nil, uiSettingsID: UISettings.IDValue, top: Int, bottom: Int) {
             self.id = id
             self.$uiSettings.id = uiSettingsID
             self.top = top

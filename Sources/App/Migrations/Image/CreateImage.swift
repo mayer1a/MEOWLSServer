@@ -10,6 +10,7 @@ import Fluent
 struct CreateImage: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("images")
             .id()
             .field("category_id", .uuid, .references("categories", "id", onDelete: .cascade))

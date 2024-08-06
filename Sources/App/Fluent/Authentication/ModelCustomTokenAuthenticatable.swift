@@ -32,32 +32,28 @@ extension ModelCustomTokenAuthenticatable {
     var _$user: Parent<User> {
         self[keyPath: Self.userKey]
     }
+    
 }
 
-private struct ModelCustomTokenAuthenticator<Token>: CustomTokenAuthenticator
-    where Token: ModelCustomTokenAuthenticatable
-{
+private typealias TokenAuthenticatable = ModelCustomTokenAuthenticatable
+
+private struct ModelCustomTokenAuthenticator<Token>: CustomTokenAuthenticator where Token: TokenAuthenticatable {
 
     public func authenticate(token: CustomTokenAuthorization, for request: Request) -> EventLoopFuture<Void> {
 
-        let db = request.db
-
-        return Token.query(on: db)
+        Token.query(on: request.db)
             .filter(\._$value == token.token)
             .first()
             .flatMap { token -> EventLoopFuture<Void> in
 
-                guard let token else {
-                    return request.eventLoop.makeSucceededFuture(())
-                }
+                guard let token else { return request.eventLoop.makeSucceededFuture(()) }
 
-                guard token.isValid else {
-                    return token.delete(on: db)
-                }
+                guard token.isValid else { return token.delete(on: request.db) }
 
                 request.auth.login(token)
-                
-                return token._$user.get(on: db).map {
+
+                return token._$user.get(on: request.db).map {
+
                     request.auth.login($0)
                 }
             }

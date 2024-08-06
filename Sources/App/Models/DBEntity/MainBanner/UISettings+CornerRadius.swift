@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-extension MainBanner.UISettings {
+extension UISettings {
 
     final class CornerRadius: Model, Content, @unchecked Sendable {
 
@@ -18,7 +18,7 @@ extension MainBanner.UISettings {
         var id: UUID?
 
         @Parent(key: "ui_settings_id")
-        var uiSettings: MainBanner.UISettings
+        var uiSettings: UISettings
 
         @Field(key: "top_left")
         var topLeft: Int
@@ -35,7 +35,7 @@ extension MainBanner.UISettings {
         init() {}
 
         init(id: UUID? = nil,
-             uiSettingsID: MainBanner.UISettings.IDValue,
+             uiSettingsID: UISettings.IDValue,
              topLeft: Int,
              topRight: Int,
              bottomLeft: Int,

@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-extension MainBanner.Redirect {
+extension Redirect {
 
     final class ProductsSet: Model, Content, @unchecked Sendable {
 
@@ -18,7 +18,7 @@ extension MainBanner.Redirect {
         var id: UUID?
 
         @Parent(key: "redirect_id")
-        var redirect: MainBanner.Redirect
+        var redirect: Redirect
 
         @Field(key: "name")
         var name: String
@@ -32,7 +32,7 @@ extension MainBanner.Redirect {
         init() {}
 
         init(id: UUID? = nil,
-             redirectID: MainBanner.Redirect.IDValue,
+             redirectID: Redirect.IDValue,
              name: String,
              categoryID: Category.IDValue? = nil,
              query: String?) {

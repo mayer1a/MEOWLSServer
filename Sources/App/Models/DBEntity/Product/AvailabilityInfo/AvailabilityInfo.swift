@@ -8,38 +8,42 @@
 import Vapor
 import Fluent
 
-final class AvailabilityInfo: Model, Content, @unchecked Sendable {
+extension ProductVariant {
 
-    static let schema = "availability_infos"
+    final class AvailabilityInfo: Model, Content, @unchecked Sendable {
 
-    @ID(key: .id)
-    var id: UUID?
+        static let schema = "availability_infos"
 
-    @Parent(key: "product_variant_id")
-    var productVariant: ProductVariant
+        @ID(key: .id)
+        var id: UUID?
 
-    @Enum(key: "type")
-    var type: AvailabilityType
+        @Parent(key: "product_variant_id")
+        var productVariant: ProductVariant
 
-    @OptionalField(key: "delivery_duration")
-    var deliveryDuration: Int?
+        @Enum(key: "type")
+        var type: AvailabilityType
 
-    @Field(key: "count")
-    var count: Int
+        @OptionalField(key: "delivery_duration")
+        var deliveryDuration: Int?
 
-    init() {}
+        @Field(key: "count")
+        var count: Int
 
-    init(id: UUID? = nil,
-         productVariant: ProductVariant.IDValue,
-         type: AvailabilityType,
-         deliveryDuration: Int?,
-         count: Int) {
-        
-        self.id = id
-        self.$productVariant.id = productVariant
-        self.type = type
-        self.deliveryDuration = deliveryDuration
-        self.count = count
+        init() {}
+
+        init(id: UUID? = nil,
+             productVariant: ProductVariant.IDValue,
+             type: AvailabilityType,
+             deliveryDuration: Int?,
+             count: Int) {
+
+            self.id = id
+            self.$productVariant.id = productVariant
+            self.type = type
+            self.deliveryDuration = deliveryDuration
+            self.count = count
+        }
+
     }
 
 }

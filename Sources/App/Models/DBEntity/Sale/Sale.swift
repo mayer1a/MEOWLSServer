@@ -16,7 +16,7 @@ final class Sale: Model, Content, @unchecked Sendable {
     var id: UUID?
 
     @OptionalParent(key: "redirect_id")
-    var redirect: MainBanner.Redirect?
+    var redirect: Redirect?
 
     @Field(key: "code")
     var code: String
@@ -45,7 +45,7 @@ final class Sale: Model, Content, @unchecked Sendable {
     init() {}
 
     init(id: UUID? = nil,
-         redirectID: MainBanner.Redirect.IDValue? = nil,
+         redirectID: Redirect.IDValue? = nil,
          code: String,
          saleType: SaleType,
          title: String,
@@ -61,17 +61,6 @@ final class Sale: Model, Content, @unchecked Sendable {
         self.startDate = startDate
         self.endDate = endDate
         self.disclaimer = disclaimer
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case id
-        case mainBanner = "main_banner"
-        case code
-        case saleType = "sale_type"
-        case title, image
-        case startDate = "start_date"
-        case endDate = "end_date"
-        case disclaimer, products
     }
 
 }

@@ -10,6 +10,7 @@ import Fluent
 struct CreateSectionType: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         _ = try await database.enum("SectionType")
             .case("text_expandable")
             .case("text_modal")

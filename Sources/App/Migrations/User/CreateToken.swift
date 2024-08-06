@@ -10,6 +10,7 @@ import Fluent
 struct CreateToken: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("tokens")
             .id()
             .field("value", .string, .required)

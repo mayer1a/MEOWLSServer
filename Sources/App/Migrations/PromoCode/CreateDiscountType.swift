@@ -10,6 +10,7 @@ import Fluent
 struct CreateDiscountType: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         _ = try await database.enum("DiscountType")
             .case("fixed_amount")
             .case("percent")

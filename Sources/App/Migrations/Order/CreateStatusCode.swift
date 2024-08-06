@@ -10,6 +10,7 @@ import Fluent
 struct CreateStatusCode: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         _ = try await database.enum("StatusCode")
             .case("CANCELED")
             .case("COMPLETED")

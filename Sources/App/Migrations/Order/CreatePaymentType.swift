@@ -10,6 +10,7 @@ import Fluent
 struct CreatePaymentType: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         _ = try await database.enum("PaymentType")
             .case("card")
             .case("cash")

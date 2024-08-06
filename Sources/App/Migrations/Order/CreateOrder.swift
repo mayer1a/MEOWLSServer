@@ -11,6 +11,7 @@ import Fluent
 struct CreateOrder: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         let statusCode = try await database.enum("StatusCode").read()
         let paymentType = try await database.enum("PaymentType").read()
 

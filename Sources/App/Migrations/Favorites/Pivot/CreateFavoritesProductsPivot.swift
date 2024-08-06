@@ -10,12 +10,12 @@ import Fluent
 struct CreateFavoritesProductsPivot: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("favorites+products")
             .id()
-            .field("product_id", .uuid, .required,
-                   .references("products", "id", onDelete: .cascade))
-            .field("favorites_id", .uuid, .required,
-                   .references("favorites", "id", onDelete: .cascade))
+            .field("product_id", .uuid, .required, .references("products", "id", onDelete: .cascade))
+            .field("favorites_id", .uuid, .required, .references("favorites", "id", onDelete: .cascade))
+            .field("created_at", .datetime)
             .unique(on: "product_id", "favorites_id")
             .create()
     }

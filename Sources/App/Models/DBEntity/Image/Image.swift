@@ -42,6 +42,10 @@ final class Image: Model, Content, @unchecked Sendable {
     @OptionalChild(for: \.$image)
     var dimension: ImageDimension?
 
+    var hasSize: Bool {
+        small != nil || medium != nil || large != nil || original != nil
+    }
+
     init() {}
 
     init(id: UUID? = nil,
@@ -61,12 +65,6 @@ final class Image: Model, Content, @unchecked Sendable {
         self.medium = medium
         self.large = large
         self.original = original
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case id, products, category
-        case mainBanner = "main_banner"
-        case sale, small, medium, large, original, dimension
     }
 
 }

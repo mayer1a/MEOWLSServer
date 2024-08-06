@@ -10,6 +10,7 @@ import Fluent
 struct CreateUserRole: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         _ = try await database.enum("Role")
             .case("admin")
             .case("user")

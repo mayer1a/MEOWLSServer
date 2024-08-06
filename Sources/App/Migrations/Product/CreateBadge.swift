@@ -10,6 +10,7 @@ import Fluent
 struct CreateBadge: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("badges")
             .id()
             .field("title", .string, .required)

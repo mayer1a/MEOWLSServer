@@ -10,6 +10,7 @@ import Fluent
 struct CreateProductProperty: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("product_properties")
             .id()
             .field("name", .string, .required)

@@ -10,7 +10,9 @@ import Fluent
 struct CreateSection: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+
         let type = try await database.enum("SectionType").read()
+        
         try await database.schema("sections")
             .id()
             .field("title", .string, .required)

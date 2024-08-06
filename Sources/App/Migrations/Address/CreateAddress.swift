@@ -10,6 +10,7 @@ import Fluent
 struct CreateAddress: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("addresses")
             .id()
             .field("delivery_id", .uuid, .references("deliveries", "id", onDelete: .cascade))

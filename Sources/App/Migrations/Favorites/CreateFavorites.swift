@@ -10,6 +10,7 @@ import Fluent
 struct CreateFavorites: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("favorites")
             .id()
             .field("user_id", .uuid, .required, .references("users", "id", onDelete: .cascade))

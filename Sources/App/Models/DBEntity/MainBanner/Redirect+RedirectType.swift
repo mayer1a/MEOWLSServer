@@ -7,7 +7,7 @@
 
 import Vapor
 
-extension MainBanner.Redirect {
+extension Redirect {
 
     enum RedirectType: String, Content {
         

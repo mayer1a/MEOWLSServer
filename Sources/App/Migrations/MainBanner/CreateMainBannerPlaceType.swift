@@ -10,6 +10,7 @@ import Fluent
 struct CreateMainBannerPlaceType: AsyncMigration {
     
     func prepare(on database: Database) async throws {
+        
         _ = try await database.enum("PlaceType")
             .case("categories")
             .case("banners_horizontal")

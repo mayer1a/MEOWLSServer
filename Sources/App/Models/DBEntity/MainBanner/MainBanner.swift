@@ -51,13 +51,5 @@ final class MainBanner: Model, Content, @unchecked Sendable {
         self.$parent.id = parentID
     }
 
-    enum CodingKeys: String, CodingKey {
-        case id, title
-        case placeType = "place_type"
-        case redirect
-        case uiSettings = "ui_settings"
-        case categories, parent, banners, products, image
-    }
-
 }
 

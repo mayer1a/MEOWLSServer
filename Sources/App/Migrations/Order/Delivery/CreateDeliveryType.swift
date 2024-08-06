@@ -10,6 +10,7 @@ import Fluent
 struct CreateDeliveryType: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         _ = try await database.enum("DeliveryType")
             .case("courier")
             .case("self_pickup")

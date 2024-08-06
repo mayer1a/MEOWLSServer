@@ -10,8 +10,10 @@ import Fluent
 struct CreateUser: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+
         let gender = try await database.enum("Gender").read()
         let role = try await database.enum("Role").read()
+        
         try await database.schema("users")
             .id()
             .field("surname", .string)

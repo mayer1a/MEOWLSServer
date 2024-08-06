@@ -10,7 +10,9 @@ import Fluent
 struct CreateMainBannerRedirect: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+
         let redirectType = try await database.enum("RedirectType").read()
+
         try await database.schema("main_banners_redirects")
             .id()
             .field("main_banner_id", .uuid, .required, .references("main_banners", "id", onDelete: .cascade))

@@ -8,41 +8,45 @@
 import Vapor
 import Fluent
 
-final class ProductVariant: Model, Content, @unchecked Sendable {
+extension Product {
 
-    static let schema = "product_variants"
+    final class ProductVariant: Model, Content, @unchecked Sendable {
 
-    @ID(key: .id)
-    var id: UUID?
+        static let schema = "product_variants"
 
-    @Parent(key: "product_id")
-    var product: Product
+        @ID(key: .id)
+        var id: UUID?
 
-    @Field(key: "article")
-    var article: String
+        @Parent(key: "product_id")
+        var product: Product
 
-    @Field(key: "short_name")
-    var shortName: String
-    
-    @OptionalChild(for: \.$productVariant)
-    var price: Price?
+        @Field(key: "article")
+        var article: String
 
-    @OptionalChild(for: \.$productVariant)
-    var availabilityInfo: AvailabilityInfo?
+        @Field(key: "short_name")
+        var shortName: String
 
-    @Siblings(through: ProductVariantBadgePivot.self, from: \.$productVariant, to: \.$badge)
-    var badges: [Badge]
+        @OptionalChild(for: \.$productVariant)
+        var price: Price?
 
-    @Siblings(through: ProductVariantsPropertyValues.self, from: \.$productVariant, to: \.$propertyValue)
-    var propertyValues: [PropertyValue]
+        @OptionalChild(for: \.$productVariant)
+        var availabilityInfo: AvailabilityInfo?
 
-    init() {}
+        @Siblings(through: ProductVariantBadgePivot.self, from: \.$productVariant, to: \.$badge)
+        var badges: [Badge]
 
-    init(id: UUID? = nil, productID: Product.IDValue, article: String, shortName: String) {
-        self.id = id
-        self.$product.id = productID
-        self.article = article
-        self.shortName = shortName
+        @Siblings(through: ProductVariantsPropertyValues.self, from: \.$productVariant, to: \.$propertyValue)
+        var propertyValues: [PropertyValue]
+
+        init() {}
+
+        init(id: UUID? = nil, productID: Product.IDValue, article: String, shortName: String) {
+            self.id = id
+            self.$product.id = productID
+            self.article = article
+            self.shortName = shortName
+        }
+
     }
 
 }

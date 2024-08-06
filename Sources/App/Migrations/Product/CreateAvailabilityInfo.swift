@@ -10,7 +10,9 @@ import Fluent
 struct CreateAvailabilityInfo: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+
         let type = try await database.enum("AvailabilityType").read()
+        
         try await database.schema("availability_infos")
             .id()
             .field("product_variant_id", .uuid, .references("product_variants", "id", onDelete: .cascade))

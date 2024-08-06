@@ -8,45 +8,49 @@
 import Vapor
 import Fluent
 
-final class Price: Model, Content, @unchecked Sendable {
-    
-    static let schema = "prices"
+extension ProductVariant {
 
-    @ID(key: .id)
-    var id: UUID?
+    final class Price: Model, Content, @unchecked Sendable {
 
-    @OptionalParent(key: "product_variant_id")
-    var productVariant: ProductVariant?
+        static let schema = "prices"
 
-    @OptionalParent(key: "cart_item_id")
-    var cartItem: CartItem?
+        @ID(key: .id)
+        var id: UUID?
 
-    /// Old price
-    @Field(key: "original_price")
-    var originalPrice: Double
+        @OptionalParent(key: "product_variant_id")
+        var productVariant: ProductVariant?
 
-    @OptionalField(key: "discount")
-    var discount: Double?
+        @OptionalParent(key: "cart_item_id")
+        var cartItem: CartItem?
 
-    /// New price
-    @Field(key: "price")
-    var price: Double
+        /// Old price
+        @Field(key: "original_price")
+        var originalPrice: Double
 
-    init() {}
+        @OptionalField(key: "discount")
+        var discount: Double?
 
-    init(id: UUID? = nil,
-         productVariantID: ProductVariant.IDValue? = nil,
-         cartItemID: CartItem.IDValue? = nil,
-         originalPrice: Double,
-         discount: Double?,
-         price: Double) {
+        /// New price
+        @Field(key: "price")
+        var price: Double
 
-        self.id = id
-        self.$productVariant.id = productVariantID
-        self.$cartItem.id = cartItemID
-        self.originalPrice = originalPrice
-        self.discount = discount
-        self.price = price
+        init() {}
+
+        init(id: UUID? = nil,
+             productVariantID: ProductVariant.IDValue? = nil,
+             cartItemID: CartItem.IDValue? = nil,
+             originalPrice: Double,
+             discount: Double?,
+             price: Double) {
+
+            self.id = id
+            self.$productVariant.id = productVariantID
+            self.$cartItem.id = cartItemID
+            self.originalPrice = originalPrice
+            self.discount = discount
+            self.price = price
+        }
+
     }
 
 }

@@ -10,6 +10,7 @@ import Fluent
 struct CreateGender: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         _ = try await database.enum("Gender")
             .case("man")
             .case("woman")

@@ -10,6 +10,7 @@ import Fluent
 struct CreateImageDimension: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("image_dimensions")
             .id()
             .field("image_id", .uuid, .required, .references("images", "id", onDelete: .cascade))

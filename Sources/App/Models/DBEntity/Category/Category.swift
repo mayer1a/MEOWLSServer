@@ -34,7 +34,7 @@ final class Category: Model, @unchecked Sendable {
     var image: Image?
 
     @OptionalChild(for: \.$category)
-    var productsSet: MainBanner.Redirect.ProductsSet?
+    var productsSet: ProductsSet?
 
     @OptionalParent(key: "main_banner_id")
     var mainBanner: MainBanner?

@@ -9,6 +9,13 @@ import Vapor
 
 public extension Routes {
 
+    /// Format print all routes if DEBUG
+    func print() {
+        #if DEBUG
+            Swift.print(allPrintable)
+        #endif
+    }
+
     private var allPrintable: String {
         var get = ""
         var post = ""
@@ -42,13 +49,6 @@ public extension Routes {
         let header = "\n\n------------------ [ ALL ROUTES ] ------------------"
         let footer = "\n----------------------------------------------------\n\n"
         return "\(header)\(get)\(post)\(patch)\(delete)\(other)\(footer)"
-    }
-
-    /// Format print all routes if DEBUG
-    func print() {
-        #if DEBUG
-            Swift.print(allPrintable)
-        #endif
     }
 
 }

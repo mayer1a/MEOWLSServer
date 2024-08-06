@@ -10,6 +10,7 @@ import Fluent
 struct CreateDeliveryTimeInterval: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("delivery_time_intervals")
             .id()
             .field("delivery_id", .uuid, .required, .references("deliveries", "id", onDelete: .cascade))

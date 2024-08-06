@@ -8,37 +8,47 @@
 import Vapor
 import Fluent
 
-final class Section: Model, Content, @unchecked Sendable {
+extension Product {
 
-    static let schema = "sections"
+    final class Section: Model, Content, @unchecked Sendable {
 
-    @ID(key: .id)
-    var id: UUID?
+        static let schema = "sections"
 
-    @Parent(key: "product_id")
-    var product: Product
+        @ID(key: .id)
+        var id: UUID?
 
-    @Field(key: "title")
-    var title: String
+        @Parent(key: "product_id")
+        var product: Product
 
-    @Enum(key: "type")
-    var type: SectionType
+        @Field(key: "title")
+        var title: String
 
-    @Field(key: "text")
-    var text: String
+        @Enum(key: "type")
+        var type: SectionType
 
-    @OptionalField(key: "link")
-    var link: String?
+        @Field(key: "text")
+        var text: String
 
-    init() {}
+        @OptionalField(key: "link")
+        var link: String?
 
-    init(id: UUID? = nil, productID: Product.IDValue, title: String, type: SectionType, text: String, link: String?) {
-        self.id = id
-        self.$product.id = productID
-        self.title = title
-        self.type = type
-        self.text = text
-        self.link = link
+        init() {}
+
+        init(id: UUID? = nil, 
+             productID: Product.IDValue,
+             title: String,
+             type: SectionType,
+             text: String,
+             link: String?) {
+            
+            self.id = id
+            self.$product.id = productID
+            self.title = title
+            self.type = type
+            self.text = text
+            self.link = link
+        }
+
     }
 
 }

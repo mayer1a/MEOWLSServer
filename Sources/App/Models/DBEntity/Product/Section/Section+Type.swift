@@ -14,11 +14,6 @@ extension Section {
         case textExpandable = "text_expandable"
         case textModal = "text_modal"
 
-        enum CodingKeys: String, CodingKey {
-            case textExpandable = "text_expandable"
-            case textModal = "text_modal"
-        }
-
     }
 
 }

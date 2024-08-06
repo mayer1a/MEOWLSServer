@@ -10,7 +10,9 @@ import Fluent
 struct CreatePromoCode: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+
         let discountType = try await database.enum("DiscountType").read()
+        
         try await database.schema("promo_codes")
             .id()
             .field("code", .string)

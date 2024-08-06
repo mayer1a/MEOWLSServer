@@ -10,7 +10,9 @@ import Fluent
 struct CreateSale: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+
         let saleType = try await database.enum("SaleType").read()
+        
         try await database.schema("sales")
             .id()
             .field("code", .string, .required)

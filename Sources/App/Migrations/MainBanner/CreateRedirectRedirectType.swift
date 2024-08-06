@@ -10,6 +10,7 @@ import Fluent
 struct CreateRedirectRedirectType: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         _ = try await database.enum("RedirectType")
             .case("object")
             .case("products_collection")

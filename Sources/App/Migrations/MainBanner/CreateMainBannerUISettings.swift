@@ -10,6 +10,7 @@ import Fluent
 struct CreateMainBannerUISettings: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("main_banners_ui_settings")
             .id()
             .field("main_banner_id", .uuid, .required, .references("main_banners", "id", onDelete: .cascade))

@@ -17,22 +17,22 @@ final class User: Model, Content, @unchecked Sendable {
     @ID(key: .id)
     var id: UUID?
 
-    @Field(key: "surname")
+    @OptionalField(key: "surname")
     var surname: String?
 
-    @Field(key: "name")
+    @OptionalField(key: "name")
     var name: String?
 
-    @Field(key: "patronymic")
+    @OptionalField(key: "patronymic")
     var patronymic: String?
 
-    @Field(key: "birthday")
+    @OptionalField(key: "birthday")
     var birthday: Date?
 
     @OptionalEnum(key: "gender")
     var gender: Gender?
 
-    @Field(key: "email")
+    @OptionalField(key: "email")
     var email: String?
 
     @Field(key: "password_hash")

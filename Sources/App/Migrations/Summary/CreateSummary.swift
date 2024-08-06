@@ -10,6 +10,7 @@ import Fluent
 struct CreateSummary: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         try await database.schema("summaries")
             .id()
             .field("cart_id", .uuid, .references("carts", "id", onDelete: .cascade))

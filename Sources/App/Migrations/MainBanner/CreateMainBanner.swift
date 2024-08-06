@@ -10,7 +10,9 @@ import Fluent
 struct CreateMainBanner: AsyncMigration {
 
     func prepare(on database: Database) async throws {
+        
         let placeType = try await database.enum("PlaceType").read()
+        
         try await database.schema("main_banners")
             .id()
             .field("title", .string)
