@@ -9,6 +9,8 @@ import Vapor
 
 struct DTOBuilder {
 
+    typealias SQLRawResponse = SearchRepository.SQLRawResponse
+
     // MARK: - User
 
     static func makeUser(from model: User, with token: Token? = nil) async throws -> User.PublicDTO {
