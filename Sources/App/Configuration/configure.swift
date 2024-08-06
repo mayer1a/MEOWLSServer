@@ -14,12 +14,13 @@ import Vapor
 struct Configuration {
 
     public static func configure(_ app: Application) async throws {
+
         app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
         setupLogger(for: app)
-
-        try await connectDatabase(for: app)
         
+        try await connectDatabase(for: app)
+
         #if DEBUG
             try await setupMigrations(for: app)
         #endif
@@ -30,6 +31,7 @@ struct Configuration {
     }
 
     private static func connectDatabase(for app: Application) async throws {
+
         guard
             let hostname = Environment.get("DATABASE_HOST"),
             let username = Environment.get("DATABASE_USERNAME"),
@@ -56,9 +58,11 @@ struct Configuration {
         #else
             app.logger.logLevel = .notice
         #endif
+
     }
 
     private static func setupMigrations(for app: Application) async throws {
+
         addUserMigrations(for: app)
         addImageMigrations(for: app)
         addCategoryMigrations(for: app)
@@ -74,6 +78,7 @@ struct Configuration {
     }
 
     private static func addUserMigrations(for app: Application) {
+
         app.migrations.add(CreateGender())
         app.migrations.add(CreateUserRole())
         app.migrations.add(CreateUser())
@@ -81,15 +86,18 @@ struct Configuration {
     }
 
     private static func addCategoryMigrations(for app: Application) {
+
         app.migrations.add(CreateCategory())
     }
 
     private static func addImageMigrations(for app: Application) {
+
         app.migrations.add(CreateImage())
         app.migrations.add(CreateImageDimension())
     }
 
     private static func addProductMigrations(for app: Application) {
+
         app.migrations.add(CreateProduct())
         app.migrations.add(CreateProductProperty())
         app.migrations.add(CreateProductVariant())
@@ -105,6 +113,7 @@ struct Configuration {
     }
 
     private static func addProductPivotMigrations(for app: Application) {
+
         app.migrations.add(CreateProductImagesPivot())
         app.migrations.add(CreateProductVariantBadgePivot())
         app.migrations.add(CreateProductVariantsPropertyValuesPivot())
@@ -112,6 +121,7 @@ struct Configuration {
     }
 
     private static func addMainBannerMigrations(for app: Application) {
+
         app.migrations.add(CreateMainBannerPlaceType())
         app.migrations.add(CreateRedirectRedirectType())
         app.migrations.add(CreateMainBanner())
@@ -121,19 +131,23 @@ struct Configuration {
         app.migrations.add(CreateUISettingsCornerRadius())
         app.migrations.add(CreateUISettingsMetric())
         app.migrations.add(CreateUISettingsSpacing())
+        app.migrations.add(CreateRedirectObjectType())
     }
 
     private static func addSalesMigrations(for app: Application) {
+
         app.migrations.add(CreateSaleType())
         app.migrations.add(CreateSale())
     }
 
     private static func addFavoritesMigrations(for app: Application) {
+
         app.migrations.add(CreateFavorites())
         app.migrations.add(CreateFavoritesProductsPivot())
     }
 
     private static func addPromoCodesMigrations(for app: Application) {
+
         app.migrations.add(CreateDiscountType())
         app.migrations.add(CreatePromoCode())
         app.migrations.add(CreatePromoCodesProductsPivot())
@@ -141,6 +155,7 @@ struct Configuration {
     }
 
     private static func addCartMigrations(for app: Application) {
+
         app.migrations.add(CreateCart())
 
         addOrderMigrations(for: app)
@@ -151,6 +166,7 @@ struct Configuration {
     }
 
     private static func addOrderMigrations(for app: Application) {
+        
         app.migrations.add(CreateStatusCode())
         app.migrations.add(CreatePaymentType())
         
@@ -158,6 +174,7 @@ struct Configuration {
     }
 
     private static func addDeliveryMigrations(for app: Application) {
+        
         app.migrations.add(CreateDeliveryType())
         app.migrations.add(CreateDelivery())
         app.migrations.add(CreateAddress())

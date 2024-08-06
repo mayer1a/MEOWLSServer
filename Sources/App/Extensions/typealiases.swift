@@ -23,6 +23,7 @@ typealias Redirect = MainBanner.Redirect
 typealias RedirectDTO = MainBannerDTO.RedirectDTO
 
 typealias RedirectType = Redirect.RedirectType
+typealias ObjectType = Redirect.ObjectType
 
 typealias ProductsSet = Redirect.ProductsSet
 typealias ProductsSetDTO = RedirectDTO.ProductsSetDTO

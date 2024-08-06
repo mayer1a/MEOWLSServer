@@ -98,18 +98,5 @@ extension User: ModelAuthenticatable {
         try Bcrypt.verify(password, created: self.passwordHash)
     }
 
-    func convertToPublic(with token: Token? = nil) async throws -> User.PublicDTO {
-        User.PublicDTO(id: id,
-                       surname: surname,
-                       name: name,
-                       patronymic: patronymic,
-                       birthday: birthday,
-                       gender: gender,
-                       email: email,
-                       phone: phone,
-                       token: token?.value,
-                       role: role)
-    }
-
 }
 

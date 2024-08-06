@@ -26,6 +26,9 @@ extension MainBanner {
         @OptionalChild(for: \.$redirect)
         var sale: Sale?
 
+        @Enum(key: "object_type")
+        var objectType: ObjectType
+
         @OptionalChild(for: \.$redirect)
         var productsSet: ProductsSet?
 
@@ -34,10 +37,16 @@ extension MainBanner {
 
         init() {}
 
-        init(id: UUID? = nil, mainBannerID: MainBanner.IDValue, redirectType: RedirectType, url: String?) {
+        init(id: UUID? = nil,
+             mainBannerID: MainBanner.IDValue,
+             redirectType: RedirectType,
+             objectType: ObjectType,
+             url: String?) {
+
             self.id = id
             self.$mainBanner.id = mainBannerID
             self.redirectType = redirectType
+            self.objectType = objectType
             self.url = url
         }
 
