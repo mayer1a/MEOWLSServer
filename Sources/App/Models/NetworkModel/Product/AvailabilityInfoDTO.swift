@@ -7,11 +7,11 @@
 
 import Vapor
 
-extension ProductDTO.ProductVariantDTO {
+extension ProductVariantDTO {
 
     struct AvailabilityInfoDTO: Content {
 
-        let type: AvailabilityInfo.AvailabilityType
+        let type: AvailabilityType
         let deliveryDuration: Int?
         let count: Int
 

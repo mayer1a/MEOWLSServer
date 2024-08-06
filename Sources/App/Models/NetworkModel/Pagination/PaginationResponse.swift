@@ -9,7 +9,7 @@ import Vapor
 
 struct PaginationResponse<D: Codable>: Content {
 
-    let results: [D]
+    var results: [D]
     let paginationInfo: PaginationInfo
 
 }

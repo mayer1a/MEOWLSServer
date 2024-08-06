@@ -10,6 +10,7 @@ import Foundation
 extension User.CreateDTO: UserValidatable {
 
     func validate() throws {
+        
         try validate(password: password, confirmPassword: confirmPassword)
 
         try validate(phone: phone)

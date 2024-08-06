@@ -11,7 +11,7 @@ struct SaleDTO: Content {
 
     let id: UUID
     let code: String
-    let saleType: Sale.SaleType
+    let saleType: SaleType
     let title: String
     let image: ImageDTO?
     let startDate: Date

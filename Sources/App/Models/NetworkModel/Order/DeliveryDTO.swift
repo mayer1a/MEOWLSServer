@@ -9,7 +9,7 @@ import Vapor
 
 struct DeliveryDTO: Content {
 
-    let type: Delivery.DeliveryType
+    let type: DeliveryType
     let deliveryDate: String
     let deliveryTimeInterval: DeliveryTimeIntervalDTO
     let address: AddressDTO

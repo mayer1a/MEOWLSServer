@@ -34,4 +34,27 @@ struct ProductDTO: Content {
         case sections
     }
 
+    init(id: UUID, 
+         name: String,
+         code: String,
+         images: [ImageDTO],
+         allowQuickBuy: Bool,
+         variants: [ProductVariantDTO],
+         productProperties: [ProductPropertyDTO]? = nil,
+         defaultVariantArticle: String? = nil,
+         deliveryConditionsURL: String? = nil,
+         sections: [SectionDTO]? = nil) {
+
+        self.id = id
+        self.name = name
+        self.code = code
+        self.images = images
+        self.allowQuickBuy = allowQuickBuy
+        self.variants = variants
+        self.productProperties = productProperties
+        self.defaultVariantArticle = defaultVariantArticle
+        self.deliveryConditionsURL = deliveryConditionsURL
+        self.sections = sections
+    }
+
 }

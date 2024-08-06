@@ -17,7 +17,7 @@ extension ProductDTO {
         let price: PriceDTO?
         let availabilityInfo: AvailabilityInfoDTO?
         let badges: [BadgeDTO]
-        let propertyValues: [PropertyValueDTO]
+        let propertyValues: [PropertyValueDTO]?
 
         enum CodingKeys: String, CodingKey {
             case id, article

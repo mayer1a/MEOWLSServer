@@ -7,7 +7,7 @@
 
 import Vapor
 
-extension MainBannerDTO.UISettingsDTO {
+extension UISettingsDTO {
 
     struct SpacingDTO: Content {
         

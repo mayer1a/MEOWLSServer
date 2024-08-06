@@ -10,6 +10,7 @@ import Vapor
 extension User {
 
     struct CreateDTO: Content {
+
         var surname: String?
         var name: String?
         var patronymic: String?
@@ -24,6 +25,7 @@ extension User {
             case surname, name, patronymic, birthday, gender, email, phone, password
             case confirmPassword = "confirm_password"
         }
+        
     }
 
 }
@@ -31,6 +33,7 @@ extension User {
 extension User.CreateDTO {
 
     func toUser(with role: UserRole) throws -> User {
+        
         try User(surname: surname,
                  name: name,
                  patronymic: patronymic,

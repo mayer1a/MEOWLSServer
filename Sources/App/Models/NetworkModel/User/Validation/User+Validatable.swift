@@ -28,6 +28,7 @@ extension UserValidatable {
     }
 
     func validate(password: String?, confirmPassword: String?) throws {
+
         guard let password, let confirmPassword, password == confirmPassword else {
             throw makeError(with: "Passwords did not match",
                             [.init(field: "Password"), .init(field: "Confirm password", failure: passwordConfirmError)])
@@ -44,7 +45,9 @@ extension UserValidatable {
     }
 
     func validate(email: String) throws {
+
         if email.isEmpty == false {
+
             let pattern = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
             let regex = try NSRegularExpression(pattern: pattern, options: .caseInsensitive)
             let range = NSRange(email.startIndex..., in: email)
@@ -57,12 +60,15 @@ extension UserValidatable {
     }
 
     func validate(phone: String) throws {
+
         if phone.isEmpty == true {
+
             throw makeError(with: "Phone number required", [.init(field: "Phone number", failure: "Field is empty")])
         }
     }
 
     func makeError(with reason: String, _ failures: [ValidationFailure]) -> CustomErrorProtocol {
+        
         CustomError(.badRequest, code: "validationError", reason: reason, failures: failures)
     }
 

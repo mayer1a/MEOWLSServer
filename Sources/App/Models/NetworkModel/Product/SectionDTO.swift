@@ -12,7 +12,7 @@ extension ProductDTO {
     struct SectionDTO: Content {
 
         let title: String
-        let type: Section.SectionType
+        let type: SectionType
         let text: String
         let link: String?
 

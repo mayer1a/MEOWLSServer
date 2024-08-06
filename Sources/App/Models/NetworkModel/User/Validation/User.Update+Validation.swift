@@ -10,7 +10,9 @@ import Foundation
 extension User.UpdateDTO: UserValidatable {
 
     func validate() throws {
+
         if password != nil || confirmPassword != nil {
+
             try validate(password: password, confirmPassword: confirmPassword)
         }
         

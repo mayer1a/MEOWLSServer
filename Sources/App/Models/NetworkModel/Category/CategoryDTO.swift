@@ -13,17 +13,23 @@ final class CategoryDTO: Content {
     let code: String
     let name: String
     let parent: CategoryDTO?
-    let products: [ProductDTO]
+    let products: [ProductDTO]?
     let hasChildren: Bool
     let image: ImageDTO?
+
+    enum CodingKeys: String, CodingKey {
+        case id, code, name, parent, products
+        case hasChildren = "has_children"
+        case image
+    }
 
     init(id: UUID,
          code: String,
          name: String,
-         parent: CategoryDTO?,
-         products: [ProductDTO],
+         parent: CategoryDTO? = nil,
+         products: [ProductDTO]? = nil,
          hasChildren: Bool,
-         image: ImageDTO?) {
+         image: ImageDTO? = nil) {
 
         self.id = id
         self.code = code
@@ -32,12 +38,6 @@ final class CategoryDTO: Content {
         self.products = products
         self.hasChildren = hasChildren
         self.image = image
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case id, code, name, parent, products
-        case hasChildren = "has_children"
-        case image
     }
 
 }

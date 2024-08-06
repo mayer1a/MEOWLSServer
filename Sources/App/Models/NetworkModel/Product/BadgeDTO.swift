@@ -7,7 +7,7 @@
 
 import Vapor
 
-extension ProductDTO.ProductVariantDTO {
+extension ProductVariantDTO {
 
     struct BadgeDTO: Content {
 

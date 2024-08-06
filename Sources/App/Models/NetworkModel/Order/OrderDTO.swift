@@ -11,7 +11,7 @@ struct OrderDTO: Content {
 
     let id: UUID
     let number: Int
-    let statusCode: Order.StatusCode
+    let statusCode: StatusCode
     let status: String
     let canBePaidOnline: Bool
     let paid: Bool
@@ -21,7 +21,7 @@ struct OrderDTO: Content {
     let client: User.PublicDTO
     let delivery: DeliveryDTO
     let comment: String?
-    let paymentType: Order.PaymentType
+    let paymentType: PaymentType
     let items: [CartItemDTO]
     let itemsSummary: [SummaryDTO]?
     let total: SummaryDTO

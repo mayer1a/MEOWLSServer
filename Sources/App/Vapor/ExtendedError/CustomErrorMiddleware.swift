@@ -14,8 +14,10 @@ final class CustomErrorMiddleware: Middleware {
 
     /// See `Middleware`.
     func respond(to request: Request, chainingTo next: Responder) -> EventLoopFuture<Response> {
+
         next.respond(to: request)
             .flatMapError { [weak self] error in
+
                 guard let self else {
                     return request.eventLoop.makeFailedFuture(CustomError(.internalServerError, code: "-1"))
                 }
@@ -35,7 +37,7 @@ final class CustomErrorMiddleware: Middleware {
 
         // Attempt to serialize the error to json.
         do {
-            let errorResponse = ErrorResponse(reason: rawResponse.reason, 
+            let errorResponse = ErrorResponse(reason: rawResponse.reason,
                                               code: rawResponse.code,
                                               failures: rawResponse.failures)
 
@@ -45,6 +47,7 @@ final class CustomErrorMiddleware: Middleware {
 
             return request.eventLoop.makeSucceededFuture(response)
         } catch {
+
             let body = Response.Body(string: "Oops: \(error)")
             let response = Response(status: rawResponse.status, headers: rawResponse.headers, body: body)
             response.headers.replaceOrAdd(name: .contentType, value: "text/plain; charset=utf-8")
@@ -55,6 +58,7 @@ final class CustomErrorMiddleware: Middleware {
 
     /// Error-handling closure.
     private func makeRawResponse(request: Request, error: Error) -> RawResponse {
+
         // variables to determine
         let status: HTTPResponseStatus
         let reason: String
@@ -75,6 +79,7 @@ final class CustomErrorMiddleware: Middleware {
             reason = "Validation errors occurs."
 
             failures = validation.failures.map { failure in
+
                 ValidationFailure(field: failure.key.stringValue, failure: failure.result.failureDescription)
             }
 
@@ -104,13 +109,16 @@ final class CustomErrorMiddleware: Middleware {
 
     /// AbortError helper for check incorrect login credentials
     private func handleLoginAbort(error: AbortError, with url: URI) -> (code: String, reason: String) {
+
         let code: String
         let reason: String
 
         if error.status == .unauthorized, url.path.components(separatedBy: "/").last == "login" {
+
             code = "authError"
             reason = "Invalid phone or password"
         } else {
+
             code = "abortError"
             reason = error.reason
         }
@@ -124,6 +132,7 @@ extension CustomErrorMiddleware {
 
     /// Structure of `CustomErrorMiddleware` default response.
     struct ErrorResponse: Codable {
+
         /// The reason for the error.
         var reason: String
 
@@ -136,11 +145,13 @@ extension CustomErrorMiddleware {
 
     /// Structure containing all the necessary fields to create an error response
     struct RawResponse {
+
         let status: HTTPResponseStatus
         let reason: String
         let headers: HTTPHeaders
         let code: String?
         let failures: [ValidationFailure]?
+        
     }
 
 }

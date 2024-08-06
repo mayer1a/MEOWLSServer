@@ -18,7 +18,7 @@ extension CartRequest {
 
 }
 
-extension CartRequest.CartDTO {
+extension CartDTO {
 
     struct Item: Content {
 

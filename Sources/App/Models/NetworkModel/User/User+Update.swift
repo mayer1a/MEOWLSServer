@@ -10,6 +10,7 @@ import Vapor
 extension User {
 
     struct UpdateDTO: Content {
+        
         var surname: String?
         var name: String?
         var patronymic: String?
@@ -24,24 +25,7 @@ extension User {
             case surname, name, patronymic, birthday, gender, email, phone, password
             case confirmPassword = "confirm_password"
         }
-    }
-
-}
-
-extension User {
-
-    func update(with newUser: User.UpdateDTO) throws {
-        surname = newUser.surname
-        name = newUser.name
-        patronymic = newUser.patronymic
-        birthday = newUser.birthday
-        gender = newUser.gender
-        email = newUser.email
-        phone = newUser.phone
-
-        if let password = newUser.password {
-            passwordHash = try Bcrypt.hash(password)
-        }
+        
     }
 
 }

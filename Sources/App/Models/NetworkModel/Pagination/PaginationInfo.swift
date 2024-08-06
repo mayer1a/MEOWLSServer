@@ -14,5 +14,12 @@ struct PaginationInfo: Content {
     let perPage: Int
     let totalCount: Int
 
+    enum CodingKeys: String, CodingKey {
+        case page = "page"
+        case nextPage = "next_page"
+        case perPage = "per_page"
+        case totalCount = "total_count"
+    }
+
 }
 

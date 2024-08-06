@@ -16,10 +16,6 @@ extension ProductDTO {
         let code: String
         let selectable: Bool
 
-        enum CodingKeys: String, CodingKey {
-            case id, name, code, selectable
-        }
-
     }
 
 }
