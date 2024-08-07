@@ -11,9 +11,9 @@ extension ProductVariantDTO {
 
     struct PriceDTO: Content {
 
-        let originalPrice: Double
+        var originalPrice: Double
         let discount: Double?
-        let price: Double
+        var price: Double
 
         enum CodingKeys: String, CodingKey {
             case originalPrice = "original_price"

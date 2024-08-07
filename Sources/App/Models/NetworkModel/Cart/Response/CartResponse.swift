@@ -7,7 +7,7 @@
 
 import Vapor
 
-struct CartResponse: Content {
+struct CartDTO: Content {
 
     let id: UUID
     let items: [CartItemDTO]
@@ -20,6 +20,19 @@ struct CartResponse: Content {
         case promoCode = "promo_code"
         case itemsSummary = "items_summary"
         case total
+    }
+
+    init(id: UUID, 
+         items: [CartItemDTO], 
+         promoCode: PromoCodeDTO? = nil,
+         itemsSummary: [SummaryDTO]? = nil,
+         total: SummaryDTO = .init()) {
+
+        self.id = id
+        self.items = items
+        self.promoCode = promoCode
+        self.itemsSummary = itemsSummary
+        self.total = total
     }
 
 }

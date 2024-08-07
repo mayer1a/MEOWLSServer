@@ -18,12 +18,12 @@ extension CartRequest {
 
 }
 
-extension CartDTO {
+extension CartRequest.CartDTO {
 
     struct Item: Content {
 
-        let count: Int
         let article: String
+        let count: Int
 
     }
 

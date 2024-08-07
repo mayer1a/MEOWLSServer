@@ -54,6 +54,9 @@ final class Product: Model, Content, @unchecked Sendable {
     @Siblings(through: PromoCodesProductsPivot.self, from: \.$product, to: \.$promoCode)
     var promoCodes: [PromoCode]
 
+    @Children(for: \.$product)
+    var cartItems: [CartItem]
+
     init() { }
 
     init(id: UUID? = nil,

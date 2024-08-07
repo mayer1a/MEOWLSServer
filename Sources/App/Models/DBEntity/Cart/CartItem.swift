@@ -15,32 +15,36 @@ final class CartItem: Model, @unchecked Sendable {
     @ID(key: .id)
     var id: UUID?
 
+    @Parent(key: "product_id")
+    var product: Product
+
     @OptionalParent(key: "cart_id")
     var cart: Cart?
 
     @OptionalParent(key: "order_id")
     var order: Order?
 
-    @Field(key: "product_id")
-    var productID: UUID
+    @Field(key: "article")
+    var article: String
 
     @Field(key: "count")
     var count: Int
 
-    @OptionalChild(for: \.$cartItem)
-    var amount: Price?
-
     init() {}
 
-    init(id: UUID? = nil, cartID: Cart.IDValue? = nil, orderID: Order.IDValue? = nil, productID: UUID, count: Int) {
+    init(id: UUID? = nil,
+         productID: Product.IDValue,
+         cartID: Cart.IDValue? = nil,
+         orderID: Order.IDValue? = nil,
+         article: String,
+         count: Int) {
+
         self.id = id
+        self.$product.id = productID
         self.$cart.id = cartID
         self.$order.id = orderID
-        self.productID = productID
+        self.article = article
         self.count = count
     }
 
 }
-
-
-// ADD REFERENCE FOR PRICE TABLE TO CART ITEM ID !!!!

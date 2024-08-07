@@ -20,9 +20,6 @@ extension ProductVariant {
         @OptionalParent(key: "product_variant_id")
         var productVariant: ProductVariant?
 
-        @OptionalParent(key: "cart_item_id")
-        var cartItem: CartItem?
-
         /// Old price
         @Field(key: "original_price")
         var originalPrice: Double
@@ -38,14 +35,12 @@ extension ProductVariant {
 
         init(id: UUID? = nil,
              productVariantID: ProductVariant.IDValue? = nil,
-             cartItemID: CartItem.IDValue? = nil,
              originalPrice: Double,
              discount: Double?,
              price: Double) {
 
             self.id = id
             self.$productVariant.id = productVariantID
-            self.$cartItem.id = cartItemID
             self.originalPrice = originalPrice
             self.discount = discount
             self.price = price

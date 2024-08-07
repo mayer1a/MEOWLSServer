@@ -57,8 +57,6 @@ typealias SectionDTO = ProductDTO.SectionDTO
 typealias ProductProperty = Product.ProductProperty
 typealias ProductPropertyDTO = ProductDTO.ProductPropertyDTO
 
-typealias CartDTO = CartRequest.CartDTO
-
 typealias DeliveryType = Delivery.DeliveryType
 
 typealias StatusCode = Order.StatusCode

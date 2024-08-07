@@ -24,12 +24,6 @@ final class Cart: Model, @unchecked Sendable {
     @Siblings(through: CartsPromoCodesPivot.self, from: \.$cart, to: \.$promoCode)
     var promoCodes: [PromoCode]
 
-    @Children(for: \.$cart)
-    var itemsSummary: [Summary]
-
-    @OptionalChild(for: \.$cart)
-    var total: Summary?
-
     init() {}
 
     init(id: UUID? = nil, userID: User.IDValue) {

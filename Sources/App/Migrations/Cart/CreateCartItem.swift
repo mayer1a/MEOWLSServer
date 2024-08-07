@@ -13,9 +13,10 @@ struct CreateCartItem: AsyncMigration {
         
         try await database.schema("cart_items")
             .id()
+            .field("product_id", .uuid, .required, .references("products", "id", onDelete: .cascade))
             .field("cart_id", .uuid, .references("carts", "id", onDelete: .cascade))
             .field("order_id", .uuid, .references("orders", "id", onDelete: .cascade))
-            .field("product_id", .uuid, .required)
+            .field("article", .string, .required)
             .field("count", .int, .required)
             .create()
     }
