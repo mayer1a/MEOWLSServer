@@ -23,6 +23,7 @@ struct RegisterRoutes {
         let productsRepository = ProductsRepository(database: app.db)
         let salesRepository = SalesRepository(database: app.db, cache: app.caches)
         let searchRepository = SearchRepository(database: app.db, cache: app.caches)
+        let cartRepository = CartRepository(database: app.db)
 
         try app.register(collection: UserController(with: userRepository, tokenRepository))
         try app.register(collection: BannersController(bannersRepository: bannersRepository))
@@ -31,6 +32,7 @@ struct RegisterRoutes {
         try app.register(collection: ProductsController(productsRepository: productsRepository))
         try app.register(collection: SalesController(salesRepository: salesRepository))
         try app.register(collection: SearchController(searchRepository: searchRepository))
+        try app.register(collection: CartController(cartRepository: cartRepository))
 
         app.routes.print()
     }
