@@ -13,6 +13,7 @@ struct CreateAddress: AsyncMigration {
         
         try await database.schema("addresses")
             .id()
+            .field("city_id", .uuid, .required, .references("cities", "id", onDelete: .restrict))
             .field("delivery_id", .uuid, .references("deliveries", "id", onDelete: .cascade))
             .field("user_id", .uuid, .references("users", "id", onDelete: .cascade))
             .field("street", .string, .required)

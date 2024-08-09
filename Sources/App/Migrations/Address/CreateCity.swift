@@ -13,10 +13,9 @@ struct CreateCity: AsyncMigration {
         
         try await database.schema("cities")
             .id()
-            .field("address_id", .uuid, .required, .references("addresses", "id", onDelete: .cascade))
+            .field("region_id", .uuid, .required, .references("regions", "id", onDelete: .cascade))
             .field("name", .string, .required)
-            .field("fias_id", .string, .required)
-            .unique(on: "address_id")
+            .unique(on: "name")
             .create()
     }
 

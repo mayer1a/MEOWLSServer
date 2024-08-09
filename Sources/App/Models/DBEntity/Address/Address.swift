@@ -15,6 +15,9 @@ final class Address: Model, Content, @unchecked Sendable {
     @ID(key: .id)
     var id: UUID?
 
+    @Parent(key: "city_id")
+    var city: City
+
     @OptionalParent(key: "delivery_id")
     var delivery: Delivery?
 
@@ -40,14 +43,12 @@ final class Address: Model, Content, @unchecked Sendable {
     var formattedString: String
 
     @OptionalChild(for: \.$address)
-    var city: City?
-
-    @OptionalChild(for: \.$address)
     var location: Location?
 
     init() {}
 
     init(id: UUID? = nil,
+         cityID: City.IDValue,
          deliveryID: Delivery.IDValue? = nil,
          userID: User.IDValue? = nil,
          street: String,
@@ -58,6 +59,7 @@ final class Address: Model, Content, @unchecked Sendable {
          formattedString: String) {
 
         self.id = id
+        self.$city.id = cityID
         self.$delivery.id = deliveryID
         self.$user.id = userID
         self.street = street

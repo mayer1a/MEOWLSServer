@@ -37,12 +37,15 @@ struct Configuration {
             let hostname = Environment.get("DATABASE_HOST"),
             let username = Environment.get("DATABASE_USERNAME"),
             let password = Environment.get("DATABASE_PASSWORD"),
-            let name = Environment.get("DATABASE_NAME")
+            let name = Environment.get("DATABASE_NAME"),
+            let daDataToken = Environment.get("DADATA_TOKEN")
         else {
             debugPrint("[ERROR] ENVIRONMENTS DOES NOT FOUND")
             throw Abort(.serviceUnavailable)
         }
         
+        AppConstants.shared.daDataToken = daDataToken
+
         let sqlConfig = SQLPostgresConfiguration(hostname: hostname,
                                                  port: SQLPostgresConfiguration.ianaPortNumber,
                                                  username: username,
@@ -179,6 +182,7 @@ struct Configuration {
         app.migrations.add(CreateDeliveryType())
         app.migrations.add(CreateDelivery())
         app.migrations.add(CreateAddress())
+        app.migrations.add(CreateRegion())
         app.migrations.add(CreateCity())
         app.migrations.add(CreateDeliveryTimeInterval())
         app.migrations.add(CreateLocation())

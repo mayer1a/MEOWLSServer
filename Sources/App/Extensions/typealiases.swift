@@ -66,3 +66,5 @@ typealias PaymentType = Order.PaymentType
 typealias DiscountType = PromoCode.DiscountType
 
 typealias SaleType = Sale.SaleType
+
+typealias CityDTO = AddressDTO.CityDTO

@@ -11,6 +11,7 @@ extension AddressDTO {
 
     struct CityDTO: Content {
 
+        let id: UUID
         let name: String
 
     }

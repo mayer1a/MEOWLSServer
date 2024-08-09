@@ -8,33 +8,28 @@
 import Vapor
 import Fluent
 
-extension Address {
+final class City: Model, Content, @unchecked Sendable {
 
-    final class City: Model, Content, @unchecked Sendable {
+    static let schema = "cities"
 
-        static let schema = "cities"
+    @ID(key: .id)
+    var id: UUID?
 
-        @ID(key: .id)
-        var id: UUID?
+    @Parent(key: "region_id")
+    var region: Region
 
-        @Parent(key: "address_id")
-        var address: Address
+    @Field(key: "name")
+    var name: String
 
-        @Field(key: "name")
-        var name: String
+    @Children(for: \.$city)
+    var addresses: [Address]
 
-        @Field(key: "fias_id")
-        var fiasID: String
+    init() {}
 
-        init() {}
-
-        init(id: UUID? = nil, addressID: Address.IDValue, name: String, fiasID: String) {
-            self.id = id
-            self.$address.id = addressID
-            self.name = name
-            self.fiasID = fiasID
-        }
-
+    init(id: UUID? = nil, regionID: Region.IDValue, name: String) {
+        self.id = id
+        self.$region.id = regionID
+        self.name = name
     }
 
 }
