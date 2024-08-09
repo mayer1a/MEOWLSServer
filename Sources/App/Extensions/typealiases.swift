@@ -68,3 +68,5 @@ typealias DiscountType = PromoCode.DiscountType
 typealias SaleType = Sale.SaleType
 
 typealias CityDTO = AddressDTO.CityDTO
+
+typealias SuggestionsType = DaDataResponse.SuggestionsType
