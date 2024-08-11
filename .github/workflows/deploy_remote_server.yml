@@ -51,6 +51,6 @@ jobs:
             echo "Run new container"
             docker run --restart=on-failure --name ${{ secrets.CONTAINER_NAME }} --network meowls_network -e DATABASE_HOST=${{ secrets.DATABASE_HOST }} -e DATABASE_NAME=${{ secrets.DATABASE_NAME }} -e DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} -e DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} -e DADATA_TOKEN=${{ secrets.DADATA_TOKEN }} -p ${{ secrets.DATABASE_PORT }} -d ${{ secrets.CONTAINER_NAME }}:latest
 
-            echo "Remove cache and prune unused images, containers
+            echo "Remove cache and prune unused images, containers"
             docker system prune -a -f
           EOF
