@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "GBShopServer",
+    name: "MEOWLSServer",
     platforms: [
         .macOS(.v13)
     ],
