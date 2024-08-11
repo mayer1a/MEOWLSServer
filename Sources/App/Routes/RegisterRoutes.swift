@@ -8,18 +8,33 @@
 import Fluent
 import Vapor
 
-// MARK: - Functions
-
 struct RegisterRoutes {
 
     static func register(for app: Application) throws {
 
-        // For Render.com
-        app.get("health-check") { req async throws in DummyResponse() }
+        // For render.com
+        app.get("health-check") { _ async throws in DummyResponse() }
 
-        try app.register(collection: CartController())
-        try app.register(collection: CatalogController())
-        try app.register(collection: UserController())
+        let tokenRepository = TokenRepository(database: app.db)
+        let favoritesRepository = FavoritesRepository(database: app.db)
+        let userRepository = UserRepository(database: app.db, with: favoritesRepository, tokenRepository)
+        let bannersRepository = BannersRepository(database: app.db, cache: app.caches)
+        let categoryRepository = CategoryRepository(database: app.db)
+        let productsRepository = ProductsRepository(database: app.db)
+        let salesRepository = SalesRepository(database: app.db, cache: app.caches)
+        let searchRepository = SearchRepository(database: app.db, cache: app.caches)
+        let cartRepository = CartRepository(database: app.db)
+        let addressRepository = AddressRepository(database: app.db, cache: app.caches)
+
+        try app.register(collection: UserController(with: userRepository, tokenRepository))
+        try app.register(collection: BannersController(bannersRepository: bannersRepository))
+        try app.register(collection: FavoritesController(favoritesRepository: favoritesRepository))
+        try app.register(collection: CategoryController(categoryRepository: categoryRepository))
+        try app.register(collection: ProductsController(productsRepository: productsRepository))
+        try app.register(collection: SalesController(salesRepository: salesRepository))
+        try app.register(collection: SearchController(searchRepository: searchRepository))
+        try app.register(collection: CartController(cartRepository: cartRepository))
+        try app.register(collection: SuggestionsController(addressRepository: addressRepository))
 
         app.routes.print()
     }

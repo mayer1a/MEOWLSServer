@@ -9,9 +9,11 @@ import Foundation
 
 /// Structure for validation error failures.
 struct ValidationFailure: Codable {
+
     /// Field with validation error.
-    var field: String
+    public var field: String
 
     /// Validation message.
-    var failure: String?
+    public var failure: String?
+
 }

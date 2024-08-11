@@ -42,17 +42,16 @@ struct CustomError: CustomErrorProtocol {
     public let stackTrace: [String]
 
     /// Create a new `CustomError`, capturing current source location info.
-    public init(
-        _ status: HTTPResponseStatus,
-        headers: HTTPHeaders = [:],
-        code: String,
-        reason: String? = nil,
-        failures: [ValidationFailure]? = nil,
-        file: String = #file,
-        function: String = #function,
-        line: UInt = #line,
-        column: UInt = #column
-    ) {
+    public init(_ status: HTTPResponseStatus,
+                headers: HTTPHeaders = [:],
+                code: String,
+                reason: String? = nil,
+                failures: [ValidationFailure]? = nil,
+                file: String = #file,
+                function: String = #function,
+                line: UInt = #line,
+                column: UInt = #column) {
+
         self.status = status
         self.headers = headers
         self.code = code

@@ -1,0 +1,37 @@
+name: Deploy to Ubuntu Server, build and run docker
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+      - name: Deploy to Ubuntu server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
+            # Переход к каталогу с проектом
+            cd /root/MEOWLSServer/MEOWLSServer/
+            
+            # Обновление кода
+            git pull origin main
+            
+            # Сборка и запуск контейнера
+            docker build -t meowls-server-1.0 .
+            docker run --restart=on-failure --name meowls_server --network meowls_network -e DATABASE_HOST=${{ secrets.DATABASE_HOST }} -e DATABASE_NAME=${{ secrets.DATABASE_NAME }} -e DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} -e DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} -e DADATA_TOKEN=${{ secrets.DADATA_TOKEN }} -p ${{ secrets.DATABASE_PORT }} -d ${{ secrets.CONTAINER_NAME }}
+          EOF

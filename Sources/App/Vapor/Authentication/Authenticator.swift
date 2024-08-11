@@ -17,6 +17,7 @@ public protocol CustomTokenAuthenticator: RequestAuthenticator {
 extension CustomTokenAuthenticator {
 
     public func authenticate(request: Request) -> EventLoopFuture<Void> {
+        
         guard let customTokenAuthorization = request.headers.customTokenAuthorization else {
             return request.eventLoop.makeSucceededFuture(())
         }
