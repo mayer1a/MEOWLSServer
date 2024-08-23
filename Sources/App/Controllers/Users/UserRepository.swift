@@ -47,7 +47,7 @@ final class UserRepository: UserRepositoryProtocol {
         do {
             try await user.save(on: database)
         } catch {
-            throw CustomError(.conflict, code: "signUpError", reason: "Phone already used")
+            throw ErrorFactory.badRequest(.phoneAlreadyUsed)
         }
 
         try await tokenRepository.update(for: user)

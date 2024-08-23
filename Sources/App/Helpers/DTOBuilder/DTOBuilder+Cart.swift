@@ -35,11 +35,8 @@ extension DTOBuilder {
 
     static func makeCartItem(from item: CartItem) async throws -> CartItemDTO {
 
-        guard
-            let variant = item.product.variants.first(where: { $0.article == item.article })
-//            let variantDTO = try await makeProductVariants(from: [variant]).first
-        else {
-            throw Abort(.internalServerError, reason: "CHANGE ME")
+        guard let variant = item.product.variants.first(where: { $0.article == item.article }) else {
+            throw ErrorFactory.internalError(.productVariantNotFound)
         }
 
         let availabilityInfo = try makeAvailabilityInfo(from: variant.availabilityInfo)

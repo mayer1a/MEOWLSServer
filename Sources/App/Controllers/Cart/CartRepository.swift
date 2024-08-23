@@ -49,7 +49,7 @@ final class CartRepository: CartRepositoryProtocol {
             })
             .first()
 
-        guard let userCart else { throw Abort(.internalServerError, reason: "User cart is nil") }
+        guard let userCart else { throw ErrorFactory.internalError(.failedToFindUserCart) }
 
         let userCartDTO = try await DTOBuilder.makeCart(from: userCart)
 
@@ -66,7 +66,7 @@ final class CartRepository: CartRepositoryProtocol {
             .with(\.$items)
             .first()
 
-        guard let userCart else { throw Abort(.internalServerError, reason: "There is no user cart") }
+        guard let userCart else { throw ErrorFactory.internalError(.userCartUnavailable) }
 
         let newCartItems = try await self.getNewCartItems(cartRequest, from: userCart)
 
@@ -92,7 +92,6 @@ final class CartRepository: CartRepositoryProtocol {
             })
             .first()
 
-        guard let updatedCart else { throw Abort(.internalServerError, reason: "There is no updated user cart") }
 
         let userCartDTO = try await DTOBuilder.makeCart(from: updatedCart)
 
@@ -143,10 +142,10 @@ final class CartRepository: CartRepositoryProtocol {
             .with(\.$availabilityInfo)
             .first()
 
-        guard let productVariant else { throw Abort(.internalServerError, reason: "Product variant is nil") }
+        guard let productVariant else { throw ErrorFactory.internalError(.productVariantNotFound) }
 
         guard let info = productVariant.availabilityInfo, info.count >= cartItem.count else {
-            throw Abort(.badRequest, reason: "The product for this quantity \(cartItem.count) is not available")
+            throw ErrorFactory.badRequest(.productUnavailable)
         }
 
         let cartItem = try CartItem(productID: productVariant.product.requireID(),
@@ -185,10 +184,9 @@ final class CartRepository: CartRepositoryProtocol {
                 ]
             }
 
-            throw CustomError(.badRequest,
-                              code: "incorrectProductQuantity",
-                              reason: "One of the products is not available for order in such quantity",
-                              failures: failure)
+            throw ErrorFactory.badRequest(.oneProductUnavailable, failures: [
+                .unavailableProduct(name: product?.name, quantity: cartItem.count)
+            ])
         }
 
         cart.items[itemIndex].count = cartItem.count

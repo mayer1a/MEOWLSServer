@@ -28,7 +28,7 @@ final class ProductsRepository: ProductsRepositoryProtocol {
     func getProducts(categoryID: UUID, with page: PageRequest) async throws -> PaginationResponse<ProductDTO> {
 
         guard let paginationPoducts = try await eagerLoadRelations(categoryID: categoryID, page) else {
-            throw DTOBuilder.Error.make(.getProductsCategoryError(categoryID: categoryID))
+            throw ErrorFactory.internalError(.fetchProductsForCategoryError, failures: [.ID(categoryID)])
         }
 
         let productsDTOs = try await DTOBuilder.makeProducts(from: paginationPoducts.results) ?? []
@@ -39,7 +39,7 @@ final class ProductsRepository: ProductsRepositoryProtocol {
     func getProducts(saleID: UUID, with page: PageRequest) async throws -> PaginationResponse<ProductDTO> {
 
         guard let paginationPoducts = try await eagerLoadRelations(saleID: saleID, page) else {
-            throw DTOBuilder.Error.make(.getProductsSaleError(saleID: saleID))
+            throw ErrorFactory.internalError(.fetchProductsForSaleError, failures: [.ID(saleID)])
         }
 
         let productsDTOs = try await DTOBuilder.makeProducts(from: paginationPoducts.results) ?? []
@@ -64,7 +64,7 @@ final class ProductsRepository: ProductsRepositoryProtocol {
             .with(\.$sections)
             .first()
 
-        guard let product else { throw DTOBuilder.Error.make(.getDetailedProductError(productID: productID)) }
+        guard let product else { throw ErrorFactory.internalError(.fetchProductByIdError, failures: [.ID(productID)]) }
 
         return product
     }
@@ -86,7 +86,7 @@ final class ProductsRepository: ProductsRepositoryProtocol {
             .with(\.$sections)
             .first()
 
-        guard let product else { throw DTOBuilder.Error.make(.getDetailedProductError(productID: productID)) }
+        guard let product else { throw ErrorFactory.internalError(.fetchProductByIdError, failures: [.ID(productID)]) }
 
         return try await DTOBuilder.makeProduct(from: product)
     }

@@ -122,3 +122,6 @@ Icon
 # Thumbnails
 ._*
 
+# Environments
+*.env.*
+*.env

@@ -23,7 +23,6 @@ final class CategoryRepository: CategoryRepositoryProtocol {
     }
 
     func add(_ user: User) async throws {
-
         let favorites = Favorites(userID: try user.requireID())
         try await favorites.save(on: database)
     }
@@ -41,7 +40,7 @@ final class CategoryRepository: CategoryRepositoryProtocol {
         return try await categories.asyncMap { category in
 
             guard let categoryDTO = try DTOBuilder.makeCategory(from: category, fullModel: true) else {
-                throw DTOBuilder.Error.make(.getCategoriesError(categoryID: category.id))
+                throw ErrorFactory.internalError(.fetchCategoryError, failures: [.ID(category.id)])
             }
             return categoryDTO
         }

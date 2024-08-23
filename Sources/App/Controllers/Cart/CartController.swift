@@ -27,14 +27,17 @@ struct CartController: RouteCollection {
 
     @Sendable func get(_ request: Request) async throws -> CartDTO {
 
-        guard let user = request.auth.get(User.self) else { throw Abort(.unauthorized) }
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
+
+        return try await cartRepository.getCart(for: user)
+    }
 
         return try await cartRepository.get(for: user)
     }
 
     @Sendable func update(_ request: Request) async throws -> CartDTO {
 
-        guard let user = request.auth.get(User.self) else { throw Abort(.unauthorized) }
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
 
         let cartRequest = try request.content.decode(CartRequest.self)
 

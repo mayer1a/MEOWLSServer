@@ -20,11 +20,11 @@ volumes:
 
 x-shared_environment: &shared_environment
   LOG_LEVEL: ${LOG_LEVEL:-debug}
-  DATABASE_HOST: postgres
-  DATABASE_NAME: MEOWLS
-  DATABASE_USERNAME: meowls_username
-  DATABASE_PASSWORD: meowls_1234567890_password
-  DATABASE_PORT: 5432
+  DATABASE_HOST:
+  DATABASE_NAME:
+  DATABASE_USERNAME:
+  DATABASE_PASSWORD:
+  DATABASE_PORT:
 
 services:
   app:
@@ -38,7 +38,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - '8080:8080'
+      - ':'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8080"]
@@ -71,9 +71,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: MEOWLS
-      POSTGRES_PASSWORD: meowls_1234567890_password
-      POSTGRES_USER: meowls_username
-      POSTGRES_HOST: localhost
+      POSTGRES_DB:
+      POSTGRES_PASSWORD:
+      POSTGRES_USER:
+      POSTGRES_HOST:
     ports:
-      - '5432:5432'
+      - ':'

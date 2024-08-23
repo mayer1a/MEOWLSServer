@@ -42,9 +42,7 @@ extension DTOBuilder {
     static func makeAddress(from suggestion: DaDataResponse.Suggestion?,
                             with address: AddressDTO) async throws -> AddressDTO {
 
-        guard let suggestion else {
-            throw Abort(.internalServerError, reason: "Address doesn't found. Incorrect address")
-        }
+        guard let suggestion else { throw ErrorFactory.badRequest(.incorrectAddressNotFound) }
 
         var formatted = suggestion.value
         var entrance: String?

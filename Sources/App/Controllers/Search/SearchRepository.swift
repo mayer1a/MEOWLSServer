@@ -31,7 +31,9 @@ final class SearchRepository: SearchRepositoryProtocol {
 
         if let cachedSuggestions = try await getFromCache(for: query) { return cachedSuggestions }
 
-        guard let postgres = (database as? PostgresDatabase)?.sql() else { throw Abort(.internalServerError) }
+        guard let postgres = (database as? PostgresDatabase)?.sql() else {
+            throw ErrorFactory.serviceUnavailable(failures: [.databaseConnection])
+        }
 
         var limit = suggestionsLimit
 

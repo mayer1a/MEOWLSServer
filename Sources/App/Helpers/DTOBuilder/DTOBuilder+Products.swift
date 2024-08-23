@@ -81,7 +81,7 @@ extension DTOBuilder {
 
     static func makePrice(from price: Price?) throws -> PriceDTO {
 
-        guard let price else { throw DTOBuilder.Error.make(.getBannerPriceError) }
+        guard let price else { throw ErrorFactory.internalError(.bannerProductsPriceError) }
 
         return PriceDTO(originalPrice: price.originalPrice, discount: price.discount, price: price.price)
     }
@@ -90,7 +90,7 @@ extension DTOBuilder {
 
     static func makeAvailabilityInfo(from info: AvailabilityInfo?) throws -> AvailabilityInfoDTO {
 
-        guard let info else { throw DTOBuilder.Error.make(.getBannerAvailabilityInfoError) }
+        guard let info else { throw ErrorFactory.internalError(.bannerProductsAvailabilityError) }
 
         return AvailabilityInfoDTO(type: info.type, deliveryDuration: info.deliveryDuration, count: info.count)
     }

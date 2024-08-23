@@ -29,8 +29,9 @@ struct SearchController: RouteCollection {
 
     @Sendable func getSuggestions(_ request: Request) async throws -> [SearchSuggestionDTO] {
 
-        guard let query: String = request.query[searchQuery] else { throw Abort(.badRequest) }
-
+        guard let query: String = request.query[searchQuery] else {
+            throw ErrorFactory.badRequest(.requestQueryParameterRequired)
+        }
         return try await searchRepository.getSuggestions(for: query)
     }
 

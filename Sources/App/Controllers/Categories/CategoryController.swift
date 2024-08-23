@@ -21,13 +21,11 @@ struct CategoryController: RouteCollection {
         categories.get("", use: get)
     }
 
-
     @Sendable func get(_ request: Request) async throws -> [CategoryDTO] {
 
         guard let categoryID: UUID = request.query[categoryQuery] else {
-            throw Abort(.badRequest)
+            throw ErrorFactory.badRequest(.categoryIDRequired)
         }
-
         return try await categoryRepository.get(for: categoryID)
     }
 

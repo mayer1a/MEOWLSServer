@@ -51,7 +51,7 @@ struct UserController: RouteCollection {
 
     @Sendable private func get(_ request: Request) async throws -> User.PublicDTO {
 
-        guard let user = request.auth.get(User.self) else { throw Abort(.unauthorized) }
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
 
         return try await userRepository.get(user, withToken: false)
     }
@@ -68,7 +68,7 @@ struct UserController: RouteCollection {
 
     @Sendable private func logout(_ request: Request) async throws -> DummyResponse {
 
-        guard let user = request.auth.get(User.self) else { throw Abort(.unauthorized) }
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
 
         request.auth.logout(User.self)
 

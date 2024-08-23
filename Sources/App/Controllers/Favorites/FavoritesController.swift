@@ -24,14 +24,14 @@ struct FavoritesController: RouteCollection {
 
     @Sendable private func get(_ request: Request) async throws -> FavoritesDTO {
 
-        guard let user = request.auth.get(User.self) else { throw Abort(.unauthorized) }
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
 
         return try await favoritesRepository.get(for: user)
     }
 
     @Sendable private func starProduct(_ request: Request) async throws -> DummyResponse {
 
-        guard let user = request.auth.get(User.self) else { throw Abort(.unauthorized) }
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
 
         let productsIDs = try request.content.decode([UUID].self)
 
@@ -42,7 +42,7 @@ struct FavoritesController: RouteCollection {
 
     @Sendable private func unstarProduct(_ request: Request) async throws -> DummyResponse {
 
-        guard let user = request.auth.get(User.self) else { throw Abort(.unauthorized) }
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
 
         let productsIDs = try request.content.decode([UUID].self)
 

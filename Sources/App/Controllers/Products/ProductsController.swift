@@ -36,13 +36,13 @@ struct ProductsController: RouteCollection {
             return try await productsRepository.getProducts(saleID: saleID, with: page)
         }
 
-        throw Abort(.badRequest)
+        throw ErrorFactory.badRequest(.categoryIDRequired)
     }
 
     @Sendable func getProduct(_ request: Request) async throws -> ProductDTO {
 
         guard let productID = request.parameters.get("product_id", as: UUID.self) else {
-            throw Abort(.badRequest)
+            throw ErrorFactory.badRequest(.productIdRequired)
         }
 
         return try await productsRepository.getDTO(for: productID)

@@ -29,7 +29,7 @@ extension DTOBuilder {
                 let bannerCategories = try await mainBanner.categories.asyncMap { category in
 
                     guard let categoryDTO = try makeCategory(from: category) else {
-                        throw DTOBuilder.Error.make(.getBannerCategoriesError)
+                        throw ErrorFactory.internalError(.bannerCategoriesError, failures: [.ID(category.id)])
                     }
                     return categoryDTO
                 }

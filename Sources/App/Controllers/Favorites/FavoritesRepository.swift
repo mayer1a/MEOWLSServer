@@ -34,7 +34,7 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
     func get(for user: User) async throws -> FavoritesDTO {
 
         guard let favorites = try await eagerLoadRelations(userID: user.requireID()) else {
-            throw CustomError(.badRequest, code: "getFavoritesError")
+            throw ErrorFactory.internalError(.fetchFavoritesError)
         }
 
         return try await DTOBuilder.makeFavorites(from: favorites)
@@ -53,12 +53,8 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
             try await products.asyncForEach { product in
                 
                 if try await favorites?.$products.isAttached(to: product, on: transaction) == true {
-                    
-                    throw CustomError(.badRequest,
-                                      code: "productAlreadyStarred",
-                                      reason: "Trying to add a product to a favorite that has already been added")
+                    throw ErrorFactory.badRequest(.productAlreadyStarred)
                 } else {
-
                     try await favorites?.$products.attach(product, on: transaction)
                 }
             }
