@@ -11,11 +11,11 @@ extension DTOBuilder {
 
     // MARK: - Product
 
-    static func makeProducts(from products: [Product]) async throws -> [ProductDTO]? {
+    static func makeProducts(from products: [Product]) throws -> [ProductDTO]? {
 
         guard !products.isEmpty else { return nil }
 
-        return try await products.asyncMap { product in
+        return try products.map { product in
 
             var image: [ImageDTO] = []
 
@@ -28,18 +28,18 @@ extension DTOBuilder {
                               code: product.code,
                               images: image,
                               allowQuickBuy: product.allowQuickBuy,
-                              variants: try await makeProductVariants(from: product.variants),
+                              variants: try makeVariants(from: product.variants),
                               defaultVariantArticle: product.defaultVariantArticle)
         }
     }
 
-    static func makeProduct(from product: Product) async throws -> ProductDTO {
+    static func makeProduct(from product: Product) throws -> ProductDTO {
 
         var productProperties: Set<ProductProperty> = []
 
-        await product.variants.asyncForEach { productVariant in
+        product.variants.forEach { productVariant in
 
-            await productVariant.propertyValues.asyncForEach { propertyValue in
+            productVariant.propertyValues.forEach { propertyValue in
 
                 productProperties.insert(propertyValue.productProperty)
             }
@@ -48,30 +48,29 @@ extension DTOBuilder {
         return ProductDTO(id: try product.requireID(),
                           name: product.name,
                           code: product.code,
-                          images: await makeImages(from: product.images) ?? [],
+                          images: makeImages(from: product.images) ?? [],
                           allowQuickBuy: product.allowQuickBuy,
-                          variants: try await makeProductVariants(from: product.variants, fullModel: true),
-                          productProperties: try await makeProductProperties(from: Array(productProperties)),
+                          variants: try makeVariants(from: product.variants, fullModel: true),
+                          productProperties: try makeProductProperties(from: Array(productProperties)),
                           defaultVariantArticle: product.defaultVariantArticle,
                           deliveryConditionsURL: product.deliveryConditionsURL,
-                          sections: try await makeSections(from: product.sections))
+                          sections: try makeSections(from: product.sections))
     }
 
     // MARK: - ProductVariant
 
-    static func makeProductVariants(from productVariants: [ProductVariant],
-                                    fullModel: Bool = false) async throws -> [ProductVariantDTO] {
+    static func makeVariants(from variants: [ProductVariant], fullModel: Bool = false) throws -> [ProductVariantDTO] {
 
-        try await productVariants.asyncMap { productVariant in
+        try variants.map { productVariant in
 
-            let propertyValues = fullModel ? try await makePropertyValues(from: productVariant.propertyValues) : nil
+            let propertyValues = fullModel ? try makePropertyValues(from: productVariant.propertyValues) : nil
 
             return ProductVariantDTO(id: try productVariant.requireID(),
                                      article: productVariant.article,
                                      shortName: productVariant.shortName,
                                      price: try makePrice(from: productVariant.price),
                                      availabilityInfo: try makeAvailabilityInfo(from: productVariant.availabilityInfo),
-                                     badges: await makeBadge(from: productVariant.badges),
+                                     badges: makeBadge(from: productVariant.badges),
                                      propertyValues: propertyValues)
 
         }
@@ -97,47 +96,35 @@ extension DTOBuilder {
 
     // MARK: - Badge
 
-    static func makeBadge(from badges: [Badge]) async -> [BadgeDTO] {
+    static func makeBadge(from badges: [Badge]) -> [BadgeDTO] {
 
-        await badges.asyncMap { badge in
-
-            BadgeDTO(title: badge.title,
-                     text: badge.text,
-                     backgroundColor: badge.backgroundColor,
-                     tintColor: badge.tintColor)
+        badges.map {
+            BadgeDTO(title: $0.title, text: $0.text, backgroundColor: $0.backgroundColor, tintColor: $0.tintColor)
         }
     }
 
     // MARK: - PropertyValue
 
-    static func makePropertyValues(from propertyValues: [PropertyValue]) async throws -> [PropertyValueDTO] {
+    static func makePropertyValues(from propertyValues: [PropertyValue]) throws -> [PropertyValueDTO] {
 
-        try await propertyValues.asyncMap { value in
-
-            PropertyValueDTO(id: try value.requireID(),
-                             propertyID: try value.productProperty.requireID(),
-                             value: value.value)
+        try propertyValues.map {
+            PropertyValueDTO(id: try $0.requireID(), propertyID: try $0.productProperty.requireID(), value: $0.value)
         }
     }
 
-    static func makeProductProperties(from productProperties: [ProductProperty]) async throws -> [ProductPropertyDTO] {
+    static func makeProductProperties(from productProperties: [ProductProperty]) throws -> [ProductPropertyDTO] {
 
-        try await productProperties.asyncMap { productProperty in
-
-            ProductPropertyDTO(id: try productProperty.requireID(),
-                               name: productProperty.name,
-                               code: productProperty.code,
-                               selectable: productProperty.selectable)
+        try productProperties.map {
+            ProductPropertyDTO(id: try $0.requireID(), name: $0.name, code: $0.code, selectable: $0.selectable)
         }
     }
 
     // MARK: - Section
 
-    static func makeSections(from sections: [Section]) async throws -> [SectionDTO] {
+    static func makeSections(from sections: [Section]) throws -> [SectionDTO] {
 
-        await sections.asyncMap { section in
-            
-            SectionDTO(title: section.title, type: section.type, text: section.text, link: section.link)
+        sections.map {
+            SectionDTO(title: $0.title, type: $0.type, text: $0.text, link: $0.link)
         }
     }
 

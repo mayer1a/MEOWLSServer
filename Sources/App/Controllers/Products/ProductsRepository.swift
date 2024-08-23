@@ -31,9 +31,9 @@ final class ProductsRepository: ProductsRepositoryProtocol {
             throw ErrorFactory.internalError(.fetchProductsForCategoryError, failures: [.ID(categoryID)])
         }
 
-        let productsDTOs = try await DTOBuilder.makeProducts(from: paginationPoducts.results) ?? []
+        let productsDTOs = try DTOBuilder.makeProducts(from: paginationPoducts.results) ?? []
 
-        return .init(results: productsDTOs, paginationInfo: paginationPoducts.paginationInfo)
+        return PaginationResponse(results: productsDTOs, paginationInfo: paginationPoducts.paginationInfo)
     }
 
     func getProducts(saleID: UUID, with page: PageRequest) async throws -> PaginationResponse<ProductDTO> {
@@ -42,7 +42,7 @@ final class ProductsRepository: ProductsRepositoryProtocol {
             throw ErrorFactory.internalError(.fetchProductsForSaleError, failures: [.ID(saleID)])
         }
 
-        let productsDTOs = try await DTOBuilder.makeProducts(from: paginationPoducts.results) ?? []
+        let productsDTOs = try DTOBuilder.makeProducts(from: paginationPoducts.results) ?? []
 
         return PaginationResponse(results: productsDTOs, paginationInfo: paginationPoducts.paginationInfo)
     }
@@ -88,7 +88,7 @@ final class ProductsRepository: ProductsRepositoryProtocol {
 
         guard let product else { throw ErrorFactory.internalError(.fetchProductByIdError, failures: [.ID(productID)]) }
 
-        return try await DTOBuilder.makeProduct(from: product)
+        return try DTOBuilder.makeProduct(from: product)
     }
 
     private func eagerLoadRelations(categoryID: UUID, 

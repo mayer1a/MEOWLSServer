@@ -36,8 +36,7 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
         guard let favorites = try await eagerLoadRelations(userID: user.requireID()) else {
             throw ErrorFactory.internalError(.fetchFavoritesError)
         }
-
-        return try await DTOBuilder.makeFavorites(from: favorites)
+        return try DTOBuilder.makeFavorites(from: favorites)
     }
 
     func update(productsIDs: [Product.IDValue], for user: User) async throws {

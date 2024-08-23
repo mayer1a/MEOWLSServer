@@ -13,25 +13,32 @@ struct DTOBuilder {
 
     // MARK: - User
 
-    static func makeUser(from model: User, with token: Token? = nil) async throws -> User.PublicDTO {
-        
-        User.PublicDTO(id: try model.requireID(),
-                       surname: model.surname,
-                       name: model.name,
-                       patronymic: model.patronymic,
-                       birthday: model.birthday,
-                       gender: model.gender,
-                       email: model.email,
-                       phone: model.phone,
-                       token: token?.value,
-                       role: model.role)
+    static func makeUser(from model: User, with token: Token? = nil, fullModel: Bool = true) throws -> User.PublicDTO {
+
+        if fullModel {
+            return User.PublicDTO(id: try model.requireID(),
+                                  surname: model.surname,
+                                  name: model.name,
+                                  patronymic: model.patronymic,
+                                  birthday: model.birthday,
+                                  gender: model.gender,
+                                  email: model.email,
+                                  phone: model.phone,
+                                  token: token?.value)
+        } else {
+            return User.PublicDTO(surname: model.surname,
+                                  name: model.name,
+                                  patronymic: model.patronymic,
+                                  email: model.email,
+                                  phone: model.phone)
+        }
     }
 
     // MARK: - Favorites
 
-    static func makeFavorites(from model: Favorites) async throws -> FavoritesDTO {
+    static func makeFavorites(from model: Favorites) throws -> FavoritesDTO {
 
-        let products = try await makeProducts(from: model.products)
+        let products = try makeProducts(from: model.products)
         return FavoritesDTO(id: try model.requireID(), products: products?.reversed() ?? [])
     }
 
@@ -71,9 +78,10 @@ struct DTOBuilder {
 
     // MARK: - Sale
 
-    static func makeSales(from sales: [Sale]) async throws -> [SaleDTO] {
+    static func makeSales(from sales: [Sale]) throws -> [SaleDTO] {
 
-        try await sales.asyncMap { sale in
+        try sales.map { sale in
+
             SaleDTO(id: try sale.requireID(),
                     code: sale.code,
                     saleType: sale.saleType,
@@ -84,7 +92,5 @@ struct DTOBuilder {
                     disclaimer: sale.disclaimer)
         }
     }
-
-    // MARK: - Order
 
 }

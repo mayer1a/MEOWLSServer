@@ -9,11 +9,11 @@ import Vapor
 
 extension DTOBuilder {
 
-    static func makeImages(from images: [Image]?, needsDimension: Bool = false) async -> [ImageDTO]? {
+    static func makeImages(from images: [Image]?, needsDimension: Bool = false) -> [ImageDTO]? {
 
         guard let images else { return nil }
 
-        return await images.asyncCompactMap { image in
+        return images.compactMap { image in
 
             makeImage(from: image)
         }

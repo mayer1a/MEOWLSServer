@@ -10,11 +10,11 @@ import Vapor
 extension DTOBuilder {
 
     static func makeSearchSuggestions(from categoriesRaw: SQLRawResponse<Category>,
-                                      _ productsRaw: SQLRawResponse<Product>) async throws -> [SearchSuggestionDTO] {
+                                      _ productsRaw: SQLRawResponse<Product>) throws -> [SearchSuggestionDTO] {
 
         var categoriesTextIterator = categoriesRaw.highlightedText?.makeIterator()
 
-        var result = try await categoriesRaw.result.asyncMap { category in
+        var result = try categoriesRaw.result.map { category in
 
             let categoryDTO = try DTOBuilder.makeCategory(from: category, fullModel: true, withImage: false)
             let productsSet = ProductsSetDTO(name: category.name, category: categoryDTO)
@@ -28,7 +28,7 @@ extension DTOBuilder {
 
         var productsTextIterator = productsRaw.highlightedText?.makeIterator()
 
-        result += try await productsRaw.result.asyncMap { product in
+        result += try productsRaw.result.map { product in
 
             let redirect = RedirectDTO(redirectType: .object, objectID: try product.requireID(), objectType: .product)
             let highlightedTexts = productsTextIterator?.next()?.components(separatedBy: ",")

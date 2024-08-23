@@ -11,18 +11,17 @@ extension DTOBuilder {
 
     static func makeSuggestions(from response: DaDataResponse,
                                 with query: String,
-                                for type: SuggestionsType) async throws -> [SuggestionsDTO] {
+                                for type: SuggestionsType) throws -> [SuggestionsDTO] {
 
-        try await response.suggestions.asyncMap { suggestion in
+        try response.suggestions.map { suggestion in
 
-            try await makeSuggestion(from: suggestion, with: query, for: type)
+            try makeSuggestion(from: suggestion, with: query, for: type)
         }
     }
 
     private static func makeSuggestion(from suggestion: DaDataResponse.Suggestion,
                                        with query: String,
-                                       for type: SuggestionsType) async throws -> SuggestionsDTO {
-
+                                       for type: SuggestionsType) throws -> SuggestionsDTO {
 
         var id: String?
         var gender: User.Gender?
@@ -40,7 +39,7 @@ extension DTOBuilder {
     }
 
     static func makeAddress(from suggestion: DaDataResponse.Suggestion?,
-                            with address: AddressDTO) async throws -> AddressDTO {
+                            with address: AddressDTO) throws -> AddressDTO {
 
         guard let suggestion else { throw ErrorFactory.badRequest(.incorrectAddressNotFound) }
 

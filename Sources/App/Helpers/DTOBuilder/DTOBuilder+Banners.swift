@@ -11,9 +11,9 @@ extension DTOBuilder {
 
     // MARK: - Banners
 
-    static func makeBanners(from banners: [MainBanner], fullModel: Bool = true) async throws -> [MainBannerDTO] {
+    static func makeBanners(from banners: [MainBanner], fullModel: Bool = true) throws -> [MainBannerDTO] {
 
-        try await banners.asyncMap { mainBanner in
+        try banners.map { mainBanner in
 
             var uiSettings: UISettingsDTO?
             var placeType: PlaceType?
@@ -22,11 +22,10 @@ extension DTOBuilder {
             var products: [ProductDTO]?
 
             if fullModel {
-
-                uiSettings = await makeUISettings(from: mainBanner.uiSettings)
+                uiSettings = makeUISettings(from: mainBanner.uiSettings)
                 placeType = mainBanner.placeType
 
-                let bannerCategories = try await mainBanner.categories.asyncMap { category in
+                let bannerCategories = try mainBanner.categories.map { category in
 
                     guard let categoryDTO = try makeCategory(from: category) else {
                         throw ErrorFactory.internalError(.bannerCategoriesError, failures: [.ID(category.id)])
@@ -35,9 +34,9 @@ extension DTOBuilder {
                 }
 
                 categories = bannerCategories.isEmpty ? nil : bannerCategories
-                products = try await makeProducts(from: mainBanner.products)
+                products = try makeProducts(from: mainBanner.products)
 
-                let child = try await makeBanners(from: mainBanner.banners, fullModel: false)
+                let child = try makeBanners(from: mainBanner.banners, fullModel: false)
                 childBanners = child.isEmpty ? nil : child
             }
 
@@ -55,7 +54,7 @@ extension DTOBuilder {
 
     // MARK: - UISettings
 
-    static func makeUISettings(from uiSettings: UISettings?) async -> UISettingsDTO? {
+    static func makeUISettings(from uiSettings: UISettings?) -> UISettingsDTO? {
 
         guard let uiSettings else { return nil }
 
@@ -63,7 +62,7 @@ extension DTOBuilder {
                              spasings: makeSpacing(from: uiSettings.spasings),
                              cornerRadiuses: makeCornerRadius(from: uiSettings.cornerRadiuses),
                              autoSlidingTimeout: uiSettings.autoSlidingTimeout,
-                             metrics: await makeMetric(from: uiSettings.metrics))
+                             metrics: makeMetric(from: uiSettings.metrics))
     }
 
     // MARK: - Spacings
@@ -89,12 +88,11 @@ extension DTOBuilder {
 
     // MARK: - Metric
 
-    static func makeMetric(from metric: [Metric]?) async -> [MetricDTO]? {
+    static func makeMetric(from metric: [Metric]?) -> [MetricDTO]? {
 
         guard metric?.isEmpty == false else { return nil }
 
-        return await metric?.asyncMap { metric in
-
+        return metric?.map { metric in
             MetricDTO(width: metric.width)
         }
     }
