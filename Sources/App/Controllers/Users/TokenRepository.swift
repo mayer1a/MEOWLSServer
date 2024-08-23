@@ -26,27 +26,35 @@ final class TokenRepository: TokenRepositoryProtocol {
 
     @discardableResult
     func add(_ user: User) async throws -> Token {
-
-        let token = try Token.generate(for: user)
-        try await token.save(on: database)
-
-        return token
+        try await addUser(user)
     }
 
     @discardableResult
     func update(for user: User) async throws -> Token {
 
-        try await user.$token.get(on: database)?.delete(on: database)
-        let token = try await add(user)
-        try await token.save(on: database)
-        try await user.update(on: database)
+        try await database.transaction { [weak self] transaction in
 
-        return token
+            guard let self else { throw ErrorFactory.serviceUnavailable(failures: [.databaseConnection]) }
+
+            try await user.$token.get(on: transaction)?.delete(on: transaction)
+            let token = try await self.addUser(user, in: transaction)
+            try await token.save(on: transaction)
+            try await user.update(on: transaction)
+
+            return token
+        }
     }
 
     func delete(_ user: User) async throws {
 
         try await user.$token.get(on: database)?.delete(on: database)
+    }
+
+    private func addUser(_ user: User, in db: Database? = nil) async throws -> Token {
+        let token = try Token.generate(for: user)
+        try await token.save(on: db ?? database)
+
+        return token
     }
 
 }

@@ -12,10 +12,15 @@ struct UserController: RouteCollection {
 
     let userRepository: UserRepositoryProtocol
     let tokenRepository: TokenRepositoryProtocol
+    let addressRepository: AddressRepositoryProtocol
 
-    init(with userRepository: UserRepositoryProtocol, _ tokenRepository: TokenRepositoryProtocol) {
+    init(with userRepository: UserRepositoryProtocol, 
+         _ tokenRepository: TokenRepositoryProtocol,
+         _ addressRepository: AddressRepositoryProtocol) {
+
         self.userRepository = userRepository
         self.tokenRepository = tokenRepository
+        self.addressRepository = addressRepository
     }
 
     func boot(routes: RoutesBuilder) throws {
@@ -28,9 +33,11 @@ struct UserController: RouteCollection {
 
         let tokenAuthGroup = users.grouped(Token.authenticator(), User.guardMiddleware())
         tokenAuthGroup.get("", use: get)
+        tokenAuthGroup.get("address", use: getAddress)
         tokenAuthGroup.post("edit", use: edit)
         tokenAuthGroup.post("logout", use: logout)
         tokenAuthGroup.post("delete", use: delete)
+        tokenAuthGroup.post("refresh_token", use: refreshToken)
     }
 
     @Sendable private func create(_ request: Request) async throws -> User.PublicDTO {
@@ -46,7 +53,7 @@ struct UserController: RouteCollection {
     @Sendable private func login(_ request: Request) async throws -> User.PublicDTO {
 
         let user = try request.auth.require(User.self)
-        return try await userRepository.updateToken(for: user)
+        return try await userRepository.refreshToken(for: user)
     }
 
     @Sendable private func get(_ request: Request) async throws -> User.PublicDTO {
@@ -54,6 +61,13 @@ struct UserController: RouteCollection {
         guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
 
         return try await userRepository.get(user, withToken: false)
+    }
+
+    @Sendable private func getAddress(_ request: Request) async throws -> AddressDTO {
+
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
+
+        return try await addressRepository.getAddress(for: user)
     }
 
     @Sendable private func edit(_ request: Request) async throws -> User.PublicDTO {
@@ -85,6 +99,13 @@ struct UserController: RouteCollection {
         try await userRepository.delete(user)
 
         return DummyResponse()
+    }
+
+    @Sendable private func refreshToken(_ request: Request) async throws -> User.PublicDTO {
+
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
+
+        return try await userRepository.refreshToken(for: user)
     }
 
 }

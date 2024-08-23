@@ -11,6 +11,9 @@ import Fluent
 protocol AddressRepositoryProtocol: Sendable {
 
     func getCities() async throws -> [CityDTO]
+    func addAddress(_ address: AddressDTO, for parent: UUID, to saveType: AddressDTO.SaveType) async throws
+    func getAddress(for user: User) async throws -> AddressDTO
+    func getAddress(for delivery: Delivery) async throws -> AddressDTO
 
 }
 
@@ -36,9 +39,53 @@ final class AddressRepository: AddressRepositoryProtocol {
         return try DTOBuilder.makeCities(from: cities)
     }
 
-    func add(address: AddressDTO, to saveType: AddressDTO.SaveType) async throws {
+    func addAddress(_ address: AddressDTO, for parent: UUID, to saveType: AddressDTO.SaveType) async throws {
 
-        
+        var deliveryID: UUID?
+        var userID: UUID?
+
+        switch saveType {
+        case .order:
+            deliveryID = parent
+
+        case .user:
+            userID = parent
+
+        }
+
+        let dbAddress = Address(cityID: address.city.id,
+                                deliveryID: deliveryID,
+                                userID: userID,
+                                street: address.street,
+                                house: address.house,
+                                entrance: address.entrance,
+                                floor: address.floor,
+                                flat: address.flat,
+                                formattedString: address.format())
+
+        try await dbAddress.save(on: database)
+    }
+
+    func getAddress(for user: User) async throws -> AddressDTO {
+
+        let address = try await Address.query(on: database)
+            .filter(\.$user.$id == user.requireID())
+            .with(\.$city)
+            .with(\.$location)
+            .first()
+
+        return try DTOBuilder.makeAddress(from: address, for: .user)
+    }
+
+    func getAddress(for delivery: Delivery) async throws -> AddressDTO {
+
+        let address = try await Address.query(on: database)
+            .filter(\.$delivery.$id == delivery.requireID())
+            .with(\.$city)
+            .with(\.$location)
+            .first()
+
+        return try DTOBuilder.makeAddress(from: address, for: .order)
     }
 
     private func setCache(_ response: [CityDTO]) async throws {

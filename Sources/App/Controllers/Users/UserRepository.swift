@@ -12,7 +12,7 @@ protocol UserRepositoryProtocol: Sendable {
 
     func get(_ user: User, withToken: Bool) async throws -> User.PublicDTO
     func add(_ model: User.CreateDTO) async throws -> User
-    func updateToken(for user: User) async throws -> User.PublicDTO
+    func refreshToken(for user: User) async throws -> User.PublicDTO
     func update(_ user: User, with model: User.UpdateDTO) async throws -> User.PublicDTO
     func delete(_ user: User) async throws
 
@@ -56,8 +56,7 @@ final class UserRepository: UserRepositoryProtocol {
         return user
     }
 
-    @discardableResult
-    func updateToken(for user: User) async throws -> User.PublicDTO {
+    func refreshToken(for user: User) async throws -> User.PublicDTO {
 
         let token = try await tokenRepository.update(for: user)
         return try DTOBuilder.makeUser(from: user, with: token)
