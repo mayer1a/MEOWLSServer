@@ -11,29 +11,34 @@ extension DTOBuilder {
 
     // MARK: - Cart
 
-    static func makeCart(from userCart: Cart) async throws -> CartDTO {
+    static func makeCart(from cart: Cart, with summaries: [Summary]? = nil, alert: String? = nil) throws -> CartDTO {
 
-        let itemsDTO = userCart.$items.value != nil ? try await makeCartItems(from: userCart.items) : []
-        let (summaries, total) = await makeSummaries(for: itemsDTO)
+        let itemsDTO = cart.$items.value != nil ? try makeCartItems(from: cart.items) : []
+        let summariesDTO: [SummaryDTO]?
 
-        return CartDTO(id: try userCart.requireID(),
+        if let summaries {
+            summariesDTO = makeSummaries(from: summaries)
+        } else {
+            summariesDTO = cart.summaries.isEmpty ? [SummaryDTO()] : makeSummaries(from: cart.summaries)
+        }
+
+        return CartDTO(id: try cart.requireID(),
                        items: itemsDTO,
                        promoCode: nil,
-                       itemsSummary: summaries,
-                       total: total)
+                       summaries: summariesDTO,
+                       availabilityAlertMessage: alert)
     }
 
     // MARK: - CartItem
 
-    static func makeCartItems(from items: [CartItem]) async throws -> [CartItemDTO] {
+    static func makeCartItems(from items: [CartItem]) throws -> [CartItemDTO] {
 
-        try await items.asyncMap { item in
-
-            try await makeCartItem(from: item)
+        try items.map { item in
+            try makeCartItem(from: item)
         }
     }
 
-    static func makeCartItem(from item: CartItem) async throws -> CartItemDTO {
+    static func makeCartItem(from item: CartItem) throws -> CartItemDTO {
 
         guard let variant = item.product.variants.first(where: { $0.article == item.article }) else {
             throw ErrorFactory.internalError(.productVariantNotFound)
@@ -42,7 +47,7 @@ extension DTOBuilder {
         let availabilityInfo = try makeAvailabilityInfo(from: variant.availabilityInfo)
         let price = try makePrice(from: variant.price)
         let image = makeImage(from: item.product.images.first)
-        let badges = await makeBadge(from: variant.badges)
+        let badges = makeBadge(from: variant.badges)
 
         return try CartItemDTO(id: item.requireID(),
                                productID: item.product.requireID(),
@@ -59,39 +64,11 @@ extension DTOBuilder {
 
     // MARK: - Summary
 
-    private enum SummaryType: String, CaseIterable {
-        case itemsWithoutDiscount = "Товары без скидки"
-        case discount = "Размер скидки"
-        case promoDiscount = "Промокод"
-        case total = "Итого:"
-    }
+    static func makeSummaries(from summaries: [Summary]) -> [SummaryDTO]? {
 
-    private static func makeSummaries(for items: [CartItemDTO]) async -> (summaries: [SummaryDTO], total: SummaryDTO) {
-
-        let (originalPrice, price) = items.reduce((0.0, 0.0)) { partialResult, item in
-
-            (partialResult.0 + item.amount.originalPrice, partialResult.1 + item.amount.price)
+        summaries.map { summary in
+            SummaryDTO(name: summary.name, value: summary.value, type: summary.type)
         }
-
-        let summaries = SummaryType.allCases.compactMap { type in
-
-            switch type {
-            case .itemsWithoutDiscount:
-                return originalPrice > 0 ? SummaryDTO(name: type.rawValue, value: originalPrice) : nil
-
-            case .discount:
-                let discount = originalPrice - price
-                return discount > 0 ? SummaryDTO(name: type.rawValue, value: discount) : nil
-
-            case .promoDiscount, .total:
-                return nil
-
-            }
-        }
-
-        let total = SummaryDTO(name: SummaryType.total.rawValue, value: price)
-
-        return (summaries, total)
     }
 
     // MARK: - Price(Amount)

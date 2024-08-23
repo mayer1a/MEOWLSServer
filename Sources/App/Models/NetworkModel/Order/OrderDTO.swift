@@ -18,13 +18,13 @@ struct OrderDTO: Content {
     let orderDate: String
     let cancelable: Bool
     let repeatAllowed: Bool
-    let client: User.PublicDTO
-    let delivery: DeliveryDTO
+    let client: User.PublicDTO?
+    let delivery: DeliveryDTO?
     let comment: String?
-    let paymentType: PaymentType
-    let items: [CartItemDTO]
-    let itemsSummary: [SummaryDTO]?
-    let total: SummaryDTO
+    let paymentType: PaymentType?
+    let items: [CartItemDTO]?
+    let summaries: [SummaryDTO]?
+    let itemsPreviews: [Preview]?
 
     enum CodingKeys: String, CodingKey {
         case id, number
@@ -37,9 +37,17 @@ struct OrderDTO: Content {
         case repeatAllowed = "repeat_allowed"
         case client, delivery, comment
         case paymentType = "payment_type"
-        case items
-        case itemsSummary = "items_summary"
-        case total
+        case items, summaries
+        case itemsPreviews = "items_previews"
+    }
+
+}
+
+extension OrderDTO {
+
+    struct Preview: Content {
+        let id: UUID
+        let image: ImageDTO?
     }
 
 }

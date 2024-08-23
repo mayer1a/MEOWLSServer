@@ -10,9 +10,11 @@ import Fluent
 
 protocol CartRepositoryProtocol: Sendable {
 
-    func get(for user: User) async throws -> CartDTO
+    func getRawCart(for user: User) async throws -> Cart
+    func getCart(for user: User) async throws -> CartDTO
     func update(for user: User, with cartRequest: CartRequest) async throws -> CartDTO
     func applyPromocode(_ promocode: PromoCode, for user: User) async throws -> CartDTO
+    func createSummaries(from cartItems: [CartItem], for cartID: UUID, in db: Database) async throws
 
 }
 
@@ -26,17 +28,21 @@ final class CartRepository: CartRepositoryProtocol {
 
     // MARK: - Get user cart
 
-    func get(for user: User) async throws -> CartDTO {
+    func getCart(for user: User) async throws -> CartDTO {
+        let userCart = try await getRawCart(for: user)
+        let userCartDTO = try DTOBuilder.makeCart(from: userCart)
+        return userCartDTO
+    }
+
+    func getRawCart(for user: User) async throws -> Cart {
 
         let userCart = try await Cart.query(on: database)
             .filter(\.$user.$id == user.requireID())
             .limit(1)
             .with(\.$promoCodes)
             .with(\.$items, { item in
-
                 item
                     .with(\.$product) { product in
-
                         product
                             .with(\.$images)
                             .with(\.$variants) { variant in
@@ -47,13 +53,14 @@ final class CartRepository: CartRepositoryProtocol {
                             }
                     }
             })
+            .with(\.$summaries)
             .first()
 
         guard let userCart else { throw ErrorFactory.internalError(.failedToFindUserCart) }
 
-        let userCartDTO = try await DTOBuilder.makeCart(from: userCart)
+        return userCart
+    }
 
-        return userCartDTO
     }
 
     // MARK: - Update user cart
@@ -72,28 +79,13 @@ final class CartRepository: CartRepositoryProtocol {
 
         try await addProducts(to: userCart, from: newCartItems)
 
-        let updatedCart = try await Cart.query(on: database)
-            .filter(\.$user.$id == user.requireID())
-            .limit(1)
-            .with(\.$items, { item in
+        var updatedCart = try await getRawCart(for: user)
 
-                item
-                    .with(\.$product) { product in
+        _ = try await createSummaries(from: updatedCart.items, for: updatedCart.requireID(), in: database)
 
-                        product
-                            .with(\.$images)
-                            .with(\.$variants) { variant in
-                                variant
-                                    .with(\.$price)
-                                    .with(\.$availabilityInfo)
-                                    .with(\.$badges)
-                            }
-                    }
-            })
-            .first()
+        updatedCart = try await getRawCart(for: user)
 
-
-        let userCartDTO = try await DTOBuilder.makeCart(from: updatedCart)
+        let userCartDTO = try DTOBuilder.makeCart(from: updatedCart)
 
         return userCartDTO
     }
@@ -101,8 +93,57 @@ final class CartRepository: CartRepositoryProtocol {
     // MARK: - Apply promocode to user cart
 
     func applyPromocode(_ promocode: PromoCode, for user: User) async throws -> CartDTO {
-
         return CartDTO(id: .generateRandom(), items: [])
+    }
+
+    // MARK: - Create summaries
+
+    func createSummaries(from cartItems: [CartItem], for cartID: UUID, in db: Database) async throws {
+
+        let (originalPrice, price) = try cartItems.reduce((0.0, 0.0)) { partialResult, item in
+
+            let amount = try makeItemAmount(for: item)
+            return (partialResult.0 + amount.originalPrice, partialResult.1 + amount.price)
+        }
+
+        try await Summary.query(on: db).filter(\.$cart.$id == cartID).delete()
+
+        try await SummaryType.allCases.asyncForEach { type in
+
+            switch type {
+            case .itemsWithoutDiscount:
+                guard originalPrice > 0 else { break }
+
+                let summary = Summary(cartID: cartID, name: type.description, value: originalPrice, type: type)
+                try await summary.save(on: db)
+
+            case .discount:
+                let discount = originalPrice - price
+
+                guard discount > 0 else { break }
+
+                let summary = Summary(cartID: cartID, name: type.description, value: originalPrice - price, type: type)
+                try await summary.save(on: db)
+
+            case .total:
+                let summary = Summary(cartID: cartID, name: type.description, value: price, type: type)
+                try await summary.save(on: db)
+
+            case .delivery, .promoDiscount:
+                break
+
+            }
+        }
+    }
+
+    func makeItemAmount(for item: CartItem) throws -> Price {
+
+        guard let price = item.product.variants.first(where: { $0.article == item.article })?.price else {
+            throw ErrorFactory.internalError(.failedToFindProductPrice)
+        }
+        return Price(originalPrice: price.originalPrice * Double(item.count),
+                     discount: price.discount,
+                     price: price.price * Double(item.count))
     }
 
     // MARK: - Get new items in user cart
@@ -125,7 +166,6 @@ final class CartRepository: CartRepositoryProtocol {
     private func addProducts(to cart: Cart, from cartItem: [CartRequest.CartDTO.Item]) async throws {
 
         try await cartItem.asyncForEach { item in
-
             try await self.addProduct(to: cart, from: item)
         }
     }
@@ -166,7 +206,6 @@ final class CartRepository: CartRepositoryProtocol {
 
         let product = try? await cart.items[itemIndex].$product.query(on: transaction)
             .with(\.$variants, { variant in
-
                 variant.with(\.$availabilityInfo)
             })
             .first()
@@ -175,15 +214,6 @@ final class CartRepository: CartRepositoryProtocol {
             let info = product?.variants.first(where: { $0.article == cartItem.article})?.availabilityInfo,
             info.count >= cartItem.count
         else {
-
-            var failure: [ValidationFailure]?
-
-            if let name = product?.name {
-                failure = [
-                    .init(field: "\(name)", failure: "\"\(name)\" is available in quantity \(cartItem.count) items")
-                ]
-            }
-
             throw ErrorFactory.badRequest(.oneProductUnavailable, failures: [
                 .unavailableProduct(name: product?.name, quantity: cartItem.count)
             ])

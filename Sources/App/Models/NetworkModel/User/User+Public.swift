@@ -20,19 +20,17 @@ extension User {
         var email: String?
         var phone: String
         var token: String?
-        var role: UserRole
 
-        init(id: UUID?,
+        init(id: UUID? = nil,
              surname: String?,
              name: String?,
              patronymic: String?,
-             birthday: Date?,
-             gender: Gender?,
+             birthday: Date? = nil,
+             gender: Gender? = nil,
              email: String?,
              phone: String,
-             token: String?,
-             role: UserRole) {
-
+             token: String? = nil) {
+            
             self.id = id
             self.surname = surname
             self.name = name
@@ -42,7 +40,6 @@ extension User {
             self.email = email
             self.phone = phone
             self.token = token
-            self.role = role
         }
 
     }

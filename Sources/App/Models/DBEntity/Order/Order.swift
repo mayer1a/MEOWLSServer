@@ -36,12 +36,6 @@ final class Order: Model, Content, @unchecked Sendable {
     @Field(key: "order_date")
     var orderDate: Date
 
-    @Boolean(key: "cancelable")
-    var cancelable: Bool
-
-    @Boolean(key: "repeat_allowed")
-    var repeatAllowed: Bool
-
     @OptionalChild(for: \.$order)
     var delivery: Delivery?
 
@@ -55,10 +49,7 @@ final class Order: Model, Content, @unchecked Sendable {
     var items: [CartItem]
     
     @Children(for: \.$order)
-    var itemsSummary: [Summary]
-
-    @OptionalChild(for: \.$order)
-    var total: Summary?
+    var summaries: [Summary]
 
     init() {}
 
@@ -69,8 +60,6 @@ final class Order: Model, Content, @unchecked Sendable {
          canBePaidOnline: Bool,
          paid: Bool,
          orderDate: Date,
-         cancelable: Bool,
-         repeatAllowed: Bool,
          comment: String?,
          paymentType: PaymentType) {
 
@@ -81,8 +70,6 @@ final class Order: Model, Content, @unchecked Sendable {
         self.canBePaidOnline = canBePaidOnline
         self.paid = paid
         self.orderDate = orderDate
-        self.cancelable = cancelable
-        self.repeatAllowed = repeatAllowed
         self.comment = comment
         self.paymentType = paymentType
     }

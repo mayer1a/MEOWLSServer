@@ -58,6 +58,8 @@ typealias ProductProperty = Product.ProductProperty
 typealias ProductPropertyDTO = ProductDTO.ProductPropertyDTO
 
 typealias DeliveryType = Delivery.DeliveryType
+typealias DeliveryTimeInterval = Delivery.DeliveryTimeInterval
+typealias DeliveryTimeIntervalDTO = DeliveryDTO.DeliveryTimeIntervalDTO
 
 typealias StatusCode = Order.StatusCode
 
@@ -70,3 +72,5 @@ typealias SaleType = Sale.SaleType
 typealias CityDTO = AddressDTO.CityDTO
 
 typealias SuggestionsType = DaDataResponse.SuggestionsType
+
+typealias CartRequestItem = CartRequest.CartDTO.Item

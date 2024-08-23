@@ -12,27 +12,31 @@ struct CartDTO: Content {
     let id: UUID
     let items: [CartItemDTO]
     let promoCode: PromoCodeDTO?
-    let itemsSummary: [SummaryDTO]?
-    let total: SummaryDTO
+    let summaries: [SummaryDTO]?
+    let availabilityAlertMessage: String?
+    let save: Bool?
 
     enum CodingKeys: String, CodingKey {
         case id, items
         case promoCode = "promo_code"
-        case itemsSummary = "items_summary"
-        case total
+        case summaries
+        case availabilityAlertMessage = "availability_alert_message"
+        case save
     }
 
     init(id: UUID, 
          items: [CartItemDTO], 
          promoCode: PromoCodeDTO? = nil,
-         itemsSummary: [SummaryDTO]? = nil,
-         total: SummaryDTO = .init()) {
+         summaries: [SummaryDTO]? = nil,
+         availabilityAlertMessage: String? = nil,
+         save: Bool? = nil) {
 
         self.id = id
         self.items = items
         self.promoCode = promoCode
-        self.itemsSummary = itemsSummary
-        self.total = total
+        self.summaries = summaries
+        self.availabilityAlertMessage = availabilityAlertMessage
+        self.save = save
     }
 
 }

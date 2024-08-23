@@ -15,8 +15,6 @@ struct Configuration {
 
     public static func configure(_ app: Application) async throws {
 
-        app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-
         setupLogger(for: app)
         
         try await connectDatabase(for: app)
@@ -166,6 +164,7 @@ struct Configuration {
         
         app.migrations.add(CreateCartItem())
         app.migrations.add(CreateSummary())
+        app.migrations.add(CreateSummaryType())
         app.migrations.add(CreateCartsPromoCodesPivot())
     }
 
