@@ -26,7 +26,7 @@ struct SuggestionsController: RouteCollection {
         addressGroup.get("flats", use: flatsSuggestions)
         addressGroup.post("", use: fullAddressSuggestion)
 
-        let fullnameGroup = tokenSuggestionsGroup.grouped("fullname")
+        let fullnameGroup = suggestions.grouped("fullname")
         fullnameGroup.get("surname", use: surnameSuggestions)
         fullnameGroup.get("name", use: nameSuggestions)
         fullnameGroup.get("patronymic", use: patronymicSuggestions)

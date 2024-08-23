@@ -11,6 +11,7 @@ extension DeliveryDTO {
 
     struct DeliveryTimeIntervalDTO: Content {
 
+        let id: UUID
         let from: String
         let to: String
 

@@ -16,6 +16,7 @@ struct CreateDelivery: AsyncMigration {
         try await database.schema("deliveries")
             .id()
             .field("order_id", .uuid, .required, .references("orders", "id", onDelete: .cascade))
+            .field("delivery_time_interval", .uuid, .references("delivery_time_intervals", "id", onDelete: .cascade))
             .field("type", deliveryType, .required)
             .field("delivery_date", .date)
             .unique(on: "order_id")

@@ -15,6 +15,7 @@ struct CreateCity: AsyncMigration {
             .id()
             .field("region_id", .uuid, .required, .references("regions", "id", onDelete: .cascade))
             .field("name", .string, .required)
+            .field("city_time_zone", .string, .required)
             .unique(on: "name")
             .create()
     }
