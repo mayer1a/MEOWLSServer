@@ -32,6 +32,8 @@ struct AppConstants {
         }
     }
 
+    var deliveryCost = 39.0
+
     private var token: String
 
 }

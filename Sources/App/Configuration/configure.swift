@@ -16,7 +16,11 @@ struct Configuration {
     public static func configure(_ app: Application) async throws {
 
         setupLogger(for: app)
-        
+
+        #if DEBUG
+            try await loadFromEnvFile(for: app)
+        #endif
+
         try await connectDatabase(for: app)
 
         #if DEBUG
@@ -38,10 +42,9 @@ struct Configuration {
             let name = Environment.get("DATABASE_NAME"),
             let daDataToken = Environment.get("DADATA_TOKEN")
         else {
-            debugPrint("[ERROR] ENVIRONMENTS DOES NOT FOUND")
-            throw Abort(.serviceUnavailable)
+            throw ErrorFactory.serviceUnavailable(failures: [.environments])
         }
-        
+
         AppConstants.shared.daDataToken = daDataToken
 
         let sqlConfig = SQLPostgresConfiguration(hostname: hostname,
@@ -186,6 +189,21 @@ struct Configuration {
         app.migrations.add(CreateDeliveryTimeInterval())
         app.migrations.add(CreateLocation())
     }
+
+    #if DEBUG 
+
+    private static func loadFromEnvFile(for app: Application) async throws {
+
+        let packageRootPath = URL(fileURLWithPath: #file).pathComponents
+            .prefix(while: { $0 != "Sources" })
+            .joined(separator: "/")
+            .dropFirst()
+            .appending("/.env")
+
+        try await DotEnvFile.read(path: packageRootPath, fileio: app.fileio).load(overwrite: true)
+    }
+
+    #endif
 
     private init() {}
 
