@@ -16,6 +16,7 @@ public protocol ModelCustomTokenAuthenticatable: Model, Authenticatable {
     static var userKey: KeyPath<Self, Parent<User>> { get }
 
     var isValid: Bool { get }
+    var canRefreshable: Bool { get }
 
 }
 
@@ -43,17 +44,19 @@ private struct ModelCustomTokenAuthenticator<Token>: CustomTokenAuthenticator wh
 
         Token.query(on: request.db)
             .filter(\._$value == token.token)
+            .with(\._$user)
             .first()
             .flatMap { token -> EventLoopFuture<Void> in
 
                 guard let token else { return request.eventLoop.makeSucceededFuture(()) }
 
-                guard token.isValid else { return token.delete(on: request.db) }
+                guard token.isValid || (token.canRefreshable && request.isRefreshRoutePath) else {
+                    return request.eventLoop.makeFailedFuture(ErrorFactory.unauthorized())
+                }
 
                 request.auth.login(token)
 
                 return token._$user.get(on: request.db).map {
-
                     request.auth.login($0)
                 }
             }

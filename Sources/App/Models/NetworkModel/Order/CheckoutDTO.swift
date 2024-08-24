@@ -22,9 +22,10 @@ struct CheckoutDTO: Content {
 }
 
 struct CheckoutClientDTO: Content {
-
+    
+    let surname: String?
     let name: String?
-    let lastname: String?
+    let patronymic: String?
     let email: String?
     let phone: String
 

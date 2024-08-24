@@ -73,7 +73,7 @@ final class User: Model, Content, @unchecked Sendable {
          email: String? = nil,
          passwordHash: String = "",
          phone: String = "",
-         role: UserRole) {
+         role: UserRole = .user) {
 
         self.id = id
         self.surname = surname

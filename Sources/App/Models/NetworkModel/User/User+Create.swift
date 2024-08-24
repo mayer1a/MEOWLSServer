@@ -11,15 +11,15 @@ extension User {
 
     struct CreateDTO: Content {
 
-        var surname: String?
-        var name: String?
-        var patronymic: String?
-        var birthday: Date?
-        var gender: Gender?
-        var email: String?
-        var phone: String
-        var password: String
-        var confirmPassword: String
+        let surname: String?
+        let name: String?
+        let patronymic: String?
+        let birthday: Date?
+        let gender: Gender?
+        let email: String?
+        let phone: String
+        let password: String
+        let confirmPassword: String
 
         enum CodingKeys: String, CodingKey {
             case surname, name, patronymic, birthday, gender, email, phone, password
