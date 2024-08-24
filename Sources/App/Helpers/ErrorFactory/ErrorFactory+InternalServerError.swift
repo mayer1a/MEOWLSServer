@@ -20,10 +20,14 @@ enum InternalServerError: String {
     case bannerCategoriesError = "error.bannerCategoriesError"
     case bannerProductsPriceError = "error.bannerProductsPriceError"
     case bannerProductsAvailabilityError = "error.bannerProductsAvailabilityError"
+    case bannerIDRequired = "error.bannerIDRequired"
     case fetchFavoritesError = "error.fetchFavoritesError"
     case orderCreationFailed = "error.orderCreationFailed"
+    case orderDateRequired = "error.orderDateRequired"
     case totalSummaryNotFound = "error.totalSummaryNotFound"
     case deliveryNotFoundForOrder = "error.deliveryNotFoundForOrder"
+    case statusCodeRequired = "error.statusCodeRequired"
+    case statusRequired = "error.statusRequired"
 
     var description: String {
         switch self {
@@ -60,17 +64,29 @@ enum InternalServerError: String {
         case .bannerProductsAvailabilityError:
             return "Products Banner availability information error."
 
+        case .bannerIDRequired:
+            return "Banner ID is required."
+
         case .fetchFavoritesError:
             return "Error fetching favorites for user."
 
         case .orderCreationFailed:
             return "Order creation failed."
-            
+
+        case .orderDateRequired:
+            return "Order date is required."
+
         case .totalSummaryNotFound:
             return "Total summary not found."
             
         case .deliveryNotFoundForOrder:
             return "Delivery for order not found."
+
+        case .statusCodeRequired:
+            return "Status code is required."
+
+        case .statusRequired:
+            return "Status is required."
 
         }
     }

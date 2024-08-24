@@ -72,8 +72,18 @@ struct OrderController: RouteCollection {
         guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
 
         let checkoutInfo = try request.content.decode(CheckoutDTO.self)
+        let result = try await orderRepository.purchaseOrder(for: user, with: checkoutInfo)
 
-        return try await orderRepository.purchaseOrder(for: user, with: checkoutInfo)
+        let futureDate = Date(timeIntervalSinceNow: 60 * 5 * 1) // Five minutes
+
+        try await request
+            .queue
+            .dispatch(PayOrderJob.self,
+                      .init(orderNumber: result.orderNumber),
+                      maxRetryCount: 3,
+                      delayUntil: futureDate)
+
+        return result
     }
 
     @Sendable func getOrders(_ request: Request) async throws -> PaginationResponse<OrderDTO> {

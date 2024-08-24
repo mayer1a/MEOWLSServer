@@ -17,6 +17,7 @@ enum BadRequest: String {
     case orderNumberRequired = "error.orderNumberRequired"
     case orderIdRequired = "error.orderIdRequired"
     case orderAlreadyCancelled = "error.orderAlreadyCancelled"
+    case orderIsComplete = "error.orderIsComplete"
     case itemsNotAvailableWithSetCount = "error.itemsNotAvailableWithSetCount"
     case paymentTypeRequired = "error.paymentTypeRequired"
     case deliveryCreationFailed = "error.deliveryCreationFailed"
@@ -63,6 +64,9 @@ extension BadRequest {
 
         case .orderAlreadyCancelled:
             return "Order has already been cancelled."
+
+        case .orderIsComplete:
+            return "Order status is \"COMPLETED\" it cannot be cancelled."
 
         case .itemsNotAvailableWithSetCount:
             return "Some items are not available in the specified quantity."

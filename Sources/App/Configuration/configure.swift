@@ -8,6 +8,8 @@
 import Fluent
 import FluentPostgresDriver
 import Vapor
+import Queues
+import QueuesFluentDriver
 
 // MARK: - Configure application
 
@@ -26,7 +28,14 @@ struct Configuration {
         #if DEBUG
             try await setupMigrations(for: app)
         #endif
+
+        app.queues.use(.fluent())
+        app.queues.configuration.refreshInterval = .minutes(5)
+        app.queues.configuration.workerCount = .custom(1)
+        app.http.server.configuration.serverName = "MEOWLS"
         
+        try await setupScheduledJobs(for: app)
+
         app.caches.use(.memory)
         app.routes.defaultMaxBodySize = "500kb"
 
@@ -63,7 +72,17 @@ struct Configuration {
         #else
             app.logger.logLevel = .notice
         #endif
+    }
 
+    private static func setupScheduledJobs(for app: Application) async throws {
+        app.queues.schedule(CompletePaidOrdersJob())
+            .hourly()
+            .at(1)
+
+        app.queues.add(PayOrderJob())
+
+        try app.queues.startInProcessJobs()
+        try app.queues.startScheduledJobs()
     }
 
     private static func setupMigrations(for app: Application) async throws {
@@ -78,6 +97,7 @@ struct Configuration {
         addPromoCodesMigrations(for: app)
         addCartMigrations(for: app)
         addDeliveryMigrations(for: app)
+        app.migrations.add(JobMetadataMigrate())
 
         try await app.autoMigrate()
     }
