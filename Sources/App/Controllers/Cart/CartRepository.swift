@@ -30,7 +30,7 @@ final class CartRepository: CartRepositoryProtocol {
 
     func getCart(for user: User) async throws -> CartDTO {
         let userCart = try await getRawCart(for: user)
-        let userCartDTO = try DTOBuilder.makeCart(from: userCart)
+        let userCartDTO = try DTOFactory.makeCart(from: userCart)
         return userCartDTO
     }
 
@@ -85,7 +85,7 @@ final class CartRepository: CartRepositoryProtocol {
 
         updatedCart = try await getRawCart(for: user)
 
-        let userCartDTO = try DTOBuilder.makeCart(from: updatedCart)
+        let userCartDTO = try DTOFactory.makeCart(from: updatedCart)
 
         return userCartDTO
     }

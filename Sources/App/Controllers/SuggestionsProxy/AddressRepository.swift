@@ -36,7 +36,7 @@ final class AddressRepository: AddressRepositoryProtocol {
 
         let cities = try await City.query(on: database).all()
 
-        return try DTOBuilder.makeCities(from: cities)
+        return try DTOFactory.makeCities(from: cities)
     }
 
     func addAddress(_ address: AddressDTO, for parent: UUID, to saveType: AddressDTO.SaveType) async throws {
@@ -74,7 +74,7 @@ final class AddressRepository: AddressRepositoryProtocol {
             .with(\.$location)
             .first()
 
-        return try DTOBuilder.makeAddress(from: address, for: .user)
+        return try DTOFactory.makeAddress(from: address, for: .user)
     }
 
     func getAddress(for delivery: Delivery) async throws -> AddressDTO {
@@ -85,7 +85,7 @@ final class AddressRepository: AddressRepositoryProtocol {
             .with(\.$location)
             .first()
 
-        return try DTOBuilder.makeAddress(from: address, for: .order)
+        return try DTOFactory.makeAddress(from: address, for: .order)
     }
 
     private func setCache(_ response: [CityDTO]) async throws {

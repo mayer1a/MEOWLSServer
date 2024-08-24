@@ -1,5 +1,5 @@
 //
-//  DTOBuilder+Order.swift
+//  DTOFactory+Order.swift
 //  
 //
 //  Created by Artem Mayer on 19.08.2024.
@@ -7,7 +7,7 @@
 
 import Vapor
 
-extension DTOBuilder {
+extension DTOFactory {
 
     static func makeOrders(from orders: [Order]) throws -> [OrderDTO] {
 
@@ -18,29 +18,30 @@ extension DTOBuilder {
 
     static func makeOrder(from order: Order, fullModel: Bool = true) throws -> OrderDTO {
 
-        let isOrderCancellable = try isOrderCancellable(order)
-        let isOrderRepeatable = try isOrderRepeatable(order)
-        let client = fullModel ? try makeUser(from: order.user, fullModel: false) : nil
-        let delivery = fullModel ? try makeDelivery(from: order.delivery) : nil
-        let items = fullModel ? try makeCartItems(from: order.items) : nil
-        let itemsPreviews = fullModel ? nil : try makeOrderItemsPrevies(from: order.items)
+        var orderBuilder = try OrderDTOBuilder()
+            .setId(order.requireID())
+            .setNumber(order.number)
+            .setStatusCode(order.statusCode)
+            .setStatus(order.status)
+            .setCanBePaidOnline(order.canBePaidOnline)
+            .setPaid(order.paid)
+            .setOrderDate(order.orderDate.toOrderString)
+            .setCancelable(isOrderCancellable(order))
+            .setRepeatAllowed(isOrderRepeatable(order))
+            .setSummaries(makeSummaries(from: order.summaries))
 
-        return OrderDTO(id: try order.requireID(),
-                        number: order.number,
-                        statusCode: order.statusCode,
-                        status: order.status,
-                        canBePaidOnline: order.canBePaidOnline,
-                        paid: order.paid,
-                        orderDate: order.orderDate.toOrderString,
-                        cancelable: isOrderCancellable,
-                        repeatAllowed: isOrderRepeatable,
-                        client: client,
-                        delivery: delivery,
-                        comment: fullModel ? order.comment : nil,
-                        paymentType: fullModel ? order.paymentType : nil,
-                        items: items,
-                        summaries: makeSummaries(from: order.summaries),
-                        itemsPreviews: itemsPreviews)
+        if fullModel {
+            orderBuilder = try orderBuilder
+                .setClient(makeUser(from: order.user, fullModel: false))
+                .setDelivery(makeDelivery(from: order.delivery))
+                .setComment(order.comment)
+                .setPaymentType(order.paymentType)
+                .setItems(try makeCartItems(from: order.items))
+        } else {
+            orderBuilder = try orderBuilder.setItemsPreviews(makeOrderItemsPrevies(from: order.items))
+        }
+
+        return try orderBuilder.build()
     }
 
     static func makeAvailableDates(for timeZone: TimeZone,
@@ -84,24 +85,30 @@ extension DTOBuilder {
                                       _ currentTimeInMinutes: Int) throws -> [DeliveryTimeIntervalDTO] {
 
         try timeIntervals.compactMap { interval -> DeliveryTimeIntervalDTO? in
+            try makeInterval(from: interval, with: offset, currentTimeInMinutes)
+        }
+    }
 
-            let intervalID = try interval.requireID()
-            // Need to check for current day only
-            if offset == 0 {
-                // Check the time to make sure it is more than 5 hours from the current time
-                let fromComponents = interval.from.split(separator: ":").map { Int($0)! }
-                let fromInMinutes = fromComponents[0] * 60 + fromComponents[1]
+    private static func makeInterval(from interval: DeliveryTimeInterval,
+                                     with offset: Int, 
+                                     _ currentTimeInMinutes: Int) throws -> DeliveryTimeIntervalDTO? {
 
-                if currentTimeInMinutes + 300 < fromInMinutes { // 300 minutes = 5 hours
+        let intervalID = try interval.requireID()
+        // Need to check for current day only
+        if offset == 0 {
+            // Check the time to make sure it is more than 5 hours from the current time
+            let fromComponents = interval.from.split(separator: ":").map { Int($0)! }
+            let fromInMinutes = fromComponents[0] * 60 + fromComponents[1]
 
-                    return DeliveryTimeIntervalDTO(id: intervalID, from: String(interval.from), to: String(interval.to))
-                }
-            } else { // For the following days you can add all intervals
+            if currentTimeInMinutes + 300 < fromInMinutes { // 300 minutes = 5 hours
+
                 return DeliveryTimeIntervalDTO(id: intervalID, from: String(interval.from), to: String(interval.to))
             }
-
-            return nil
+        } else { // For the following days you can add all intervals
+            return DeliveryTimeIntervalDTO(id: intervalID, from: String(interval.from), to: String(interval.to))
         }
+
+        return nil
     }
 
     private static func makeDelivery(from delivery: Delivery?) throws -> DeliveryDTO {

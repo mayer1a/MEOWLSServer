@@ -1,5 +1,5 @@
 //
-//  DTOBuilder.swift
+//  DTOFactory.swift
 //
 //
 //  Created by Artem Mayer on 31.07.2024.
@@ -7,7 +7,7 @@
 
 import Vapor
 
-struct DTOBuilder {
+struct DTOFactory {
 
     typealias SQLRawResponse = SearchRepository.SQLRawResponse
 
@@ -15,23 +15,25 @@ struct DTOBuilder {
 
     static func makeUser(from model: User, with token: Token? = nil, fullModel: Bool = true) throws -> User.PublicDTO {
 
+        var userBuilder = UserPublicBuilder()
+            .setSurname(model.surname)
+            .setName(model.name)
+            .setPatronymic(model.patronymic)
+            .setEmail(model.email)
+            .setPhone(model.phone)
+
         if fullModel {
-            return User.PublicDTO(id: try model.requireID(),
-                                  surname: model.surname,
-                                  name: model.name,
-                                  patronymic: model.patronymic,
-                                  birthday: model.birthday,
-                                  gender: model.gender,
-                                  email: model.email,
-                                  phone: model.phone,
-                                  token: token?.value)
-        } else {
-            return User.PublicDTO(surname: model.surname,
-                                  name: model.name,
-                                  patronymic: model.patronymic,
-                                  email: model.email,
-                                  phone: model.phone)
+            userBuilder = userBuilder
+                .setId(try model.requireID())
+                .setBirthday(model.birthday)
+                .setGender(model.gender)
         }
+
+        if let token {
+            userBuilder = userBuilder.setAuthentication(Authentication(token: token.value, expiresAt: token.expired))
+        }
+
+        return try userBuilder.build()
     }
 
     // MARK: - Favorites
@@ -58,13 +60,10 @@ struct DTOBuilder {
 
             if withParent {
                 parent = try makeCategory(from: category.parent,
-                                          fullModel: true, 
-                                          withParent: false, 
+                                          fullModel: true,
+                                          withParent: false,
                                           withImage: withImage)
-            } else {
-                parent = nil
             }
-
             image = withImage ? makeImage(from: category.image) : nil
         }
 

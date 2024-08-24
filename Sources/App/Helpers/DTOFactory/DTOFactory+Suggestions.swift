@@ -1,5 +1,5 @@
 //
-//  DTOBuilder+Suggestions.swift
+//  DTOFactory+Suggestions.swift
 //  
 //
 //  Created by Artem Mayer on 08.08.2024.
@@ -7,14 +7,13 @@
 
 import Vapor
 
-extension DTOBuilder {
+extension DTOFactory {
 
     static func makeSuggestions(from response: DaDataResponse,
                                 with query: String,
                                 for type: SuggestionsType) throws -> [SuggestionsDTO] {
 
         try response.suggestions.map { suggestion in
-
             try makeSuggestion(from: suggestion, with: query, for: type)
         }
     }

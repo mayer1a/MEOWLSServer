@@ -39,7 +39,7 @@ final class CategoryRepository: CategoryRepositoryProtocol {
 
         return try await categories.asyncMap { category in
 
-            guard let categoryDTO = try DTOBuilder.makeCategory(from: category, fullModel: true) else {
+            guard let categoryDTO = try DTOFactory.makeCategory(from: category, fullModel: true) else {
                 throw ErrorFactory.internalError(.fetchCategoryError, failures: [.ID(category.id)])
             }
             return categoryDTO

@@ -46,7 +46,7 @@ final class OrderRepository: OrderRepositoryProtocol {
         } ? "Некоторые товары из Вашей корзины больше недоступны в указанном количестве" : nil
 
         let summaries = try appendDeliverySummary(for: userCart).orderSummaries
-        return try DTOBuilder.makeCart(from: userCart, with: summaries, alert: alertMessage)
+        return try DTOFactory.makeCart(from: userCart, with: summaries, alert: alertMessage)
     }
 
     func getAvailableDates(for cityID: City.IDValue) async throws -> [AvailableDateDTO] {
@@ -86,7 +86,7 @@ final class OrderRepository: OrderRepositoryProtocol {
             .with(\.$summaries)
             .paginate(with: page)
 
-        let ordersDTO = try DTOBuilder.makeOrders(from: paginationOrders.results)
+        let ordersDTO = try DTOFactory.makeOrders(from: paginationOrders.results)
 
         return PaginationResponse(results: ordersDTO, paginationInfo: paginationOrders.paginationInfo)
     }
@@ -94,7 +94,7 @@ final class OrderRepository: OrderRepositoryProtocol {
     func getOrder(for orderNumber: Int) async throws -> OrderDTO {
 
         let order = try await getRawOrder(for: orderNumber, fullLoad: true)
-        return try DTOBuilder.makeOrder(from: order)
+        return try DTOFactory.makeOrder(from: order)
     }
 
     func cancelOrder(for orderNumber: Int) async throws {
@@ -258,7 +258,7 @@ final class OrderRepository: OrderRepositoryProtocol {
 
         let timeZone = try await fetchTimeZone(for: cityID, in: db)
         let timeIntervals = try await DeliveryTimeInterval.query(on: db).all()
-        return try DTOBuilder.makeAvailableDates(for: timeZone, timeIntervals: timeIntervals)
+        return try DTOFactory.makeAvailableDates(for: timeZone, timeIntervals: timeIntervals)
     }
 
     private func createAddress(with checkoutInfo: CheckoutDTO, for delivery: Delivery, in db: Database) async throws {

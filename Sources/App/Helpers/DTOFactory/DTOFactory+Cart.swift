@@ -1,5 +1,5 @@
 //
-//  DTOBuilder+Cart.swift
+//  DTOFactory+Cart.swift
 //  
 //
 //  Created by Artem Mayer on 07.08.2024.
@@ -7,7 +7,7 @@
 
 import Vapor
 
-extension DTOBuilder {
+extension DTOFactory {
 
     // MARK: - Cart
 

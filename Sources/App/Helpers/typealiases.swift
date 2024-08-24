@@ -74,3 +74,5 @@ typealias CityDTO = AddressDTO.CityDTO
 typealias SuggestionsType = DaDataResponse.SuggestionsType
 
 typealias CartRequestItem = CartRequest.CartDTO.Item
+
+typealias Authentication = User.Authentication

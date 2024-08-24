@@ -1,5 +1,5 @@
 //
-//  DTOBuilder+Products.swift
+//  DTOFactory+Products.swift
 //
 //
 //  Created by Artem Mayer on 06.08.2024.
@@ -7,7 +7,7 @@
 
 import Vapor
 
-extension DTOBuilder {
+extension DTOFactory {
 
     // MARK: - Product
 

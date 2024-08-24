@@ -51,7 +51,7 @@ final class SearchRepository: SearchRepositoryProtocol {
 
         categoriesRaw.result = try await eagerLoad(for: categoriesRaw.result)
 
-        let searchSuggestions = try DTOBuilder.makeSearchSuggestions(from: categoriesRaw, productsRaw)
+        let searchSuggestions = try DTOFactory.makeSearchSuggestions(from: categoriesRaw, productsRaw)
         try await setCache(searchSuggestions, for: query)
 
         return searchSuggestions
@@ -93,7 +93,7 @@ final class SearchRepository: SearchRepositoryProtocol {
                 partialResult.append(contentsOf: product)
             }
 
-        let popularSuggestions = try DTOBuilder.makeSearchSuggestions(from: .init(), .init(result: products))
+        let popularSuggestions = try DTOFactory.makeSearchSuggestions(from: .init(), .init(result: products))
 
         try await setCache(popularSuggestions, for: popularCacheKey, expiresIn: .seconds(Date().secondsUntilEndOfDay))
 

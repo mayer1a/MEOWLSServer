@@ -1,5 +1,5 @@
 //
-//  DTOBuilder+Banners.swift
+//  DTOFactory+Banners.swift
 //  
 //
 //  Created by Artem Mayer on 06.08.2024.
@@ -7,49 +7,45 @@
 
 import Vapor
 
-extension DTOBuilder {
+extension DTOFactory {
 
     // MARK: - Banners
 
     static func makeBanners(from banners: [MainBanner], fullModel: Bool = true) throws -> [MainBannerDTO] {
 
         try banners.map { mainBanner in
+            try makeBanner(from: mainBanner, fullModel: fullModel)
+        }
+    }
 
-            var uiSettings: UISettingsDTO?
-            var placeType: PlaceType?
-            var categories: [CategoryDTO]?
-            var childBanners: [MainBannerDTO]?
-            var products: [ProductDTO]?
+    static func makeBanner(from mainBanner: MainBanner, fullModel: Bool) throws -> MainBannerDTO {
 
-            if fullModel {
-                uiSettings = makeUISettings(from: mainBanner.uiSettings)
-                placeType = mainBanner.placeType
+        var bannerBuilder = try MainBannerDTOBuilder()
+            .setId(mainBanner.requireID())
+            .setTitle(mainBanner.title)
+            .setRedirect(makeRedirect(from: mainBanner.redirect, fullModel: !fullModel))
+            .setImage(makeImage(from: mainBanner.image))
 
-                let bannerCategories = try mainBanner.categories.map { category in
+        if fullModel {
+            let bannerCategories = try mainBanner.categories.map { category in
 
-                    guard let categoryDTO = try makeCategory(from: category) else {
-                        throw ErrorFactory.internalError(.bannerCategoriesError, failures: [.ID(category.id)])
-                    }
-                    return categoryDTO
+                guard let categoryDTO = try makeCategory(from: category) else {
+                    throw ErrorFactory.internalError(.bannerCategoriesError, failures: [.ID(category.id)])
                 }
-
-                categories = bannerCategories.isEmpty ? nil : bannerCategories
-                products = try makeProducts(from: mainBanner.products)
-
-                let child = try makeBanners(from: mainBanner.banners, fullModel: false)
-                childBanners = child.isEmpty ? nil : child
+                return categoryDTO
             }
 
-            return MainBannerDTO(id: try mainBanner.requireID(),
-                                 title: mainBanner.title,
-                                 placeType: placeType,
-                                 redirect: try makeRedirect(from: mainBanner.redirect, fullModel: !fullModel),
-                                 uiSettings: uiSettings,
-                                 categories: categories,
-                                 banners: childBanners,
-                                 products: products,
-                                 image: makeImage(from: mainBanner.image))
+            let child = try makeBanners(from: mainBanner.banners, fullModel: false)
+
+            bannerBuilder = bannerBuilder
+                .setUISettings(makeUISettings(from: mainBanner.uiSettings))
+                .setPlaceType(mainBanner.placeType)
+                .setCategories(bannerCategories.isEmpty ? nil : bannerCategories)
+                .setProducts(try makeProducts(from: mainBanner.products))
+                .setBanners(child.isEmpty ? nil : child)
         }
+
+        return try bannerBuilder.build()
     }
 
     // MARK: - UISettings

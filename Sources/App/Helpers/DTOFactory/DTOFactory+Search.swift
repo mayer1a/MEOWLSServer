@@ -1,5 +1,5 @@
 //
-//  DTOBuilder+Search.swift
+//  DTOFactory+Search.swift
 //
 //
 //  Created by Artem Mayer on 06.08.2024.
@@ -7,7 +7,7 @@
 
 import Vapor
 
-extension DTOBuilder {
+extension DTOFactory {
 
     static func makeSearchSuggestions(from categoriesRaw: SQLRawResponse<Category>,
                                       _ productsRaw: SQLRawResponse<Product>) throws -> [SearchSuggestionDTO] {
@@ -16,7 +16,7 @@ extension DTOBuilder {
 
         var result = try categoriesRaw.result.map { category in
 
-            let categoryDTO = try DTOBuilder.makeCategory(from: category, fullModel: true, withImage: false)
+            let categoryDTO = try DTOFactory.makeCategory(from: category, fullModel: true, withImage: false)
             let productsSet = ProductsSetDTO(name: category.name, category: categoryDTO)
             let redirect = RedirectDTO(redirectType: .productsCollection, productsSet: productsSet)
 

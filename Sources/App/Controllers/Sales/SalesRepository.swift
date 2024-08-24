@@ -29,7 +29,7 @@ final class SalesRepository: SalesRepositoryProtocol {
         if let sales = try await getFromCache(for: saleType, page) { return sales }
 
         let paginationSales = try await eagerLoadRelations(for: saleType, page)
-        let salesDTO = try DTOBuilder.makeSales(from: paginationSales.results)
+        let salesDTO = try DTOFactory.makeSales(from: paginationSales.results)
         let paginationSalesDTOs = PaginationResponse(results: salesDTO, paginationInfo: paginationSales.paginationInfo)
 
         try await setCache(paginationSalesDTOs, for: saleType, page)

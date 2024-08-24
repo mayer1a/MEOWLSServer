@@ -66,7 +66,7 @@ struct SuggestionsController: RouteCollection {
 
         let dadataResponse = try response.content.decode(DaDataResponse.self)
 
-        return try DTOBuilder.makeAddress(from: dadataResponse.suggestions.first, with: requestAddress)
+        return try DTOFactory.makeAddress(from: dadataResponse.suggestions.first, with: requestAddress)
     }
 
     // MARK: - Fullname
@@ -108,7 +108,7 @@ struct SuggestionsController: RouteCollection {
 
         let dadataResponse = try response.content.decode(DaDataResponse.self)
 
-        return try DTOBuilder.makeSuggestions(from: dadataResponse, with: requestQuery.query, for: type)
+        return try DTOFactory.makeSuggestions(from: dadataResponse, with: requestQuery.query, for: type)
     }
 
     @Sendable private func send(request: Request, url: URI, body: DaDataRequest) async throws -> ClientResponse {

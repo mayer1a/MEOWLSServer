@@ -47,7 +47,7 @@ final class BannersRepository: BannersRepositoryProtocol {
 
             try await dbBanners.asyncForEach { banner in
                 if let index = banners.firstIndex(where: { $0.id == banner.id }) {
-                    banners[index].products = try DTOBuilder.makeProducts(from: banner.products)
+                    banners[index].products = try DTOFactory.makeProducts(from: banner.products)
                 }
             }
 
@@ -55,7 +55,7 @@ final class BannersRepository: BannersRepositoryProtocol {
         }
 
         let banners = try await eagerLoadRelations()
-        let bannersDTO = try DTOBuilder.makeBanners(from: banners)
+        let bannersDTO = try DTOFactory.makeBanners(from: banners)
         try await setCache(bannersDTO)
 
         return bannersDTO

@@ -1,5 +1,5 @@
 //
-//  DTOBuilder+Images.swift
+//  DTOFactory+Images.swift
 //
 //
 //  Created by Artem Mayer on 06.08.2024.
@@ -7,14 +7,13 @@
 
 import Vapor
 
-extension DTOBuilder {
+extension DTOFactory {
 
     static func makeImages(from images: [Image]?, needsDimension: Bool = false) -> [ImageDTO]? {
 
         guard let images else { return nil }
 
         return images.compactMap { image in
-
             makeImage(from: image)
         }
     }

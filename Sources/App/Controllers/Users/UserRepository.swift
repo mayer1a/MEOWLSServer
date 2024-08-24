@@ -36,7 +36,7 @@ final class UserRepository: UserRepositoryProtocol {
     func get(_ user: User, withToken: Bool = false) async throws -> User.PublicDTO {
 
         let token = try await user.$token.get(on: database)
-        return try DTOBuilder.makeUser(from: user, with: withToken ? token : nil)
+        return try DTOFactory.makeUser(from: user, with: withToken ? token : nil)
     }
     
     func add(_ model: User.CreateDTO) async throws -> User {
@@ -59,7 +59,7 @@ final class UserRepository: UserRepositoryProtocol {
     func refreshToken(for user: User) async throws -> User.PublicDTO {
 
         let token = try await tokenRepository.update(for: user)
-        return try DTOBuilder.makeUser(from: user, with: token)
+        return try DTOFactory.makeUser(from: user, with: token)
     }
 
     @discardableResult
@@ -79,7 +79,7 @@ final class UserRepository: UserRepositoryProtocol {
 
         try await user.update(on: database)
 
-        return try DTOBuilder.makeUser(from: user)
+        return try DTOFactory.makeUser(from: user)
     }
 
     func delete(_ user: User) async throws {
