@@ -16,14 +16,13 @@ struct CartController: RouteCollection {
     @Sendable func boot(routes: RoutesBuilder) throws {
 
         let cart = routes.grouped("api", "v1", "cart")
+        cart.post("", use: getAnonymous)
 
         let tokenCartGroup = cart.grouped(Token.authenticator(), User.guardMiddleware())
-        
         tokenCartGroup.get("", use: get)
         tokenCartGroup.post("update", use: update)
 //        cart.post("promo_code", "apply", use: applyPromocode)
     }
-
 
     @Sendable func get(_ request: Request) async throws -> CartDTO {
 
@@ -32,7 +31,10 @@ struct CartController: RouteCollection {
         return try await cartRepository.getCart(for: user)
     }
 
-        return try await cartRepository.get(for: user)
+    @Sendable func getAnonymous(_ request: Request) async throws -> CartDTO {
+
+        let cartRequest = try request.content.decode(CartRequest.self)
+        return try await cartRepository.getAnonumous(for: cartRequest)
     }
 
     @Sendable func update(_ request: Request) async throws -> CartDTO {

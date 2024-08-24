@@ -83,11 +83,26 @@ final class UserRepository: UserRepositoryProtocol {
     }
 
     func delete(_ user: User) async throws {
-        do {
-            try await user.delete(on: database)
-        } catch {
-            try await user.delete(force: true, on: database)
+
+        try await database.transaction { [weak self] transaction in
+
+            guard let self else { throw ErrorFactory.serviceUnavailable(failures: [.databaseConnection])}
+
+            try await tokenRepository.delete(user)
+
+
+            do {
+                try await deleteUser(user, in: transaction)
+            } catch { // Attemp #2 with new salt UUID
+                try await deleteUser(user, in: transaction)
+            }
         }
+    }
+
+    private func deleteUser(_ user: User, in db: Database) async throws {
+        user.phone = "\(user.phone)###\(UUID().uuidString)"
+        user.email = user.email == nil ? nil : "\(user.email!)###\(UUID().uuidString)"
+        try await user.update(on: db)
     }
 
 }

@@ -12,6 +12,7 @@ protocol CartRepositoryProtocol: Sendable {
 
     func getRawCart(for user: User) async throws -> Cart
     func getCart(for user: User) async throws -> CartDTO
+    func getAnonumous(for cartRequest: CartRequest) async throws -> CartDTO
     func update(for user: User, with cartRequest: CartRequest) async throws -> CartDTO
     func applyPromocode(_ promocode: PromoCode, for user: User) async throws -> CartDTO
     func createSummaries(from cartItems: [CartItem], for cartID: UUID, in db: Database) async throws
@@ -61,6 +62,39 @@ final class CartRepository: CartRepositoryProtocol {
         return userCart
     }
 
+    func getAnonumous(for cartRequest: CartRequest) async throws -> CartDTO {
+
+        let tempUser = try await database.transaction { transaction in
+
+            let tempUser = User(role: .user)
+            try await tempUser.save(on: transaction)
+
+            let tempCart = Cart(userID: try tempUser.requireID())
+            try await tempCart.save(on: transaction)
+
+            return tempUser
+        }
+
+        do {
+            let tempCartDTO = try await update(for: tempUser, with: cartRequest)
+            deleteTemporaryUser(tempUser)
+            return tempCartDTO
+        } catch {
+            deleteTemporaryUser(tempUser)
+            throw error
+        }
+    }
+
+    private func deleteTemporaryUser(_ tempUser: User) {
+        Task(priority: .background) { [weak self] in
+            guard let self else { return }
+
+            do {
+                try await tempUser.delete(on: self.database)
+            } catch {
+                try await tempUser.delete(force: true, on: self.database)
+            }
+        }
     }
 
     // MARK: - Update user cart

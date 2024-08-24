@@ -101,8 +101,10 @@ final class OrderRepository: OrderRepositoryProtocol {
 
         let order = try await getRawOrder(for: orderNumber, fullLoad: false)
 
-        guard order.statusCode != .canceled, order.statusCode != .completed else {
-            throw ErrorFactory.badRequest(.orderAlreadyCancelled)
+        switch order.statusCode {
+        case .canceled: throw ErrorFactory.badRequest(.orderAlreadyCancelled)
+        case .completed: throw ErrorFactory.badRequest(.orderIsComplete)
+        case .inProgress: break
         }
 
         try await database.transaction { [weak self] transaction in
