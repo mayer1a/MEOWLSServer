@@ -38,7 +38,6 @@ final class SalesRepository: SalesRepositoryProtocol {
     }
 
     private func eagerLoadRelations(for type: SaleType, _ page: PageRequest) async throws -> PaginationResponse<Sale> {
-
         try await Sale.query(on: database)
             .filter(\.$saleType == type)
             .filter(\.$endDate >= Date.now)

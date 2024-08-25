@@ -28,9 +28,7 @@ final class AddressRepository: AddressRepositoryProtocol {
     }
 
     func getCities() async throws -> [CityDTO] {
-
         if let cities = try await getFromCache() {
-
             return cities
         }
 
@@ -45,12 +43,8 @@ final class AddressRepository: AddressRepositoryProtocol {
         var userID: UUID?
 
         switch saveType {
-        case .order:
-            deliveryID = parent
-
-        case .user:
-            userID = parent
-
+        case .order: deliveryID = parent
+        case .user: userID = parent
         }
 
         let dbAddress = Address(cityID: address.city.id,
@@ -68,28 +62,36 @@ final class AddressRepository: AddressRepositoryProtocol {
 
     func getAddress(for user: User) async throws -> AddressDTO {
 
-        let address = try await Address.query(on: database)
-            .filter(\.$user.$id == user.requireID())
-            .with(\.$city)
-            .with(\.$location)
-            .first()
-
+        let address = try await eagerLoadAddress(deliveryID: nil, userID: user.requireID())
         return try DTOFactory.makeAddress(from: address, for: .user)
     }
 
     func getAddress(for delivery: Delivery) async throws -> AddressDTO {
 
-        let address = try await Address.query(on: database)
-            .filter(\.$delivery.$id == delivery.requireID())
-            .with(\.$city)
-            .with(\.$location)
-            .first()
-
+        let address = try await eagerLoadAddress(deliveryID: delivery.requireID(), userID: nil)
         return try DTOFactory.makeAddress(from: address, for: .order)
     }
 
-    private func setCache(_ response: [CityDTO]) async throws {
+    private func eagerLoadAddress(deliveryID: UUID?, userID: UUID?) async throws -> Address? {
+        var addressQuery = Address.query(on: database)
 
+        if let deliveryID {
+            addressQuery = addressQuery
+                .filter(\.$delivery.$id == deliveryID)
+        } else if let userID {
+            addressQuery = addressQuery
+                .filter(\.$user.$id == userID)
+        } else {
+            return nil
+        }
+
+        return try await addressQuery
+            .with(\.$city)
+            .with(\.$location)
+            .first()
+    }
+
+    private func setCache(_ response: [CityDTO]) async throws {
         do {
             try await cache.memory.set("cities", to: response, expiresIn: .seconds(Date().secondsUntilEndOfDay))
         } catch {
@@ -98,7 +100,6 @@ final class AddressRepository: AddressRepositoryProtocol {
     }
 
     private func getFromCache() async throws -> [CityDTO]? {
-
         try await cache.memory.get("cities", as: [CityDTO].self)
     }
 

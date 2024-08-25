@@ -34,13 +34,11 @@ final class UserRepository: UserRepositoryProtocol {
     }
 
     func get(_ user: User, withToken: Bool = false) async throws -> User.PublicDTO {
-
         let token = try await user.$token.get(on: database)
         return try DTOFactory.makeUser(from: user, with: withToken ? token : nil)
     }
     
     func add(_ model: User.CreateDTO) async throws -> User {
-
         let isAdmin = try await User.query(on: database).count() < 1
         let user = try model.toUser(with: isAdmin ? .admin : .user)
 
@@ -57,14 +55,12 @@ final class UserRepository: UserRepositoryProtocol {
     }
 
     func refreshToken(for user: User) async throws -> User.PublicDTO {
-
         let token = try await tokenRepository.update(for: user)
         return try DTOFactory.makeUser(from: user, with: token)
     }
 
     @discardableResult
     func update(_ user: User, with model: User.UpdateDTO) async throws -> User.PublicDTO {
-        
         user.surname = model.surname
         user.name = model.name
         user.patronymic = model.patronymic
@@ -83,13 +79,11 @@ final class UserRepository: UserRepositoryProtocol {
     }
 
     func delete(_ user: User) async throws {
-
         try await database.transaction { [weak self] transaction in
 
             guard let self else { throw ErrorFactory.serviceUnavailable(failures: [.databaseConnection])}
 
             try await tokenRepository.delete(user)
-
 
             do {
                 try await deleteUser(user, in: transaction)

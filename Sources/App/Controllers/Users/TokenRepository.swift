@@ -31,9 +31,8 @@ final class TokenRepository: TokenRepositoryProtocol {
 
     @discardableResult
     func update(for user: User) async throws -> Token {
-
         try await database.transaction { [weak self] transaction in
-
+            
             guard let self else { throw ErrorFactory.serviceUnavailable(failures: [.databaseConnection]) }
 
             try await user.$token.get(on: transaction)?.delete(on: transaction)
@@ -46,7 +45,6 @@ final class TokenRepository: TokenRepositoryProtocol {
     }
 
     func delete(_ user: User) async throws {
-
         try await user.$token.get(on: database)?.delete(on: database)
     }
 

@@ -26,23 +26,17 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
     }
 
     func add(_ user: User) async throws {
-
         let favorites = Favorites(userID: try user.requireID())
         try await favorites.save(on: database)
     }
 
     func get(for user: User) async throws -> FavoritesDTO {
-
-        guard let favorites = try await eagerLoadRelations(userID: user.requireID()) else {
-            throw ErrorFactory.internalError(.fetchFavoritesError)
-        }
+        let favorites = try await eagerLoadFavorites(userID: user.requireID())
         return try DTOFactory.makeFavorites(from: favorites)
     }
 
     func update(productsIDs: [Product.IDValue], for user: User) async throws {
-
         try await database.transaction { transaction in
-
             let products = try await Product.query(on: transaction)
                 .filter(\.$id ~~ productsIDs.reversed())
                 .all()
@@ -50,7 +44,6 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
             let favorites = try await user.$favorites.get(on: transaction)
 
             try await products.asyncForEach { product in
-                
                 if try await favorites?.$products.isAttached(to: product, on: transaction) == true {
                     throw ErrorFactory.badRequest(.productAlreadyStarred)
                 } else {
@@ -61,9 +54,7 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
     }
 
     func delete(productsIDs: [Product.IDValue], for user: User) async throws {
-
         try await database.transaction { transaction in
-
             let products = try await Product.query(on: transaction)
                 .filter(\.$id ~~ productsIDs)
                 .all()
@@ -74,9 +65,8 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
         }
     }
 
-    private func eagerLoadRelations(userID: User.IDValue) async throws -> Favorites? {
-
-        try await Favorites.query(on: database)
+    private func eagerLoadFavorites(userID: UUID) async throws -> Favorites {
+        let favorites = try await Favorites.query(on: database)
             .filter(\.$user.$id == userID)
             .with(\.$products, { product in
                 product
@@ -89,6 +79,10 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
                     }
             })
             .first()
+
+        guard let favorites else { throw ErrorFactory.internalError(.fetchFavoritesError) }
+
+        return favorites
     }
 
 }

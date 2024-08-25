@@ -12,7 +12,6 @@ struct SuggestionsController: RouteCollection {
     let addressRepository: AddressRepositoryProtocol
 
     @Sendable func boot(routes: RoutesBuilder) throws {
-
         let cities = routes.grouped("api", "v1", "cities")
         cities.get("", use: getCities)
 
@@ -33,30 +32,24 @@ struct SuggestionsController: RouteCollection {
     }
 
     @Sendable func getCities(_ request: Request) async throws -> [CityDTO] {
-
-        return try await addressRepository.getCities()
+        try await addressRepository.getCities()
     }
-
 
     // MARK: - Address
 
     @Sendable func streetsSuggestions(_ request: Request) async throws -> [SuggestionsDTO] {
-
         try await suggestion(for: request, with: .street)
     }
 
     @Sendable func housesSuggestions(_ request: Request) async throws -> [SuggestionsDTO] {
-
         try await suggestion(for: request, with: .house)
     }
 
     @Sendable func flatsSuggestions(_ request: Request) async throws -> [SuggestionsDTO] {
-        
         try await suggestion(for: request, with: .flat)
     }
 
     @Sendable func fullAddressSuggestion(for request: Request) async throws -> AddressDTO {
-
         let url = AppConstants.shared.daDataAddressURI
         let requestAddress = try request.content.decode(AddressDTO.self)
         let query = requestAddress.format()
@@ -72,17 +65,14 @@ struct SuggestionsController: RouteCollection {
     // MARK: - Fullname
 
     @Sendable func surnameSuggestions(_ request: Request) async throws -> [SuggestionsDTO] {
-
         try await suggestion(for: request, with: .surname)
     }
 
     @Sendable func nameSuggestions(_ request: Request) async throws -> [SuggestionsDTO] {
-
         try await suggestion(for: request, with: .name)
     }
 
     @Sendable func patronymicSuggestions(_ request: Request) async throws -> [SuggestionsDTO] {
-
         try await suggestion(for: request, with: .patronymic)
     }
 
@@ -112,7 +102,6 @@ struct SuggestionsController: RouteCollection {
     }
 
     @Sendable private func send(request: Request, url: URI, body: DaDataRequest) async throws -> ClientResponse {
-
         try await request.client.post(url) { request in
 
             request.headers.replaceOrAdd(name: .authorization, value: AppConstants.shared.daDataToken)
@@ -121,40 +110,40 @@ struct SuggestionsController: RouteCollection {
     }
 
     private func makeRequestBody(from request: SuggestionsRequest, for type: SuggestionsType) throws -> DaDataRequest {
-
-        let body: DaDataRequest
+        var requestBuilder = DaDataRequestBuilder()
+            .setQuery(request.query)
 
         switch type {
         case .street:
-            body = DaDataRequest(query: request.query,
-                                 from: .init(value: .street),
-                                 to: .init(value: .street),
-                                 locations: [.init(cityFiasID: request.cityID)])
+            requestBuilder = requestBuilder
+                .setFromBound(.street)
+                .setToBound(.street)
+                .setLocations(.init(cityFiasID: request.cityID))
 
         case .house:
-            body = DaDataRequest(query: request.query,
-                                 from: .init(value: .house),
-                                 to: .init(value: .house),
-                                 locations: [.init(streetFiasID: request.streetID)])
+            requestBuilder = requestBuilder
+                .setFromBound(.house)
+                .setToBound(.house)
+                .setLocations(.init(streetFiasID: request.streetID))
 
         case .flat:
-            body = DaDataRequest(query: request.query,
-                                 from: .init(value: .house),
-                                 to: .init(value: .flat),
-                                 locations: [.init(streetFiasID: request.streetID)])
+            requestBuilder = requestBuilder
+                .setFromBound(.house)
+                .setToBound(.flat)
+                .setLocations(.init(streetFiasID: request.streetID))
 
         case .surname:
-            body = DaDataRequest(query: request.query, restrictValue: nil, parts: [.surname])
+            requestBuilder = requestBuilder.setParts([.surname])
 
         case .name:
-            body = DaDataRequest(query: request.query, restrictValue: nil, parts: [.name])
+            requestBuilder = requestBuilder.setParts([.name])
 
         case .patronymic:
-            body = DaDataRequest(query: request.query, restrictValue: nil, parts: [.patronymic])
+            requestBuilder = requestBuilder.setParts([.patronymic])
 
         }
 
-        return body
+        return requestBuilder.build()
     }
 
 }

@@ -31,49 +31,15 @@ final class CartRepository: CartRepositoryProtocol {
 
     func getCart(for user: User) async throws -> CartDTO {
         let userCart = try await getRawCart(for: user)
-        let userCartDTO = try DTOFactory.makeCart(from: userCart)
-        return userCartDTO
+        return try DTOFactory.makeCart(from: userCart)
     }
 
     func getRawCart(for user: User) async throws -> Cart {
-
-        let userCart = try await Cart.query(on: database)
-            .filter(\.$user.$id == user.requireID())
-            .limit(1)
-            .with(\.$promoCodes)
-            .with(\.$items, { item in
-                item
-                    .with(\.$product) { product in
-                        product
-                            .with(\.$images)
-                            .with(\.$variants) { variant in
-                                variant
-                                    .with(\.$price)
-                                    .with(\.$availabilityInfo)
-                                    .with(\.$badges)
-                            }
-                    }
-            })
-            .with(\.$summaries)
-            .first()
-
-        guard let userCart else { throw ErrorFactory.internalError(.failedToFindUserCart) }
-
-        return userCart
+        try await getRaw(for: user, fullModel: true)
     }
 
     func getAnonumous(for cartRequest: CartRequest) async throws -> CartDTO {
-
-        let tempUser = try await database.transaction { transaction in
-
-            let tempUser = User(role: .user)
-            try await tempUser.save(on: transaction)
-
-            let tempCart = Cart(userID: try tempUser.requireID())
-            try await tempCart.save(on: transaction)
-
-            return tempUser
-        }
+        let tempUser = try await createTemporaryUserAndCart()
 
         do {
             let tempCartDTO = try await update(for: tempUser, with: cartRequest)
@@ -82,6 +48,18 @@ final class CartRepository: CartRepositoryProtocol {
         } catch {
             deleteTemporaryUser(tempUser)
             throw error
+        }
+    }
+
+    private func createTemporaryUserAndCart() async throws -> User {
+        try await database.transaction { transaction in
+            let tempUser = User(role: .user)
+            try await tempUser.save(on: transaction)
+
+            let tempCart = Cart(userID: try tempUser.requireID())
+            try await tempCart.save(on: transaction)
+
+            return tempUser
         }
     }
 
@@ -97,17 +75,38 @@ final class CartRepository: CartRepositoryProtocol {
         }
     }
 
+    private func getRaw(for user: User, fullModel: Bool) async throws -> Cart {
+        let cart = try await Cart.query(on: database)
+            .filter(\.$user.$id == user.requireID())
+            .limit(1)
+            .with(\.$promoCodes)
+            .with(\.$summaries)
+            .with(\.$items, { item in
+                if fullModel {
+                    item
+                        .with(\.$product) { product in
+                            product
+                                .with(\.$images)
+                                .with(\.$variants) { variant in
+                                    variant
+                                        .with(\.$price)
+                                        .with(\.$availabilityInfo)
+                                        .with(\.$badges)
+                                }
+                        }
+                }
+            })
+            .first()
+
+        guard let cart else { throw ErrorFactory.internalError(.failedToFindUserCart) }
+
+        return cart
+    }
+
     // MARK: - Update user cart
 
     func update(for user: User, with cartRequest: CartRequest) async throws -> CartDTO {
-
-        let userCart = try await Cart.query(on: database)
-            .filter(\.$user.$id == user.requireID())
-            .limit(1)
-            .with(\.$items)
-            .first()
-
-        guard let userCart else { throw ErrorFactory.internalError(.userCartUnavailable) }
+        let userCart = try await getRaw(for: user, fullModel: false)
 
         let newCartItems = try await self.getNewCartItems(cartRequest, from: userCart)
 
@@ -133,9 +132,7 @@ final class CartRepository: CartRepositoryProtocol {
     // MARK: - Create summaries
 
     func createSummaries(from cartItems: [CartItem], for cartID: UUID, in db: Database) async throws {
-
         let (originalPrice, price) = try cartItems.reduce((0.0, 0.0)) { partialResult, item in
-
             let amount = try makeItemAmount(for: item)
             return (partialResult.0 + amount.originalPrice, partialResult.1 + amount.price)
         }
@@ -171,7 +168,6 @@ final class CartRepository: CartRepositoryProtocol {
     }
 
     func makeItemAmount(for item: CartItem) throws -> Price {
-
         guard let price = item.product.variants.first(where: { $0.article == item.article })?.price else {
             throw ErrorFactory.internalError(.failedToFindProductPrice)
         }
@@ -183,29 +179,24 @@ final class CartRepository: CartRepositoryProtocol {
     // MARK: - Get new items in user cart
 
     private func getNewCartItems(_ request: CartRequest, from cart: Cart) async throws -> [CartRequest.CartDTO.Item] {
-
         try await database.transaction { [weak self] transaction in
-
             guard let self else { return [] }
 
             try await self.removeItem(request, from: cart, in: transaction)
 
             return try await request.cart.items.asyncCompactMap { cartItem -> CartRequest.CartDTO.Item? in
-
                 try await self.hasProductQuantityUpdates(for: cartItem, from: cart, in: transaction) ? nil : cartItem
             }
         }
     }
 
     private func addProducts(to cart: Cart, from cartItem: [CartRequest.CartDTO.Item]) async throws {
-
         try await cartItem.asyncForEach { item in
             try await self.addProduct(to: cart, from: item)
         }
     }
 
     private func addProduct(to cart: Cart, from cartItem: CartRequest.CartDTO.Item) async throws {
-
         let productVariant = try await ProductVariant.query(on: database)
             .filter(\.$article == cartItem.article)
             .limit(1)
@@ -262,19 +253,15 @@ final class CartRepository: CartRepositoryProtocol {
     // MARK: - Remove item from user cart
 
     private func removeItem(_ request: CartRequest, from cart: Cart, in transaction: Database) async throws {
-
         let cartRequestArticles: Set<String> = Set(request.cart.items.map({ $0.article }))
 
-        let differenceItems = cart.items.filter { !cartRequestArticles.contains($0.article) }
-
-        let cartItems = cart.$items.value
-
-        try await cartItems?.enumerated().asyncForEach { index, item in
-
-            if differenceItems.contains(where: { $0.id == item.id }) {
+        try await cart.items
+            .filter({
+                !cartRequestArticles.contains($0.article)
+            })
+            .asyncForEach { item in
                 try await item.delete(on: transaction)
             }
-        }
     }
 
 }

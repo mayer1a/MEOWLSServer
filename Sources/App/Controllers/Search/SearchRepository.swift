@@ -42,10 +42,8 @@ final class SearchRepository: SearchRepositoryProtocol {
 
         let productsRaw: SQLRawResponse<Product>
         if limit > 0 {
-
             productsRaw = try await getSQLForQuery(postgres, query: query, for: Product.self, limit: limit)
         } else {
-
             productsRaw = .init()
         }
 
@@ -120,7 +118,6 @@ final class SearchRepository: SearchRepositoryProtocol {
     }
 
     private func eagerLoad(for categoriesIDs: [Category]) async throws -> [Category] {
-
         try await Category.query(on: database)
             .filter(\.$id ~~ categoriesIDs.map({try $0.requireID()}))
             .with(\.$parent, { parent in
@@ -142,7 +139,6 @@ final class SearchRepository: SearchRepositoryProtocol {
     }
 
     private func getFromCache(for query: String) async throws -> [SearchSuggestionDTO]? {
-
         let cacheName = "\(query)_search"
         return try await cache.memory.get(cacheName, as: [SearchSuggestionDTO].self)
     }

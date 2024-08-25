@@ -33,8 +33,8 @@ final class OrderRepository: OrderRepositoryProtocol {
     }
 
     func checkAvailability(for user: User, with checkoutInfo: CheckoutDTO) async throws -> CartDTO {
-
         let userCart = try await cartRepository.getRawCart(for: user)
+
         let alertMessage = userCart.items.contains { cartItem in
             guard
                 let variant = cartItem.product.variants.first(where: { $0.article == cartItem.article }),
@@ -50,26 +50,22 @@ final class OrderRepository: OrderRepositoryProtocol {
     }
 
     func getAvailableDates(for cityID: City.IDValue) async throws -> [AvailableDateDTO] {
-
         try await fetchAvailableDates(for: cityID, in: database)
     }
 
     func getAvailablePayments() -> [AvailablePaymentsDTO] {
-
         PaymentType.allCases.map {
             AvailablePaymentsDTO(type: $0, title: $0.description.title, subtitle: $0.description.subtitle)
         }
     }
 
     func purchaseOrder(for user: User, with checkoutInfo: CheckoutDTO) async throws -> PurchaseResultDTO {
-
         let userCart = try await cartRepository.getRawCart(for: user)
         let order = try await makeOrder(for: user, with: userCart, checkoutInfo)
         return PurchaseResultDTO(orderNumber: "\(order.number)")
     }
 
     func getOrders(for user: User, with page: PageRequest) async throws -> PaginationResponse<OrderDTO> {
-
         let paginationOrders = try await Order.query(on: database)
             .filter(\.$user.$id == user.requireID())
             .sort(\.$orderDate, .descending)
@@ -92,13 +88,11 @@ final class OrderRepository: OrderRepositoryProtocol {
     }
 
     func getOrder(for orderNumber: Int) async throws -> OrderDTO {
-
         let order = try await getRawOrder(for: orderNumber, fullLoad: true)
         return try DTOFactory.makeOrder(from: order)
     }
 
     func cancelOrder(for orderNumber: Int) async throws {
-
         let order = try await getRawOrder(for: orderNumber, fullLoad: false)
 
         switch order.statusCode {
@@ -108,7 +102,6 @@ final class OrderRepository: OrderRepositoryProtocol {
         }
 
         try await database.transaction { [weak self] transaction in
-
             guard let self else { throw ErrorFactory.serviceUnavailable(failures: [.databaseConnection]) }
 
             try await updateAvailabilityInfo(for: order.items, revert: true, in: transaction)
@@ -121,7 +114,6 @@ final class OrderRepository: OrderRepositoryProtocol {
     }
 
     func repeatOrder(for user: User, with orderNumber: Int) async throws -> CartDTO {
-
         let cart = try await cartRepository.getRawCart(for: user)
         var orderItems = try await getRawOrder(for: orderNumber, fullLoad: false).items
 
@@ -138,7 +130,6 @@ final class OrderRepository: OrderRepositoryProtocol {
 
                 return .init(article: item.article, count: min(countSum, availableCount))
             } else {
-
                 return .init(article: item.article, count: item.count)
             }
         }
@@ -158,7 +149,6 @@ final class OrderRepository: OrderRepositoryProtocol {
                            _ checkoutInfo: CheckoutDTO) async throws -> Order {
 
         try await database.transaction { [weak self] transaction in
-
             guard let self else { throw ErrorFactory.serviceUnavailable(failures: [.databaseConnection]) }
 
             try await updateAvailabilityInfo(for: cart.items, revert: false, in: transaction)
@@ -174,9 +164,7 @@ final class OrderRepository: OrderRepositoryProtocol {
     }
 
     private func updateAvailabilityInfo(for items: [CartItem], revert: Bool, in db: Database) async throws {
-
         try await items.asyncForEach { item in
-
             guard
                 let variant = item.product.variants.first(where: { $0.article == item.article }),
                 let availabilityInfo = variant.availabilityInfo,
@@ -193,7 +181,6 @@ final class OrderRepository: OrderRepositoryProtocol {
     }
 
     private func saveOrder(for user: User, with checkoutInfo: CheckoutDTO, in db: Database) async throws -> Order {
-
         guard let type = checkoutInfo.paymentType else { throw ErrorFactory.badRequest(.paymentTypeRequired) }
 
         // Get the current time in the selected time zone
@@ -219,7 +206,6 @@ final class OrderRepository: OrderRepositoryProtocol {
     }
 
     private func createDelivery(with checkoutInfo: CheckoutDTO, for order: Order, in db: Database) async throws {
-
         guard
             let cityID = checkoutInfo.delivery.address?.city.id,
             let timeIntervalID = checkoutInfo.delivery.deliveryTimeInterval?.id,
@@ -249,22 +235,20 @@ final class OrderRepository: OrderRepositoryProtocol {
     }
 
     private func fetchTimeZone(for cityID: UUID?, in db: Database) async throws -> TimeZone {
-
         guard let city = try await City.find(cityID, on: db) else {
             throw ErrorFactory.badRequest(.cityNotFoundById)
         }
+
         return TimeZone(identifier: city.cityTimeZone)!
     }
 
     private func fetchAvailableDates(for cityID: UUID, in db: Database) async throws -> [AvailableDateDTO] {
-
         let timeZone = try await fetchTimeZone(for: cityID, in: db)
         let timeIntervals = try await DeliveryTimeInterval.query(on: db).all()
         return try DTOFactory.makeAvailableDates(for: timeZone, timeIntervals: timeIntervals)
     }
 
     private func createAddress(with checkoutInfo: CheckoutDTO, for delivery: Delivery, in db: Database) async throws {
-
         guard let requestAddress = checkoutInfo.delivery.address else {
             throw ErrorFactory.badRequest(.invalidReceivedAddress)
         }
@@ -282,9 +266,7 @@ final class OrderRepository: OrderRepositoryProtocol {
     }
 
     private func updateItemsParent(for cartItems: [CartItem], with orderID: UUID, in db: Database) async throws {
-
         try await cartItems.asyncForEach { cartItem in
-
             cartItem.$order.id = orderID
             cartItem.$cart.id = nil
             try await cartItem.update(on: db)
@@ -292,11 +274,9 @@ final class OrderRepository: OrderRepositoryProtocol {
     }
 
     private func updateSummariesParent(for cart: Cart, with orderID: UUID, in db: Database) async throws {
-
         let (orderSummaries, oldTotalSummary) = try appendDeliverySummary(for: cart)
 
         try await orderSummaries.asyncForEach { summary in
-
             var needSave = false
             if summary.$order.id == nil && summary.$cart.id == nil {
                 needSave = true
@@ -311,7 +291,6 @@ final class OrderRepository: OrderRepositoryProtocol {
     }
 
     private func appendDeliverySummary(for cart: Cart) throws -> (orderSummaries: [Summary], oldTotal: Summary?) {
-
         let deliveryType = SummaryType.delivery
         let deliveryCost = AppConstants.shared.deliveryCost
         let deliverySummary = Summary(name: deliveryType.description, value: deliveryCost, type: deliveryType)
@@ -331,7 +310,6 @@ final class OrderRepository: OrderRepositoryProtocol {
     }
 
     private func getRawOrder(for orderNumber: Int, fullLoad: Bool) async throws -> Order {
-
         var orderQuery = Order.query(on: database)
             .filter(\.$number == orderNumber)
             .limit(1)

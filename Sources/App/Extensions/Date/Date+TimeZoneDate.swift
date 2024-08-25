@@ -10,7 +10,6 @@ import Foundation
 extension Date {
 
     func toTimeZoneDate(with timeZone: TimeZone) -> Date? {
-
         // Get the calendar and set the time zone
         var calendar = Calendar.current
         calendar.timeZone = timeZone

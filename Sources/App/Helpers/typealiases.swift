@@ -19,6 +19,18 @@ typealias PriceDTO = ProductVariantDTO.PriceDTO
 typealias Badge = ProductVariant.Badge
 typealias BadgeDTO = ProductVariantDTO.BadgeDTO
 
+typealias ProductVariant = Product.ProductVariant
+typealias ProductVariantDTO = ProductDTO.ProductVariantDTO
+
+typealias PropertyValueDTO = ProductVariantDTO.PropertyValueDTO
+
+typealias ProductProperty = Product.ProductProperty
+typealias ProductPropertyDTO = ProductDTO.ProductPropertyDTO
+
+typealias Section = Product.Section
+typealias SectionType = Section.SectionType
+typealias SectionDTO = ProductDTO.SectionDTO
+
 typealias Redirect = MainBanner.Redirect
 typealias RedirectDTO = MainBannerDTO.RedirectDTO
 
@@ -44,18 +56,6 @@ typealias CornerRadiusDTO = UISettingsDTO.CornerRadiusDTO
 
 typealias Metric = UISettings.Metric
 typealias MetricDTO = UISettingsDTO.MetricDTO
-
-typealias ProductVariant = Product.ProductVariant
-typealias ProductVariantDTO = ProductDTO.ProductVariantDTO
-
-typealias PropertyValueDTO = ProductVariantDTO.PropertyValueDTO
-
-typealias Section = Product.Section
-typealias SectionType = Section.SectionType
-typealias SectionDTO = ProductDTO.SectionDTO
-
-typealias ProductProperty = Product.ProductProperty
-typealias ProductPropertyDTO = ProductDTO.ProductPropertyDTO
 
 typealias DeliveryType = Delivery.DeliveryType
 typealias DeliveryTimeInterval = Delivery.DeliveryTimeInterval

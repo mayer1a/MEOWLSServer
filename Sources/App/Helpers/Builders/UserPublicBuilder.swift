@@ -65,7 +65,6 @@ final class UserPublicBuilder {
     }
 
     func build() throws -> User.PublicDTO {
-
         guard let phone else { throw ErrorFactory.badRequest(.phoneRequired) }
 
         return User.PublicDTO(id: id,

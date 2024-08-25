@@ -41,7 +41,6 @@ private typealias TokenAuthenticatable = ModelCustomTokenAuthenticatable
 private struct ModelCustomTokenAuthenticator<Token>: CustomTokenAuthenticator where Token: TokenAuthenticatable {
 
     public func authenticate(token: CustomTokenAuthorization, for request: Request) -> EventLoopFuture<Void> {
-
         Token.query(on: request.db)
             .filter(\._$value == token.token)
             .with(\._$user)

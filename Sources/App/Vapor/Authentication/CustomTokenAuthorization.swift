@@ -31,7 +31,6 @@ extension HTTPHeaders {
     public var customTokenAuthorization: CustomTokenAuthorization? {
 
         get {
-
             guard let string = self.first(name: .authorization) else { return nil }
 
             let headerParts = string.split(separator: " ")
@@ -41,7 +40,6 @@ extension HTTPHeaders {
             return .init(token: String(headerParts[1]))
         }
         set {
-
             if let customToken = newValue {
                 replaceOrAdd(name: .authorization, value: customToken.tokenFormatValue)
             } else {
