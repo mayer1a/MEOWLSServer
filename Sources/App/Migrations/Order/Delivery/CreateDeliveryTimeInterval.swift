@@ -13,10 +13,8 @@ struct CreateDeliveryTimeInterval: AsyncMigration {
         
         try await database.schema("delivery_time_intervals")
             .id()
-            .field("delivery_id", .uuid, .required, .references("deliveries", "id", onDelete: .cascade))
             .field("from", .string, .required)
             .field("to", .string, .required)
-            .unique(on: "delivery_id")
             .create()
     }
 

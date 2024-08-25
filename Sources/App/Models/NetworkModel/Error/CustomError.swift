@@ -44,7 +44,7 @@ struct CustomError: CustomErrorProtocol {
     /// Create a new `CustomError`, capturing current source location info.
     public init(_ status: HTTPResponseStatus,
                 headers: HTTPHeaders = [:],
-                code: String,
+                code: String? = nil,
                 reason: String? = nil,
                 failures: [ValidationFailure]? = nil,
                 file: String = #file,
@@ -54,7 +54,7 @@ struct CustomError: CustomErrorProtocol {
 
         self.status = status
         self.headers = headers
-        self.code = code
+        self.code = code ?? status.reasonPhrase
         self.reason = reason ?? status.reasonPhrase
         self.failures = failures
         self.sourceLocation = ErrorSource(file: file, function: function, line: line, column: column)

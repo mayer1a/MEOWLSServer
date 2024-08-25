@@ -15,19 +15,15 @@ struct CategoryController: RouteCollection {
     let categoryRepository: CategoryRepositoryProtocol
 
     @Sendable func boot(routes: RoutesBuilder) throws {
-
         let categories = routes.grouped("api", "v1", "categories")
 
         categories.get("", use: get)
     }
 
-
     @Sendable func get(_ request: Request) async throws -> [CategoryDTO] {
-
         guard let categoryID: UUID = request.query[categoryQuery] else {
-            throw Abort(.badRequest)
+            throw ErrorFactory.badRequest(.categoryIDRequired)
         }
-
         return try await categoryRepository.get(for: categoryID)
     }
 

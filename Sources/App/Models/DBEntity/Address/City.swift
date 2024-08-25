@@ -21,15 +21,19 @@ final class City: Model, Content, @unchecked Sendable {
     @Field(key: "name")
     var name: String
 
+    @Field(key: "city_time_zone")
+    var cityTimeZone: String
+
     @Children(for: \.$city)
     var addresses: [Address]
 
     init() {}
 
-    init(id: UUID? = nil, regionID: Region.IDValue, name: String) {
+    init(id: UUID? = nil, regionID: Region.IDValue, name: String, cityTimeZone: String) {
         self.id = id
         self.$region.id = regionID
         self.name = name
+        self.cityTimeZone = cityTimeZone
     }
 
 }

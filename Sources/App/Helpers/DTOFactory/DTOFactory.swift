@@ -1,5 +1,5 @@
 //
-//  DTOBuilder.swift
+//  DTOFactory.swift
 //
 //
 //  Created by Artem Mayer on 31.07.2024.
@@ -7,31 +7,40 @@
 
 import Vapor
 
-struct DTOBuilder {
+struct DTOFactory {
 
     typealias SQLRawResponse = SearchRepository.SQLRawResponse
 
     // MARK: - User
 
-    static func makeUser(from model: User, with token: Token? = nil) async throws -> User.PublicDTO {
-        
-        User.PublicDTO(id: try model.requireID(),
-                       surname: model.surname,
-                       name: model.name,
-                       patronymic: model.patronymic,
-                       birthday: model.birthday,
-                       gender: model.gender,
-                       email: model.email,
-                       phone: model.phone,
-                       token: token?.value,
-                       role: model.role)
+    static func makeUser(from model: User, with token: Token? = nil, fullModel: Bool = true) throws -> User.PublicDTO {
+
+        var userBuilder = UserPublicBuilder()
+            .setSurname(model.surname)
+            .setName(model.name)
+            .setPatronymic(model.patronymic)
+            .setEmail(model.email)
+            .setPhone(model.phone)
+
+        if fullModel {
+            userBuilder = userBuilder
+                .setId(try model.requireID())
+                .setBirthday(model.birthday)
+                .setGender(model.gender)
+        }
+
+        if let token {
+            userBuilder = userBuilder.setAuthentication(Authentication(token: token.value, expiresAt: token.expired))
+        }
+
+        return try userBuilder.build()
     }
 
     // MARK: - Favorites
 
-    static func makeFavorites(from model: Favorites) async throws -> FavoritesDTO {
+    static func makeFavorites(from model: Favorites) throws -> FavoritesDTO {
 
-        let products = try await makeProducts(from: model.products)
+        let products = try makeProducts(from: model.products)
         return FavoritesDTO(id: try model.requireID(), products: products?.reversed() ?? [])
     }
 
@@ -51,13 +60,10 @@ struct DTOBuilder {
 
             if withParent {
                 parent = try makeCategory(from: category.parent,
-                                          fullModel: true, 
-                                          withParent: false, 
+                                          fullModel: true,
+                                          withParent: false,
                                           withImage: withImage)
-            } else {
-                parent = nil
             }
-
             image = withImage ? makeImage(from: category.image) : nil
         }
 
@@ -71,9 +77,10 @@ struct DTOBuilder {
 
     // MARK: - Sale
 
-    static func makeSales(from sales: [Sale]) async throws -> [SaleDTO] {
+    static func makeSales(from sales: [Sale]) throws -> [SaleDTO] {
 
-        try await sales.asyncMap { sale in
+        try sales.map { sale in
+
             SaleDTO(id: try sale.requireID(),
                     code: sale.code,
                     saleType: sale.saleType,
@@ -84,7 +91,5 @@ struct DTOBuilder {
                     disclaimer: sale.disclaimer)
         }
     }
-
-    // MARK: - Order
 
 }

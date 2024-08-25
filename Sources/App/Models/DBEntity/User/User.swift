@@ -65,15 +65,15 @@ final class User: Model, Content, @unchecked Sendable {
     init() {}
 
     init(id: UUID? = nil,
-         surname: String?,
-         name: String?,
-         patronymic: String?,
-         birthday: Date?,
-         gender: Gender?,
-         email: String?,
-         passwordHash: String,
-         phone: String,
-         role: UserRole) {
+         surname: String? = nil,
+         name: String? = nil,
+         patronymic: String? = nil,
+         birthday: Date? = nil,
+         gender: Gender? = nil,
+         email: String? = nil,
+         passwordHash: String = "",
+         phone: String = "",
+         role: UserRole = .user) {
 
         self.id = id
         self.surname = surname

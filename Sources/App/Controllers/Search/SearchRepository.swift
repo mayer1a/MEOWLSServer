@@ -31,7 +31,9 @@ final class SearchRepository: SearchRepositoryProtocol {
 
         if let cachedSuggestions = try await getFromCache(for: query) { return cachedSuggestions }
 
-        guard let postgres = (database as? PostgresDatabase)?.sql() else { throw Abort(.internalServerError) }
+        guard let postgres = (database as? PostgresDatabase)?.sql() else {
+            throw ErrorFactory.serviceUnavailable(failures: [.databaseConnection])
+        }
 
         var limit = suggestionsLimit
 
@@ -40,16 +42,14 @@ final class SearchRepository: SearchRepositoryProtocol {
 
         let productsRaw: SQLRawResponse<Product>
         if limit > 0 {
-
             productsRaw = try await getSQLForQuery(postgres, query: query, for: Product.self, limit: limit)
         } else {
-
             productsRaw = .init()
         }
 
         categoriesRaw.result = try await eagerLoad(for: categoriesRaw.result)
 
-        let searchSuggestions = try await DTOBuilder.makeSearchSuggestions(from: categoriesRaw, productsRaw)
+        let searchSuggestions = try DTOFactory.makeSearchSuggestions(from: categoriesRaw, productsRaw)
         try await setCache(searchSuggestions, for: query)
 
         return searchSuggestions
@@ -91,7 +91,7 @@ final class SearchRepository: SearchRepositoryProtocol {
                 partialResult.append(contentsOf: product)
             }
 
-        let popularSuggestions = try await DTOBuilder.makeSearchSuggestions(from: .init(), .init(result: products))
+        let popularSuggestions = try DTOFactory.makeSearchSuggestions(from: .init(), .init(result: products))
 
         try await setCache(popularSuggestions, for: popularCacheKey, expiresIn: .seconds(Date().secondsUntilEndOfDay))
 
@@ -118,7 +118,6 @@ final class SearchRepository: SearchRepositoryProtocol {
     }
 
     private func eagerLoad(for categoriesIDs: [Category]) async throws -> [Category] {
-
         try await Category.query(on: database)
             .filter(\.$id ~~ categoriesIDs.map({try $0.requireID()}))
             .with(\.$parent, { parent in
@@ -140,7 +139,6 @@ final class SearchRepository: SearchRepositoryProtocol {
     }
 
     private func getFromCache(for query: String) async throws -> [SearchSuggestionDTO]? {
-
         let cacheName = "\(query)_search"
         return try await cache.memory.get(cacheName, as: [SearchSuggestionDTO].self)
     }

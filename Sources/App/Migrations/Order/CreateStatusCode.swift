@@ -14,6 +14,7 @@ struct CreateStatusCode: AsyncMigration {
         _ = try await database.enum("StatusCode")
             .case("CANCELED")
             .case("COMPLETED")
+            .case("IN_PROGRESS")
             .create()
     }
 

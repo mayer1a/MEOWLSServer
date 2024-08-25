@@ -18,6 +18,9 @@ final class Delivery: Model, Content, @unchecked Sendable {
     @Parent(key: "order_id")
     var order: Order
 
+    @OptionalParent(key: "delivery_time_interval")
+    var deliveryTimeInterval: DeliveryTimeInterval?
+
     @Enum(key: "type")
     var type: DeliveryType
 
@@ -25,16 +28,19 @@ final class Delivery: Model, Content, @unchecked Sendable {
     var deliveryDate: Date?
 
     @OptionalChild(for: \.$delivery)
-    var deliveryTimeInterval: DeliveryTimeInterval?
-
-    @OptionalChild(for: \.$delivery)
     var address: Address?
 
     init() {}
 
-    init(id: UUID? = nil, orderID: Order.IDValue, type: DeliveryType, deliveryDate: Date?) {
+    init(id: UUID? = nil,
+         deliveryTimeIntervalID: DeliveryTimeInterval.IDValue? = nil,
+         orderID: Order.IDValue,
+         type: DeliveryType,
+         deliveryDate: Date?) {
+
         self.id = id
         self.$order.id = orderID
+        self.$deliveryTimeInterval.id = deliveryTimeIntervalID
         self.type = type
         self.deliveryDate = deliveryDate
     }

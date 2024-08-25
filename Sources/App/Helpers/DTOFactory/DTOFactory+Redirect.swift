@@ -1,5 +1,5 @@
 //
-//  DTOBuilder+Redirect.swift
+//  DTOFactory+Redirect.swift
 //
 //
 //  Created by Artem Mayer on 06.08.2024.
@@ -7,7 +7,7 @@
 
 import Vapor
 
-extension DTOBuilder {
+extension DTOFactory {
 
     static func makeRedirect(from redirect: Redirect?, fullModel: Bool) throws -> RedirectDTO? {
 

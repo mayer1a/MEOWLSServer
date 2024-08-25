@@ -10,9 +10,9 @@ import Vapor
 struct DeliveryDTO: Content {
 
     let type: DeliveryType
-    let deliveryDate: String
-    let deliveryTimeInterval: DeliveryTimeIntervalDTO
-    let address: AddressDTO
+    let deliveryDate: String?
+    let deliveryTimeInterval: DeliveryTimeIntervalDTO?
+    let address: AddressDTO?
 
     enum CodingKeys: String, CodingKey {
         case type

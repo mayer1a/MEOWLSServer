@@ -17,8 +17,8 @@ extension Delivery {
         @ID(key: .id)
         var id: UUID?
 
-        @Parent(key: "delivery_id")
-        var delivery: Delivery
+        @Children(for: \.$deliveryTimeInterval)
+        var deliveries: [Delivery]
 
         @Field(key: "from")
         var from: String
@@ -28,9 +28,8 @@ extension Delivery {
 
         init() {}
 
-        init(id: UUID? = nil, deliveryID: Delivery.IDValue, from: String, to: String) {
+        init(id: UUID? = nil, from: String, to: String) {
             self.id = id
-            self.$delivery.id = deliveryID
             self.from = from
             self.to = to
         }

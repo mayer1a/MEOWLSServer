@@ -12,14 +12,18 @@ struct UserController: RouteCollection {
 
     let userRepository: UserRepositoryProtocol
     let tokenRepository: TokenRepositoryProtocol
+    let addressRepository: AddressRepositoryProtocol
 
-    init(with userRepository: UserRepositoryProtocol, _ tokenRepository: TokenRepositoryProtocol) {
+    init(with userRepository: UserRepositoryProtocol, 
+         _ tokenRepository: TokenRepositoryProtocol,
+         _ addressRepository: AddressRepositoryProtocol) {
+
         self.userRepository = userRepository
         self.tokenRepository = tokenRepository
+        self.addressRepository = addressRepository
     }
 
     func boot(routes: RoutesBuilder) throws {
-
         let users = routes.grouped("api", "v1", "users")
         users.post("create", use: create)
 
@@ -28,13 +32,14 @@ struct UserController: RouteCollection {
 
         let tokenAuthGroup = users.grouped(Token.authenticator(), User.guardMiddleware())
         tokenAuthGroup.get("", use: get)
+        tokenAuthGroup.get("address", use: getAddress)
         tokenAuthGroup.post("edit", use: edit)
         tokenAuthGroup.post("logout", use: logout)
         tokenAuthGroup.post("delete", use: delete)
+        tokenAuthGroup.post("refresh_token", use: refreshToken)
     }
 
     @Sendable private func create(_ request: Request) async throws -> User.PublicDTO {
-
         let createUser = try request.content.decode(User.CreateDTO.self)
         try createUser.validate()
 
@@ -44,20 +49,35 @@ struct UserController: RouteCollection {
     }
 
     @Sendable private func login(_ request: Request) async throws -> User.PublicDTO {
-
         let user = try request.auth.require(User.self)
-        return try await userRepository.updateToken(for: user)
+        return try await userRepository.refreshToken(for: user)
     }
 
     @Sendable private func get(_ request: Request) async throws -> User.PublicDTO {
-
-        guard let user = request.auth.get(User.self) else { throw Abort(.unauthorized) }
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
+        var usr = try await userRepository.get(user, withToken: false)
+        let fileName: String
+        switch request.application.environment {
+        case .production: fileName = ".env.production"
+        case .development: fileName = ".env.development"
+        default: fileName = ".env.testing"
+        }
+        #if DEBUG
+        usr.testable = "\(fileName)+DEBUG"
+        #else
+        usr.testable = "\(fileName)+RELEASE"
+        #endif
 
         return try await userRepository.get(user, withToken: false)
     }
 
-    @Sendable private func edit(_ request: Request) async throws -> User.PublicDTO {
+    @Sendable private func getAddress(_ request: Request) async throws -> AddressDTO {
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
 
+        return try await addressRepository.getAddress(for: user)
+    }
+
+    @Sendable private func edit(_ request: Request) async throws -> User.PublicDTO {
         let userChanges = try request.content.decode(User.UpdateDTO.self)
         try userChanges.validate()
 
@@ -67,8 +87,7 @@ struct UserController: RouteCollection {
     }
 
     @Sendable private func logout(_ request: Request) async throws -> DummyResponse {
-
-        guard let user = request.auth.get(User.self) else { throw Abort(.unauthorized) }
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
 
         request.auth.logout(User.self)
 
@@ -78,13 +97,18 @@ struct UserController: RouteCollection {
     }
 
     @Sendable private func delete(_ request: Request) async throws -> DummyResponse {
-        
         let user = try request.auth.require(User.self)
         request.auth.logout(User.self)
 
         try await userRepository.delete(user)
 
         return DummyResponse()
+    }
+
+    @Sendable private func refreshToken(_ request: Request) async throws -> User.PublicDTO {
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
+
+        return try await userRepository.refreshToken(for: user)
     }
 
 }

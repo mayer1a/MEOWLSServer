@@ -11,7 +11,10 @@ import Fluent
 final class Token: Model, Content, @unchecked Sendable {
 
     static let schema = "tokens"
-    static private let tokenLifeTime: TimeInterval = 604800
+    /// 1 day (24 hours)
+    static private let tokenLifeTime: TimeInterval = 86_400
+    /// 30 days including 24 hours (token life time)
+    static private let tokenRefreshableLifeTime: TimeInterval = 2_505_600
 
     @ID(key: .id)
     var id: UUID?
@@ -24,6 +27,10 @@ final class Token: Model, Content, @unchecked Sendable {
 
     @Parent(key: "user_id")
     var user: User
+
+    var tokenFormatValue: String {
+        "Token \(value)"
+    }
 
     init() {}
 
@@ -52,6 +59,10 @@ extension Token: ModelCustomTokenAuthenticatable {
 
     var isValid: Bool {
         Date.now < expired
+    }
+
+    var canRefreshable: Bool {
+        Date.now < expired.addingTimeInterval(Token.tokenRefreshableLifeTime)
     }
 
 }
