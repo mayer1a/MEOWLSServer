@@ -50,17 +50,6 @@ struct Configuration {
     #if DEBUG
 
     private static func loadFromEnvFile(for app: Application) async throws {
-
-        let fileName: String
-        switch app.environment {
-        case .production: fileName = ".env.production"
-        case .development: fileName = ".env.development"
-        default: fileName = ".env.testing"
-        }
-
-        app.logger.info("1908: FILENAME \(fileName)")
-        print("1908: FILENAME \(fileName)")
-
         let packageRootPath = URL(fileURLWithPath: #file).pathComponents
             .prefix(while: { $0 != "Sources" })
             .joined(separator: "/")
@@ -73,7 +62,6 @@ struct Configuration {
     #endif
 
     private static func connectDatabase(for app: Application) async throws {
-
         guard
             let hostname = Environment.get("DATABASE_HOST"),
             let username = Environment.get("DATABASE_USERNAME"),
@@ -97,7 +85,6 @@ struct Configuration {
     }
 
     private static func setupMigrations(for app: Application) async throws {
-
         addUserMigrations(for: app)
         addImageMigrations(for: app)
         addCategoryMigrations(for: app)
