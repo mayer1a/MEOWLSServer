@@ -1,5 +1,5 @@
 //
-//  DTOBuilder+Search.swift
+//  DTOFactory+Search.swift
 //
 //
 //  Created by Artem Mayer on 06.08.2024.
@@ -7,16 +7,16 @@
 
 import Vapor
 
-extension DTOBuilder {
+extension DTOFactory {
 
     static func makeSearchSuggestions(from categoriesRaw: SQLRawResponse<Category>,
-                                      _ productsRaw: SQLRawResponse<Product>) async throws -> [SearchSuggestionDTO] {
+                                      _ productsRaw: SQLRawResponse<Product>) throws -> [SearchSuggestionDTO] {
 
         var categoriesTextIterator = categoriesRaw.highlightedText?.makeIterator()
 
-        var result = try await categoriesRaw.result.asyncMap { category in
+        var result = try categoriesRaw.result.map { category in
 
-            let categoryDTO = try DTOBuilder.makeCategory(from: category, fullModel: true, withImage: false)
+            let categoryDTO = try DTOFactory.makeCategory(from: category, fullModel: true, withImage: false)
             let productsSet = ProductsSetDTO(name: category.name, category: categoryDTO)
             let redirect = RedirectDTO(redirectType: .productsCollection, productsSet: productsSet)
 
@@ -28,7 +28,7 @@ extension DTOBuilder {
 
         var productsTextIterator = productsRaw.highlightedText?.makeIterator()
 
-        result += try await productsRaw.result.asyncMap { product in
+        result += try productsRaw.result.map { product in
 
             let redirect = RedirectDTO(redirectType: .object, objectID: try product.requireID(), objectType: .product)
             let highlightedTexts = productsTextIterator?.next()?.components(separatedBy: ",")

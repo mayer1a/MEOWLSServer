@@ -19,10 +19,8 @@ struct SearchSQLRawQuery {
         let select: SQLQueryString
 
         if let selectPart {
-
             select = "\(selectPart), \(tsHeadline)"
         } else {
-
             select = "SELECT \(SQLLiteral.all), \(tsHeadline)"
         }
         

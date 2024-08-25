@@ -16,7 +16,6 @@ struct ProductsController: RouteCollection {
     let productsRepository: ProductsRepositoryProtocol
 
     @Sendable func boot(routes: RoutesBuilder) throws {
-
         let products = routes.grouped("api", "v1", "products")
 
         products.get("", use: getProducts)
@@ -24,7 +23,6 @@ struct ProductsController: RouteCollection {
     }
 
     @Sendable func getProducts(_ request: Request) async throws -> PaginationResponse<ProductDTO> {
-
         let page = try request.query.decode(PageRequest.self)
 
         if let categoryID: UUID = request.query[categoryQuery] {
@@ -36,13 +34,12 @@ struct ProductsController: RouteCollection {
             return try await productsRepository.getProducts(saleID: saleID, with: page)
         }
 
-        throw Abort(.badRequest)
+        throw ErrorFactory.badRequest(.categoryIDRequired)
     }
 
     @Sendable func getProduct(_ request: Request) async throws -> ProductDTO {
-
         guard let productID = request.parameters.get("product_id", as: UUID.self) else {
-            throw Abort(.badRequest)
+            throw ErrorFactory.badRequest(.productIdRequired)
         }
 
         return try await productsRepository.getDTO(for: productID)

@@ -23,13 +23,11 @@ final class CategoryRepository: CategoryRepositoryProtocol {
     }
 
     func add(_ user: User) async throws {
-
         let favorites = Favorites(userID: try user.requireID())
         try await favorites.save(on: database)
     }
 
     func get(for categoryID: UUID) async throws -> [CategoryDTO] {
-
         let categories = try await Category.query(on: database)
             .filter(\.$parent.$id == categoryID)
             .with(\.$parent, { parent in
@@ -39,9 +37,8 @@ final class CategoryRepository: CategoryRepositoryProtocol {
             .all()
 
         return try await categories.asyncMap { category in
-
-            guard let categoryDTO = try DTOBuilder.makeCategory(from: category, fullModel: true) else {
-                throw DTOBuilder.Error.make(.getCategoriesError(categoryID: category.id))
+            guard let categoryDTO = try DTOFactory.makeCategory(from: category, fullModel: true) else {
+                throw ErrorFactory.internalError(.fetchCategoryError, failures: [.ID(category.id)])
             }
             return categoryDTO
         }

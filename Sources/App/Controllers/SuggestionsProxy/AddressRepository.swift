@@ -11,6 +11,9 @@ import Fluent
 protocol AddressRepositoryProtocol: Sendable {
 
     func getCities() async throws -> [CityDTO]
+    func addAddress(_ address: AddressDTO, for parent: UUID, to saveType: AddressDTO.SaveType) async throws
+    func getAddress(for user: User) async throws -> AddressDTO
+    func getAddress(for delivery: Delivery) async throws -> AddressDTO
 
 }
 
@@ -25,24 +28,70 @@ final class AddressRepository: AddressRepositoryProtocol {
     }
 
     func getCities() async throws -> [CityDTO] {
-
         if let cities = try await getFromCache() {
-
             return cities
         }
 
         let cities = try await City.query(on: database).all()
 
-        return try DTOBuilder.makeCities(from: cities)
+        return try DTOFactory.makeCities(from: cities)
     }
 
-    func add(address: AddressDTO, to saveType: AddressDTO.SaveType) async throws {
+    func addAddress(_ address: AddressDTO, for parent: UUID, to saveType: AddressDTO.SaveType) async throws {
 
-        
+        var deliveryID: UUID?
+        var userID: UUID?
+
+        switch saveType {
+        case .order: deliveryID = parent
+        case .user: userID = parent
+        }
+
+        let dbAddress = Address(cityID: address.city.id,
+                                deliveryID: deliveryID,
+                                userID: userID,
+                                street: address.street,
+                                house: address.house,
+                                entrance: address.entrance,
+                                floor: address.floor,
+                                flat: address.flat,
+                                formattedString: address.format())
+
+        try await dbAddress.save(on: database)
+    }
+
+    func getAddress(for user: User) async throws -> AddressDTO {
+
+        let address = try await eagerLoadAddress(deliveryID: nil, userID: user.requireID())
+        return try DTOFactory.makeAddress(from: address, for: .user)
+    }
+
+    func getAddress(for delivery: Delivery) async throws -> AddressDTO {
+
+        let address = try await eagerLoadAddress(deliveryID: delivery.requireID(), userID: nil)
+        return try DTOFactory.makeAddress(from: address, for: .order)
+    }
+
+    private func eagerLoadAddress(deliveryID: UUID?, userID: UUID?) async throws -> Address? {
+        var addressQuery = Address.query(on: database)
+
+        if let deliveryID {
+            addressQuery = addressQuery
+                .filter(\.$delivery.$id == deliveryID)
+        } else if let userID {
+            addressQuery = addressQuery
+                .filter(\.$user.$id == userID)
+        } else {
+            return nil
+        }
+
+        return try await addressQuery
+            .with(\.$city)
+            .with(\.$location)
+            .first()
     }
 
     private func setCache(_ response: [CityDTO]) async throws {
-
         do {
             try await cache.memory.set("cities", to: response, expiresIn: .seconds(Date().secondsUntilEndOfDay))
         } catch {
@@ -51,7 +100,6 @@ final class AddressRepository: AddressRepositoryProtocol {
     }
 
     private func getFromCache() async throws -> [CityDTO]? {
-
         try await cache.memory.get("cities", as: [CityDTO].self)
     }
 

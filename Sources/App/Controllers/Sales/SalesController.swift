@@ -15,14 +15,12 @@ struct SalesController: RouteCollection {
     let salesRepository: SalesRepositoryProtocol
 
     @Sendable func boot(routes: RoutesBuilder) throws {
-
         let sales = routes.grouped("api", "v1", "sales")
 
         sales.get("", use: get)
     }
 
     @Sendable func get(_ request: Request) async throws -> PaginationResponse<SaleDTO> {
-
         let saleType: SaleType = request.query[saleTypeQuery] ?? .online
         let page = try request.query.decode(PageRequest.self)
 

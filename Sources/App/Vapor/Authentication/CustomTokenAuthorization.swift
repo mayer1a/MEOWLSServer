@@ -18,6 +18,11 @@ public struct CustomTokenAuthorization: Sendable {
         self.token = token
     }
 
+    /// Format token value for example`Token ib54K9o7UrcfSknuSXiG5l3oiJWSTm0L45D9aA8Cf+Y=`
+    public var tokenFormatValue: String {
+        "Token \(token)"
+    }
+
 }
 
 extension HTTPHeaders {
@@ -26,7 +31,6 @@ extension HTTPHeaders {
     public var customTokenAuthorization: CustomTokenAuthorization? {
 
         get {
-
             guard let string = self.first(name: .authorization) else { return nil }
 
             let headerParts = string.split(separator: " ")
@@ -36,12 +40,9 @@ extension HTTPHeaders {
             return .init(token: String(headerParts[1]))
         }
         set {
-
             if let customToken = newValue {
-
-                replaceOrAdd(name: .authorization, value: "Token \(customToken.token)")
+                replaceOrAdd(name: .authorization, value: customToken.tokenFormatValue)
             } else {
-                
                 remove(name: .authorization)
             }
         }

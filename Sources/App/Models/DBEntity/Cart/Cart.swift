@@ -21,6 +21,9 @@ final class Cart: Model, @unchecked Sendable {
     @Children(for: \.$cart)
     var items: [CartItem]
 
+    @Children(for: \.$cart)
+    var summaries: [Summary]
+
     @Siblings(through: CartsPromoCodesPivot.self, from: \.$cart, to: \.$promoCode)
     var promoCodes: [PromoCode]
 

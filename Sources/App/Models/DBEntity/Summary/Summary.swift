@@ -27,14 +27,24 @@ final class Summary: Model, @unchecked Sendable {
     @Field(key: "value")
     var value: Double
 
+    @Enum(key: "type")
+    var type: SummaryType
+
     init() {}
 
-    init(id: UUID? = nil, cartID: Cart.IDValue? = nil, orderID: Order.IDValue? = nil, name: String, value: Double) {
+    init(id: UUID? = nil,
+         cartID: Cart.IDValue? = nil,
+         orderID: Order.IDValue? = nil,
+         name: String,
+         value: Double,
+         type: SummaryType) {
+
         self.id = id
         self.$cart.id = cartID
         self.$order.id = orderID
         self.name = name
         self.value = value
+        self.type = type
     }
 
 }
