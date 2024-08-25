@@ -24,11 +24,15 @@ jobs:
 
       - name: Get Docker container ID
         id: get_container_id
-        run: echo "CONTAINER_ID=$(docker container ls -q -f name=${{ secrets.CONTAINER_NAME }})" >> $GITHUB_ENV
+        run: |
+          echo "Get docker container ID for name ${{ secrets.CONTAINER_NAME }}"
+          echo "CONTAINER_ID=$(docker ps -qf name=${{ secrets.CONTAINER_NAME }})" >> $GITHUB_ENV
 
       - name: Get Docker image ID
         id: get_image_id
-        run: echo "IMAGE_ID=$(docker images -q ${{ secrets.CONTAINER_NAME }}:latest)" >> $GITHUB_ENV
+        run: |
+          echo "Get docker image ID for name ${{ secrets.CONTAINER_NAME }}"
+          echo "IMAGE_ID=$(docker images -q ${{ secrets.CONTAINER_NAME }}:latest)" >> $GITHUB_ENV
 
       - name: Deploy to Ubuntu server
         run: |
@@ -43,13 +47,22 @@ jobs:
             docker build -t ${{ secrets.CONTAINER_NAME }} .
 
             echo "Stop and remove old container"
-            docker container stop $CONTAINER_ID && docker container rm $CONTAINER_ID
+            docker container stop ${{ env.CONTAINER_ID }} && docker container rm ${{ env.CONTAINER_ID }}
 
             echo "Remove old image"
-            docker rmi $IMAGE_ID
+            docker rmi ${{ env.IMAGE_ID }}
 
             echo "Run new container"
-            docker run --restart=always --name ${{ secrets.CONTAINER_NAME }} --network meowls_network -e DATABASE_HOST=${{ secrets.DATABASE_HOST }} -e DATABASE_NAME=${{ secrets.DATABASE_NAME }} -e DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} -e DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} -e DADATA_TOKEN="${{ secrets.DADATA_TOKEN }}" -p ${{ secrets.DATABASE_PORT }} -d ${{ secrets.CONTAINER_NAME }}:latest
+            docker run --restart=always \
+              --name "${{ secrets.CONTAINER_NAME }}" \
+              --network meowls_network \
+              -e DATABASE_HOST="${{ secrets.DATABASE_HOST }}" \
+              -e DATABASE_NAME="${{ secrets.DATABASE_NAME }}" \
+              -e DATABASE_PASSWORD="${{ secrets.DATABASE_PASSWORD }}" \
+              -e DATABASE_USERNAME="${{ secrets.DATABASE_USERNAME }}" \
+              -e DADATA_TOKEN="${{ secrets.DADATA_TOKEN }}" \
+              -p "${{ secrets.DATABASE_PORT }}" \
+              -d "${{ secrets.CONTAINER_NAME }}:latest"
 
             echo "Remove cache and prune unused images, containers"
             docker system prune -a -f
