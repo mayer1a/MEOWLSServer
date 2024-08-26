@@ -28,7 +28,7 @@ struct AppConstants {
         }
         set {
             guard token.isEmpty else { fatalError("You can only install a token once.") }
-            self.token = newValue
+            self.token = "Token \(newValue)"
         }
     }
 

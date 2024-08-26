@@ -10,8 +10,8 @@ import Fluent
 
 protocol UserRepositoryProtocol: Sendable {
 
+    func add(_ model: User.CreateDTO) async throws -> User.PublicDTO
     func get(_ user: User, withToken: Bool) async throws -> User.PublicDTO
-    func add(_ model: User.CreateDTO) async throws -> User
     func refreshToken(for user: User) async throws -> User.PublicDTO
     func update(_ user: User, with model: User.UpdateDTO) async throws -> User.PublicDTO
     func delete(_ user: User) async throws
@@ -21,24 +21,22 @@ protocol UserRepositoryProtocol: Sendable {
 final class UserRepository: UserRepositoryProtocol {
 
     private let database: Database
-    private let favoritesRepository: FavoritesRepositoryProtocol
     private let tokenRepository: TokenRepositoryProtocol
+    private let cartRepository: CartRepositoryProtocol
+    private let favoritesRepository: FavoritesRepositoryProtocol
 
     init(database: Database,
-         with favoritesRepository: FavoritesRepositoryProtocol,
-         _ tokenRepository: TokenRepositoryProtocol) {
+         with tokenRepository: TokenRepositoryProtocol,
+         _ cartRepository: CartRepositoryProtocol,
+         _ favoritesRepository: FavoritesRepositoryProtocol) {
 
         self.database = database
-        self.favoritesRepository = favoritesRepository
         self.tokenRepository = tokenRepository
+        self.cartRepository = cartRepository
+        self.favoritesRepository = favoritesRepository
     }
 
-    func get(_ user: User, withToken: Bool = false) async throws -> User.PublicDTO {
-        let token = try await user.$token.get(on: database)
-        return try DTOFactory.makeUser(from: user, with: withToken ? token : nil)
-    }
-    
-    func add(_ model: User.CreateDTO) async throws -> User {
+    func add(_ model: User.CreateDTO) async throws -> User.PublicDTO {
         let isAdmin = try await User.query(on: database).count() < 1
         let user = try model.toUser(with: isAdmin ? .admin : .user)
 
@@ -48,10 +46,16 @@ final class UserRepository: UserRepositoryProtocol {
             throw ErrorFactory.badRequest(.phoneAlreadyUsed)
         }
 
-        try await tokenRepository.update(for: user)
+        let token = try await tokenRepository.update(for: user)
+        try await cartRepository.addCart(for: user)
         try await favoritesRepository.add(user)
 
-        return user
+        return try DTOFactory.makeUser(from: user, with: token)
+    }
+
+    func get(_ user: User, withToken: Bool = false) async throws -> User.PublicDTO {
+        let token = try await user.$token.get(on: database)
+        return try DTOFactory.makeUser(from: user, with: withToken ? token : nil)
     }
 
     func refreshToken(for user: User) async throws -> User.PublicDTO {

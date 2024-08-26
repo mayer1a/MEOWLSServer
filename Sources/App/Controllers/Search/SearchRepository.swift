@@ -21,10 +21,12 @@ final class SearchRepository: SearchRepositoryProtocol {
     private let cache: Application.Caches
     private let suggestionsLimit = 20
     private let popularCacheKey = "popular"
+    private let queryBuilder: SQLRawQueryBuilderProtocol
 
-    init(database: Database, cache: Application.Caches) {
+    init(database: Database, cache: Application.Caches, queryBuilder: SQLRawQueryBuilderProtocol) {
         self.database = database
         self.cache = cache
+        self.queryBuilder = queryBuilder
     }
 
     func getSuggestions(for query: String) async throws -> [SearchSuggestionDTO] {
@@ -103,16 +105,16 @@ final class SearchRepository: SearchRepositoryProtocol {
                                           for type: T.Type,
                                           limit: Int) async throws -> SQLRawResponse<T> {
 
-        guard type is Category.Type || type is Product.Type else { fatalError(SearchSQLRawQuery.Error.fatal) }
+        guard type is Category.Type || type is Product.Type else { fatalError(queryBuilder.errorMessage) }
 
         let tableName = String(describing: type).pluralize()
         let select: SQLQueryString? = type is Category.Type ? "SELECT ID" : nil
 
-        let rawSQL = SearchSQLRawQuery.get(query: query, tableName: tableName, limit: limit, selectPart: select)
+        let rawSQL = queryBuilder.build(query: query, tableName: tableName, limit: limit, selectPart: select)
         let result = postgres.raw("\(rawSQL)")
 
         let decodedResult = try await result.all(decodingFluent: type)
-        let highlightedText = try await result.all(decodingColumn: SearchSQLRawQuery.tsQueryColumn, as: String.self)
+        let highlightedText = try await result.all(decodingColumn: queryBuilder.tsQueryColumn, as: String.self)
 
         return SQLRawResponse(result: decodedResult, highlightedText: highlightedText)
     }

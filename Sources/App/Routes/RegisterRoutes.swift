@@ -18,13 +18,17 @@ struct RegisterRoutes {
 
         let tokenRepository = TokenRepository(database: app.db)
         let favoritesRepository = FavoritesRepository(database: app.db)
-        let userRepository = UserRepository(database: app.db, with: favoritesRepository, tokenRepository)
+        let cartRepository = CartRepository(database: app.db)
+        let userRepository = UserRepository(database: app.db, with: tokenRepository,
+                                            cartRepository,
+                                            favoritesRepository)
         let bannersRepository = BannersRepository(database: app.db, cache: app.caches)
         let categoryRepository = CategoryRepository(database: app.db)
         let productsRepository = ProductsRepository(database: app.db)
         let salesRepository = SalesRepository(database: app.db, cache: app.caches)
-        let searchRepository = SearchRepository(database: app.db, cache: app.caches)
-        let cartRepository = CartRepository(database: app.db)
+        let tsHeadlineOptionBuilder = SearchSQLRawQueryBuilder.TSHeadlineOptionBuilder()
+        let sqlRawQueryBuilder: SQLRawQueryBuilderProtocol = SearchSQLRawQueryBuilder(builder: tsHeadlineOptionBuilder)
+        let searchRepository = SearchRepository(database: app.db, cache: app.caches, queryBuilder: sqlRawQueryBuilder)
         let addressRepository = AddressRepository(database: app.db, cache: app.caches)
         let orderRepository = OrderRepository(database: app.db, cartRepository: cartRepository)
 

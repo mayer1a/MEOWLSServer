@@ -34,6 +34,8 @@ enum BadRequest: String {
     case invalidEmailFormat = "error.invalidEmailFormat"
     case invalidPasswordFormat = "error.invalidPasswordFormat"
     case passwordsDidNotMatch = "error.passwordsDidNotMatch"
+    case saleIdRequired = "error.saleIdRequired"
+    case saleNotFound = "error.saleNotFound"
 
 }
 
@@ -115,6 +117,12 @@ extension BadRequest {
 
         case .passwordsDidNotMatch:
             return "Passwords did not match."
+
+        case .saleIdRequired:
+            return "Sale ID is required."
+
+        case .saleNotFound:
+            return "Invalid sale id. Sale not found."
 
         }
     }
