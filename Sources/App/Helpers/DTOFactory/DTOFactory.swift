@@ -77,19 +77,26 @@ struct DTOFactory {
 
     // MARK: - Sale
 
-    static func makeSales(from sales: [Sale]) throws -> [SaleDTO] {
+    static func makeSales(from sales: [Sale], fullModel: Bool = false) throws -> [SaleDTO] {
 
         try sales.map { sale in
-
-            SaleDTO(id: try sale.requireID(),
-                    code: sale.code,
-                    saleType: sale.saleType,
-                    title: sale.title,
-                    image: makeImage(from: sale.image),
-                    startDate: sale.startDate,
-                    endDate: sale.endDate,
-                    disclaimer: sale.disclaimer)
+            try makeSale(from: sale, fullModel: fullModel)
         }
+    }
+
+    static func makeSale(from sale: Sale, fullModel: Bool) throws -> SaleDTO {
+
+        let products = fullModel ? try makeProducts(from: sale.products) : nil
+
+        return SaleDTO(id: try sale.requireID(),
+                       code: sale.code,
+                       saleType: sale.saleType,
+                       title: sale.title,
+                       image: makeImage(from: sale.image),
+                       startDate: sale.startDate,
+                       endDate: sale.endDate,
+                       disclaimer: sale.disclaimer,
+                       products: products)
     }
 
 }

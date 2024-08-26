@@ -11,6 +11,7 @@ import Fluent
 protocol SalesRepositoryProtocol: Sendable {
 
     func get(for saleType: SaleType, with page: PageRequest) async throws -> PaginationResponse<SaleDTO>
+    func get(for saleID: UUID) async throws -> SaleDTO
 
 }
 
@@ -37,12 +38,46 @@ final class SalesRepository: SalesRepositoryProtocol {
         return paginationSalesDTOs
     }
 
+    func get(for saleID: UUID) async throws -> SaleDTO {
+
+        guard let sale = try await eagerLoadSale(for: nil, saleID: saleID).first() else {
+            throw ErrorFactory.badRequest(.saleNotFound)
+        }
+        return try DTOFactory.makeSale(from: sale, fullModel: true)
+    }
+
     private func eagerLoadRelations(for type: SaleType, _ page: PageRequest) async throws -> PaginationResponse<Sale> {
-        try await Sale.query(on: database)
-            .filter(\.$saleType == type)
-            .filter(\.$endDate >= Date.now)
-            .with(\.$image)
+        try await eagerLoadSale(for: type, saleID: nil)
             .paginate(with: page)
+    }
+
+    private func eagerLoadSale(for type: SaleType?, saleID: UUID?) async throws -> QueryBuilder<Sale> {
+        var saleBuilder = Sale.query(on: database)
+
+        if let type {
+            saleBuilder = saleBuilder
+                .filter(\.$saleType == type)
+                .filter(\.$saleType == type)
+                .filter(\.$endDate >= Date.now)
+        } else if let saleID {
+            saleBuilder = saleBuilder
+                .filter(\.$id == saleID)
+                .with(\.$products) { product in
+                    product
+                        .with(\.$images)
+                        .with(\.$variants) { variant in
+                            variant
+                                .with(\.$badges)
+                                .with(\.$price)
+                                .with(\.$availabilityInfo)
+                        }
+                }
+        } else {
+            fatalError("type or saleID should be NOT nil")
+        }
+
+        return saleBuilder
+            .with(\.$image)
     }
 
     private func setCache(_ response: PaginationResponse<SaleDTO>,
