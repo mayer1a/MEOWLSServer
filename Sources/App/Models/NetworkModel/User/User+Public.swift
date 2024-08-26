@@ -20,7 +20,6 @@ extension User {
         let email: String?
         let phone: String
         let authentication: Authentication?
-        var testable: String = ""
 
     }
 

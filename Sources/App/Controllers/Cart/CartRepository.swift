@@ -10,6 +10,7 @@ import Fluent
 
 protocol CartRepositoryProtocol: Sendable {
 
+    func addCart(for user: User) async throws
     func getRawCart(for user: User) async throws -> Cart
     func getCart(for user: User) async throws -> CartDTO
     func getAnonumous(for cartRequest: CartRequest) async throws -> CartDTO
@@ -25,6 +26,13 @@ final class CartRepository: CartRepositoryProtocol {
 
     init(database: Database) {
         self.database = database
+    }
+
+    // MARK: - Add new cart for new user
+
+    func addCart(for user: User) async throws {
+        try await Cart(userID: try user.requireID())
+            .save(on: database)
     }
 
     // MARK: - Get user cart
