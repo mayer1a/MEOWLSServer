@@ -43,9 +43,7 @@ struct UserController: RouteCollection {
         let createUser = try request.content.decode(User.CreateDTO.self)
         try createUser.validate()
 
-        let user = try await userRepository.add(createUser)
-
-        return try await userRepository.get(user, withToken: true)
+        return try await userRepository.add(createUser)
     }
 
     @Sendable private func login(_ request: Request) async throws -> User.PublicDTO {
@@ -55,18 +53,6 @@ struct UserController: RouteCollection {
 
     @Sendable private func get(_ request: Request) async throws -> User.PublicDTO {
         guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
-        var usr = try await userRepository.get(user, withToken: false)
-        let fileName: String
-        switch request.application.environment {
-        case .production: fileName = ".env.production"
-        case .development: fileName = ".env.development"
-        default: fileName = ".env.testing"
-        }
-        #if DEBUG
-        usr.testable = "\(fileName)+DEBUG"
-        #else
-        usr.testable = "\(fileName)+RELEASE"
-        #endif
 
         return try await userRepository.get(user, withToken: false)
     }

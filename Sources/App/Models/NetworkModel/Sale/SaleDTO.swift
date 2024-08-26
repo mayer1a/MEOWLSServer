@@ -17,6 +17,7 @@ struct SaleDTO: Content {
     let startDate: Date
     let endDate: Date
     let disclaimer: String
+    let products: [ProductDTO]?
 
     enum CodingKeys: String, CodingKey {
         case id, code
@@ -24,7 +25,7 @@ struct SaleDTO: Content {
         case title, image
         case startDate = "start_date"
         case endDate = "end_date"
-        case disclaimer
+        case disclaimer, products
     }
 
 }
