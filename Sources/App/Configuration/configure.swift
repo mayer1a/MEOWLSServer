@@ -166,7 +166,7 @@ struct Configuration {
         app.migrations.add(CreateCart())
 
         addOrderMigrations(for: app)
-        
+
         app.migrations.add([CreateCartItem(), CreateSummary(), CreateSummaryType(), CreateCartsPromoCodesPivot()])
     }
 
