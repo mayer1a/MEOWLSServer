@@ -56,7 +56,10 @@ struct ProductsController: RouteCollection {
             throw ErrorFactory.badRequest(.categoryIDRequired)
         }
 
-        return try await productsRepository.getFilters(for: categoryID)
+        request.url.query = request.url.query?.removingPercentEncoding
+        let filters = try? request.query.decode(FilterQueryRequest.self)
+
+        return try await productsRepository.getFilters(for: categoryID, filters: filters)
     }
 
 }

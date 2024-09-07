@@ -21,7 +21,7 @@ protocol ProductsRepositoryProtocol: Sendable {
 
     func get(for productID: UUID) async throws -> Product
     func getDTO(for productID: UUID) async throws -> ProductDTO
-    func getFilters(for categoryID: UUID) async throws -> [FilterDTO]
+    func getFilters(for categoryID: UUID, filters: FilterQueryRequest?) async throws -> [FilterDTO]
 
 }
 
@@ -79,7 +79,7 @@ final class ProductsRepository: ProductsRepositoryProtocol {
         return try DTOFactory.makeProduct(from: product)
     }
 
-    func getFilters(for categoryID: UUID) async throws -> [FilterDTO] {
+    func getFilters(for categoryID: UUID, filters: FilterQueryRequest?) async throws -> [FilterDTO] {
         guard
             let category = try await Category.find(categoryID, on: database),
             let categoriesIDs = try? await getCategoriesIDs(for: category)
@@ -89,7 +89,15 @@ final class ProductsRepository: ProductsRepositoryProtocol {
 
         let sqlDatabase = database as! SQLDatabase
 
-        let filterCountsQuery = try await sqlDatabase.raw(getRawSQL(for: categoriesIDs))
+        let productsIDs: [UUID]?
+        if let filters {
+            let productsQuery = getFilteredLoadedProducts(categoriesIDs: categoriesIDs, filters: filters, full: false)
+            productsIDs = try await productsQuery?.all().map({ try $0.requireID() })
+        } else {
+            productsIDs = nil
+        }
+
+        let filterCountsQuery = try await sqlDatabase.raw(getRawSQL(for: categoriesIDs, productsIDs: productsIDs))
             .all(decoding: FilterDBResponse.self)
 
         return try DTOFactory.makeFilters(from: filterCountsQuery)
@@ -225,7 +233,7 @@ final class ProductsRepository: ProductsRepositoryProtocol {
         return result
     }
 
-    private func getRawSQL(for categoriesIDs: [UUID]) -> SQLQueryString {
+    private func getRawSQL(for categoriesIDs: [UUID], productsIDs: [UUID]?) -> SQLQueryString {
         """
         SELECT
             P_PROPERTY.CODE AS PROPERTY_CODE,
@@ -240,6 +248,9 @@ final class ProductsRepository: ProductsRepositoryProtocol {
             JOIN "categories+products" CPP ON P.ID = CPP.PRODUCT_ID
             JOIN PRODUCT_PROPERTIES P_PROPERTY ON P_VALUE.PRODUCT_PROPERTY_ID = P_PROPERTY.ID
         WHERE
+            \(unsafeRaw: productsIDs == nil || productsIDs?.isEmpty == true
+                ? ""
+                : "P.ID IN (\(productsIDs!.map { "'\($0.uuidString)'" }.joined(separator: ","))) AND")
             CPP.CATEGORY_ID IN (\(unsafeRaw: categoriesIDs.map { "'\($0.uuidString)'" }.joined(separator: ",")))
         GROUP BY
             P_PROPERTY.CODE,
@@ -249,3 +260,4 @@ final class ProductsRepository: ProductsRepositoryProtocol {
     }
 
 }
+
