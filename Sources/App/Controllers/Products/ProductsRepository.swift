@@ -134,6 +134,15 @@ final class ProductsRepository: ProductsRepositoryProtocol {
                                    with page: PageRequest,
                                    filters: FilterQueryRequest?) async throws -> PaginationResponse<Product>? {
 
+        let productsQuery = getFilteredLoadedProducts(saleID: saleID, categoriesIDs: categoriesIDs, filters: filters)
+        return try await productsQuery?.paginate(with: page)
+    }
+
+    private func getFilteredLoadedProducts(saleID: UUID? = nil,
+                                           categoriesIDs: [UUID]?,
+                                           filters: FilterQueryRequest?,
+                                           full: Bool = true) -> QueryBuilder<Product>? {
+
         let productsQuery = Product.query(on: database)
 
         if let saleID {
@@ -146,28 +155,30 @@ final class ProductsRepository: ProductsRepositoryProtocol {
             return nil
         }
 
-        addFilters(filters, to: productsQuery)
-            .with(\.$images)
-            .with(\.$variants) { variant in
-                variant
-                    .with(\.$price)
-                    .with(\.$availabilityInfo)
-                    .with(\.$badges)
-            }
-
-        return try await productsQuery.paginate(with: page)
+        if full {
+            return addFilters(filters, to: productsQuery)
+                .with(\.$images)
+                .with(\.$variants) { variant in
+                    variant
+                        .with(\.$price)
+                        .with(\.$availabilityInfo)
+                        .with(\.$badges)
+                }
+        } else {
+            return addFilters(filters, to: productsQuery)
+        }
     }
 
     private func addFilters(_ filters: FilterQueryRequest?, to query: QueryBuilder<Product>) -> QueryBuilder<Product> {
         query
-            .join(ProductVariant.self, on: \Product.$id == \ProductVariant.$product.$id, method: .left)
-            .join(ProductVariantsPropertyValues.self, 
-                  on: \ProductVariant.$id == \ProductVariantsPropertyValues.$productVariant.$id,
-                  method: .left)
-            .join(PropertyValue.self, 
-                  on: \ProductVariantsPropertyValues.$propertyValue.$id == \PropertyValue.$id,
-                  method: .left)
-            .join(ProductProperty.self, on: \PropertyValue.$productProperty.$id == \ProductProperty.$id, method: .left)
+            .join(ProductVariant.self,
+                  on: \Product.$id == \ProductVariant.$product.$id
+                    && \ProductVariant.$article == \Product.$defaultVariantArticle)
+            .join(ProductVariantsPropertyValues.self,
+                  on: \ProductVariant.$id == \ProductVariantsPropertyValues.$productVariant.$id)
+            .join(PropertyValue.self,
+                  on: \ProductVariantsPropertyValues.$propertyValue.$id == \PropertyValue.$id)
+            .join(ProductProperty.self, on: \PropertyValue.$productProperty.$id == \ProductProperty.$id)
 
         filters?.filters?.forEach { key, values in
             query
@@ -175,12 +186,10 @@ final class ProductsRepository: ProductsRepositoryProtocol {
                 .filter(PropertyValue.self, \.$value ~~ values)
         }
 
-        query.unique()
-
         switch filters?.sort {
         case "price": query
                 .join(Price.self, on: \ProductVariant.$id == \Price.$productVariant.$id)
-                .sort(Price.self, \.$price)
+                .sort(Price.self, \.$price, .ascending)
 
         case "-price": query
                 .join(Price.self, on: \ProductVariant.$id == \Price.$productVariant.$id)

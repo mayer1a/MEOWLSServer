@@ -26,6 +26,8 @@ struct ProductsController: RouteCollection {
     }
 
     @Sendable func getProducts(_ request: Request) async throws -> PaginationResponse<ProductDTO> {
+        request.url.query = request.url.query?.removingPercentEncoding
+
         let page = try request.query.decode(PageRequest.self)
         let filters = try? request.query.decode(FilterQueryRequest.self)
 
