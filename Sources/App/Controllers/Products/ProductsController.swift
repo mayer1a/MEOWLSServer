@@ -17,9 +17,12 @@ struct ProductsController: RouteCollection {
 
     @Sendable func boot(routes: RoutesBuilder) throws {
         let products = routes.grouped("api", "v1", "products")
+        let filters = routes.grouped("api", "v1", "filters")
 
         products.get("", use: getProducts)
         products.get(":product_id", use: getProduct)
+
+        filters.get("", use: getFilters)
     }
 
     @Sendable func getProducts(_ request: Request) async throws -> PaginationResponse<ProductDTO> {
@@ -43,6 +46,14 @@ struct ProductsController: RouteCollection {
         }
 
         return try await productsRepository.getDTO(for: productID)
+    }
+
+    @Sendable func getFilters(_ request: Request) async throws -> [FilterDTO] {
+        guard let categoryID: UUID = request.query[categoryQuery] else {
+            throw ErrorFactory.badRequest(.categoryIDRequired)
+        }
+
+        return try await productsRepository.getFilters(for: categoryID)
     }
 
 }

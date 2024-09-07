@@ -14,6 +14,7 @@ protocol ProductsRepositoryProtocol: Sendable {
     func getProducts(saleID: UUID, with page: PageRequest) async throws -> PaginationResponse<ProductDTO>
     func get(for productID: UUID) async throws -> Product
     func getDTO(for productID: UUID) async throws -> ProductDTO
+    func getFilters(for categoryID: UUID) async throws -> [FilterDTO]
 
 }
 
@@ -63,6 +64,22 @@ final class ProductsRepository: ProductsRepositoryProtocol {
     func getDTO(for productID: UUID) async throws -> ProductDTO {
         let product = try await get(for: productID)
         return try DTOFactory.makeProduct(from: product)
+    }
+
+    func getFilters(for categoryID: UUID) async throws -> [FilterDTO] {
+        guard
+            let category = try await Category.find(categoryID, on: database),
+            let categoriesIDs = try? await getCategoriesIDs(for: category)
+        else {
+            throw ErrorFactory.internalError(.fetchFiltersForCategoryError, failures: [.ID(categoryID)])
+        }
+
+        let sqlDatabase = database as! SQLDatabase
+
+        let filterCountsQuery = try await sqlDatabase.raw(getRawSQL(for: categoriesIDs))
+            .all(decoding: FilterDBResponse.self)
+
+        return try DTOFactory.makeFilters(from: filterCountsQuery)
     }
 
     private func eagerLoadRelations(categoryID: UUID, 
@@ -133,6 +150,29 @@ final class ProductsRepository: ProductsRepositoryProtocol {
         }
 
         return result
+    }
+
+    private func getRawSQL(for categoriesIDs: [UUID]) -> SQLQueryString {
+        """
+        SELECT
+            P_PROPERTY.CODE AS PROPERTY_CODE,
+            P_PROPERTY.NAME AS PROPERTY_NAME,
+            P_VALUE.VALUE AS PROPERTY_VALUE,
+            COUNT(DISTINCT P.ID) AS COUNT
+        FROM
+            PROPERTY_VALUES P_VALUE
+            JOIN "product_variants+property_values" PVPV ON P_VALUE.ID = PVPV.PROPERTY_VALUE_ID
+            JOIN PRODUCT_VARIANTS PV ON PVPV.PRODUCT_VARIANT_ID = PV.ID
+            JOIN PRODUCTS P ON PV.PRODUCT_ID = P.ID
+            JOIN "categories+products" CPP ON P.ID = CPP.PRODUCT_ID
+            JOIN PRODUCT_PROPERTIES P_PROPERTY ON P_VALUE.PRODUCT_PROPERTY_ID = P_PROPERTY.ID
+        WHERE
+            CPP.CATEGORY_ID IN (\(unsafeRaw: categoriesIDs.map { "'\($0.uuidString)'" }.joined(separator: ",")))
+        GROUP BY
+            P_PROPERTY.CODE,
+            P_PROPERTY.NAME,
+            P_VALUE.VALUE
+        """
     }
 
 }
