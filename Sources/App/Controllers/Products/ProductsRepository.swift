@@ -21,7 +21,7 @@ protocol ProductsRepositoryProtocol: Sendable {
 
     func get(for productID: UUID) async throws -> Product
     func getDTO(for productID: UUID) async throws -> ProductDTO
-    func getFilters(for categoryID: UUID) async throws -> [FilterDTO]
+    func getFilters(for categoryID: UUID, filters: FilterQueryRequest?) async throws -> [FilterDTO]
 
 }
 
@@ -79,7 +79,7 @@ final class ProductsRepository: ProductsRepositoryProtocol {
         return try DTOFactory.makeProduct(from: product)
     }
 
-    func getFilters(for categoryID: UUID) async throws -> [FilterDTO] {
+    func getFilters(for categoryID: UUID, filters: FilterQueryRequest?) async throws -> [FilterDTO] {
         guard
             let category = try await Category.find(categoryID, on: database),
             let categoriesIDs = try? await getCategoriesIDs(for: category)
@@ -89,7 +89,15 @@ final class ProductsRepository: ProductsRepositoryProtocol {
 
         let sqlDatabase = database as! SQLDatabase
 
-        let filterCountsQuery = try await sqlDatabase.raw(getRawSQL(for: categoriesIDs))
+        let productsIDs: [UUID]?
+        if let filters {
+            let productsQuery = getFilteredLoadedProducts(categoriesIDs: categoriesIDs, filters: filters, full: false)
+            productsIDs = try await productsQuery?.all().map({ try $0.requireID() })
+        } else {
+            productsIDs = nil
+        }
+
+        let filterCountsQuery = try await sqlDatabase.raw(getRawSQL(for: categoriesIDs, productsIDs: productsIDs))
             .all(decoding: FilterDBResponse.self)
 
         return try DTOFactory.makeFilters(from: filterCountsQuery)
@@ -134,6 +142,15 @@ final class ProductsRepository: ProductsRepositoryProtocol {
                                    with page: PageRequest,
                                    filters: FilterQueryRequest?) async throws -> PaginationResponse<Product>? {
 
+        let productsQuery = getFilteredLoadedProducts(saleID: saleID, categoriesIDs: categoriesIDs, filters: filters)
+        return try await productsQuery?.paginate(with: page)
+    }
+
+    private func getFilteredLoadedProducts(saleID: UUID? = nil,
+                                           categoriesIDs: [UUID]?,
+                                           filters: FilterQueryRequest?,
+                                           full: Bool = true) -> QueryBuilder<Product>? {
+
         let productsQuery = Product.query(on: database)
 
         if let saleID {
@@ -146,28 +163,30 @@ final class ProductsRepository: ProductsRepositoryProtocol {
             return nil
         }
 
-        addFilters(filters, to: productsQuery)
-            .with(\.$images)
-            .with(\.$variants) { variant in
-                variant
-                    .with(\.$price)
-                    .with(\.$availabilityInfo)
-                    .with(\.$badges)
-            }
-
-        return try await productsQuery.paginate(with: page)
+        if full {
+            return addFilters(filters, to: productsQuery)
+                .with(\.$images)
+                .with(\.$variants) { variant in
+                    variant
+                        .with(\.$price)
+                        .with(\.$availabilityInfo)
+                        .with(\.$badges)
+                }
+        } else {
+            return addFilters(filters, to: productsQuery)
+        }
     }
 
     private func addFilters(_ filters: FilterQueryRequest?, to query: QueryBuilder<Product>) -> QueryBuilder<Product> {
         query
-            .join(ProductVariant.self, on: \Product.$id == \ProductVariant.$product.$id, method: .left)
-            .join(ProductVariantsPropertyValues.self, 
-                  on: \ProductVariant.$id == \ProductVariantsPropertyValues.$productVariant.$id,
-                  method: .left)
-            .join(PropertyValue.self, 
-                  on: \ProductVariantsPropertyValues.$propertyValue.$id == \PropertyValue.$id,
-                  method: .left)
-            .join(ProductProperty.self, on: \PropertyValue.$productProperty.$id == \ProductProperty.$id, method: .left)
+            .join(ProductVariant.self,
+                  on: \Product.$id == \ProductVariant.$product.$id
+                    && \ProductVariant.$article == \Product.$defaultVariantArticle)
+            .join(ProductVariantsPropertyValues.self,
+                  on: \ProductVariant.$id == \ProductVariantsPropertyValues.$productVariant.$id)
+            .join(PropertyValue.self,
+                  on: \ProductVariantsPropertyValues.$propertyValue.$id == \PropertyValue.$id)
+            .join(ProductProperty.self, on: \PropertyValue.$productProperty.$id == \ProductProperty.$id)
 
         filters?.filters?.forEach { key, values in
             query
@@ -175,12 +194,10 @@ final class ProductsRepository: ProductsRepositoryProtocol {
                 .filter(PropertyValue.self, \.$value ~~ values)
         }
 
-        query.unique()
-
         switch filters?.sort {
         case "price": query
                 .join(Price.self, on: \ProductVariant.$id == \Price.$productVariant.$id)
-                .sort(Price.self, \.$price)
+                .sort(Price.self, \.$price, .ascending)
 
         case "-price": query
                 .join(Price.self, on: \ProductVariant.$id == \Price.$productVariant.$id)
@@ -216,7 +233,7 @@ final class ProductsRepository: ProductsRepositoryProtocol {
         return result
     }
 
-    private func getRawSQL(for categoriesIDs: [UUID]) -> SQLQueryString {
+    private func getRawSQL(for categoriesIDs: [UUID], productsIDs: [UUID]?) -> SQLQueryString {
         """
         SELECT
             P_PROPERTY.CODE AS PROPERTY_CODE,
@@ -231,6 +248,9 @@ final class ProductsRepository: ProductsRepositoryProtocol {
             JOIN "categories+products" CPP ON P.ID = CPP.PRODUCT_ID
             JOIN PRODUCT_PROPERTIES P_PROPERTY ON P_VALUE.PRODUCT_PROPERTY_ID = P_PROPERTY.ID
         WHERE
+            \(unsafeRaw: productsIDs == nil || productsIDs?.isEmpty == true
+                ? ""
+                : "P.ID IN (\(productsIDs!.map { "'\($0.uuidString)'" }.joined(separator: ","))) AND")
             CPP.CATEGORY_ID IN (\(unsafeRaw: categoriesIDs.map { "'\($0.uuidString)'" }.joined(separator: ",")))
         GROUP BY
             P_PROPERTY.CODE,
@@ -240,3 +260,4 @@ final class ProductsRepository: ProductsRepositoryProtocol {
     }
 
 }
+

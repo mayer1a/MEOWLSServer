@@ -26,6 +26,8 @@ struct ProductsController: RouteCollection {
     }
 
     @Sendable func getProducts(_ request: Request) async throws -> PaginationResponse<ProductDTO> {
+        request.url.query = request.url.query?.removingPercentEncoding
+
         let page = try request.query.decode(PageRequest.self)
         let filters = try? request.query.decode(FilterQueryRequest.self)
 
@@ -54,7 +56,10 @@ struct ProductsController: RouteCollection {
             throw ErrorFactory.badRequest(.categoryIDRequired)
         }
 
-        return try await productsRepository.getFilters(for: categoryID)
+        request.url.query = request.url.query?.removingPercentEncoding
+        let filters = try? request.query.decode(FilterQueryRequest.self)
+
+        return try await productsRepository.getFilters(for: categoryID, filters: filters)
     }
 
 }
