@@ -1,7 +1,7 @@
 # ================================
 # Build image
 # ================================
-FROM swift:5.9.2-focal as build
+FROM swift:5.9.2-focal AS build
 
 RUN echo "[ BUILD IMAGE ]"
 
@@ -9,7 +9,9 @@ RUN echo "[ BUILD IMAGE ]"
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     && apt-get -q update \
     && apt-get -q dist-upgrade -y \
-    && apt-get install -y libjemalloc-dev
+    && apt-get install -y libjemalloc-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set up a build area
 WORKDIR /build
@@ -53,6 +55,7 @@ RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     && apt-get -q update \
     && apt-get -q dist-upgrade -y \
     && apt-get -q install -y libjemalloc2 ca-certificates tzdata \
+    && apt-get clean \
     && rm -r /var/lib/apt/lists/*
 
 # Create a vapor user and group with /app as its home directory
