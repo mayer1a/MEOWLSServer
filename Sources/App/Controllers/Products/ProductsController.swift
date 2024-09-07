@@ -17,21 +17,25 @@ struct ProductsController: RouteCollection {
 
     @Sendable func boot(routes: RoutesBuilder) throws {
         let products = routes.grouped("api", "v1", "products")
+        let filters = routes.grouped("api", "v1", "filters")
 
         products.get("", use: getProducts)
         products.get(":product_id", use: getProduct)
+
+        filters.get("", use: getFilters)
     }
 
     @Sendable func getProducts(_ request: Request) async throws -> PaginationResponse<ProductDTO> {
         let page = try request.query.decode(PageRequest.self)
+        let filters = try? request.query.decode(FilterQueryRequest.self)
 
         if let categoryID: UUID = request.query[categoryQuery] {
 
-            return try await productsRepository.getProducts(categoryID: categoryID, with: page)
+            return try await productsRepository.getProducts(categoryID: categoryID, with: page, filters: filters)
 
         } else if let saleID: UUID = request.query[saleQuery] {
 
-            return try await productsRepository.getProducts(saleID: saleID, with: page)
+            return try await productsRepository.getProducts(saleID: saleID, with: page, filters: filters)
         }
 
         throw ErrorFactory.badRequest(.categoryIDRequired)
@@ -43,6 +47,14 @@ struct ProductsController: RouteCollection {
         }
 
         return try await productsRepository.getDTO(for: productID)
+    }
+
+    @Sendable func getFilters(_ request: Request) async throws -> [FilterDTO] {
+        guard let categoryID: UUID = request.query[categoryQuery] else {
+            throw ErrorFactory.badRequest(.categoryIDRequired)
+        }
+
+        return try await productsRepository.getFilters(for: categoryID)
     }
 
 }
