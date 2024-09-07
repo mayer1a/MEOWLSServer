@@ -17,6 +17,7 @@ enum InternalServerError: String {
     case fetchProductsForCategoryError = "error.fetchProductsForCategoryError"
     case fetchProductsForSaleError = "error.fetchProductsForSaleError"
     case fetchProductByIdError = "error.fetchProductByIdError"
+    case fetchFiltersForCategoryError = "error.fetchFiltersForCategoryError"
     case bannerCategoriesError = "error.bannerCategoriesError"
     case bannerProductsPriceError = "error.bannerProductsPriceError"
     case bannerProductsAvailabilityError = "error.bannerProductsAvailabilityError"
@@ -54,6 +55,9 @@ enum InternalServerError: String {
 
         case .fetchProductByIdError:
             return "Error fetching product with ID."
+
+        case .fetchFiltersForCategoryError:
+            return "Error fetching filters for requested category ID."
 
         case .bannerCategoriesError:
             return "Categories Banner error."

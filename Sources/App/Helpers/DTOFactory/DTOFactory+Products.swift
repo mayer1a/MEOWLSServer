@@ -128,4 +128,42 @@ extension DTOFactory {
         }
     }
 
+    // MARK: - Filters
+
+    static func makeFilters(from rawFilters: [FilterDBResponse]) throws -> [FilterDTO] {
+
+        var filtersDict: [String: [FilterDBResponse]] = [:]
+
+        rawFilters.forEach { fc in
+            if filtersDict[fc.propertyCode] == nil {
+                filtersDict[fc.propertyCode] = []
+            }
+            if !filtersDict[fc.propertyCode]!.contains(where: { $0.propertyValue == fc.propertyValue }) {
+                filtersDict[fc.propertyCode]!.append(fc)
+            }
+        }
+        var filters = filtersDict
+            .compactMap { rawFilter -> FilterDTO? in
+                if let propertyName = rawFilter.value.first?.propertyName {
+                    return .init(name: rawFilter.key,
+                                 displayName: propertyName,
+                                 values: makeFilterValues(from: rawFilter.value))
+                } else {
+                    return nil
+                }
+            }
+            .sorted(by: { $0.displayName < $1.displayName })
+
+        filters.insert(FilterDTO.getSortFilter, at: 0)
+
+        return filters
+    }
+
+    private static func makeFilterValues(from filters: [FilterDBResponse]) -> [FilterValueDTO] {
+        filters.map { filter in
+            FilterValueDTO(value: filter.propertyValue, displayName: filter.propertyValue, count: filter.count)
+        }
+        .sorted(by: { $0.displayName < $1.displayName })
+    }
+
 }
