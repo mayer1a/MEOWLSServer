@@ -198,7 +198,7 @@ struct Configuration {
         app.queues.schedule(RestoreAvailableProductCountJob())
             .weekly()
             .on(.monday)
-            .at(00, 10, .am)
+            .at(12, 10, .am)
 
         app.queues.add(PayOrderJob())
 
