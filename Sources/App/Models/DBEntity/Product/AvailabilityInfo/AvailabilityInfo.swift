@@ -47,3 +47,16 @@ extension ProductVariant {
     }
 
 }
+
+extension AvailabilityInfo: Hashable {
+    
+
+    static func ==(lhs: AvailabilityInfo, rhs: AvailabilityInfo) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+}

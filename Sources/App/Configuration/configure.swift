@@ -195,6 +195,11 @@ struct Configuration {
             .hourly()
             .at(1)
 
+        app.queues.schedule(RestoreAvailableProductCountJob())
+            .weekly()
+            .on(.monday)
+            .at(00, 10, .am)
+
         app.queues.add(PayOrderJob())
 
         try app.queues.startInProcessJobs()
