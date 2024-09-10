@@ -47,7 +47,7 @@ final class ProductsRepository: ProductsRepositoryProtocol {
                      with page: PageRequest,
                      filters: FilterQueryRequest?) async throws -> PaginationResponse<ProductDTO> {
 
-        let paginationPoducts = try await eagerLoadRelations(saleID: saleID, page, filters: filters)
+        let paginationPoducts = try await eagerLoadRelations(saleID: saleID, page)
         let productsDTOs = try DTOFactory.makeProducts(from: paginationPoducts.results) ?? []
 
         return PaginationResponse(results: productsDTOs, paginationInfo: paginationPoducts.paginationInfo)
@@ -87,33 +87,24 @@ final class ProductsRepository: ProductsRepositoryProtocol {
             throw ErrorFactory.internalError(.fetchFiltersForCategoryError, failures: [.ID(categoryID)])
         }
 
-        let sqlDatabase = database as! SQLDatabase
-
-        let productsIDs: [UUID]?
-        if let filters {
-            let productsQuery = getFilteredLoadedProducts(categoriesIDs: categoriesIDs, filters: filters, full: false)
-            productsIDs = try await productsQuery?.all().map({ try $0.requireID() })
-        } else {
-            productsIDs = nil
+        guard let filters = filters?.filters, let sqlDatabase = database as? SQLDatabase else {
+            return []
         }
 
-        let filterCountsQuery = try await sqlDatabase.raw(getRawSQL(for: categoriesIDs, productsIDs: productsIDs))
+        let availableFiltersRawSQL = FiltersSQLRawFactory.makeAvailableFiltersSQL(for: categoriesIDs, filters: filters)
+        let filterCountsQuery = try await sqlDatabase.raw(availableFiltersRawSQL)
             .all(decoding: FilterDBResponse.self)
 
         return try DTOFactory.makeFilters(from: filterCountsQuery)
     }
 
-    private func eagerLoadRelations(categoryID: UUID, 
+    private func eagerLoadRelations(categoryID: UUID,
                                     _ page: PageRequest,
                                     filters: FilterQueryRequest?) async throws -> PaginationResponse<Product> {
-
-        guard 
+        guard
             let category = try await Category.find(categoryID, on: database),
             let categoriesIDs = try? await getCategoriesIDs(for: category),
-            let products = try await eagerLoadProducts(saleID: nil,
-                                                       categoriesIDs: categoriesIDs,
-                                                       with: page,
-                                                       filters: filters)
+            let products = try await eagerLoadProducts(categoriesIDs: categoriesIDs, filters: filters, with: page)
         else {
             throw ErrorFactory.internalError(.fetchProductsForCategoryError, failures: [.ID(categoryID)])
         }
@@ -121,15 +112,10 @@ final class ProductsRepository: ProductsRepositoryProtocol {
         return products
     }
 
-    private func eagerLoadRelations(saleID: UUID,
-                                    _ page: PageRequest,
-                                    filters: FilterQueryRequest?) async throws -> PaginationResponse<Product> {
+    private func eagerLoadRelations(saleID: UUID, _ page: PageRequest) async throws -> PaginationResponse<Product> {
         guard
             let saleID = try await Sale.find(saleID, on: database)?.requireID(),
-            let products = try await eagerLoadProducts(saleID: saleID,
-                                                       categoriesIDs: nil,
-                                                       with: page,
-                                                       filters: filters)
+            let products = try await eagerLoadProducts(saleID: saleID, with: page)
         else {
             throw ErrorFactory.internalError(.fetchProductsForSaleError, failures: [.ID(saleID)])
         }
@@ -137,24 +123,58 @@ final class ProductsRepository: ProductsRepositoryProtocol {
         return products
     }
 
-    private func eagerLoadProducts(saleID: UUID?,
-                                   categoriesIDs: [UUID]?,
-                                   with page: PageRequest,
-                                   filters: FilterQueryRequest?) async throws -> PaginationResponse<Product>? {
+    private func eagerLoadProducts(saleID: UUID? = nil,
+                                   categoriesIDs: [UUID]? = nil,
+                                   filters: FilterQueryRequest? = nil,
+                                   with page: PageRequest) async throws -> PaginationResponse<Product>? {
 
-        let productsQuery = getFilteredLoadedProducts(saleID: saleID, categoriesIDs: categoriesIDs, filters: filters)
-        return try await productsQuery?.paginate(with: page)
+        var query: QueryBuilder<Product>?
+        if let filters {
+            let productsIDs = try await getFilteredProducts(for: categoriesIDs, filters: filters)
+            query = getFilteredProductsQuery(saleID: saleID, categoriesIDs: categoriesIDs, productsIDs: productsIDs)
+
+            if let sort = filters.sort {
+                query = addSort(sort, to: query)
+            }
+        } else {
+            query = getFilteredProductsQuery(saleID: saleID, categoriesIDs: categoriesIDs, productsIDs: nil)
+        }
+
+        return try await query?.paginate(with: page)
     }
 
-    private func getFilteredLoadedProducts(saleID: UUID? = nil,
-                                           categoriesIDs: [UUID]?,
-                                           filters: FilterQueryRequest?,
-                                           full: Bool = true) -> QueryBuilder<Product>? {
+    private func addSort(_ sort: FiltersSort, to query: QueryBuilder<Product>?) -> QueryBuilder<Product>? {
+        switch sort {
+        case .priceAsc, .priceDesc: 
+            query?
+                .join(ProductVariant.self,
+                      on: \Product.$id == \ProductVariant.$product.$id
+                      && \ProductVariant.$article == \Product.$defaultVariantArticle)
+                .join(Price.self, on: \ProductVariant.$id == \Price.$productVariant.$id)
+                .sort(Price.self, \.$price, sort.direction)
+
+        case .nameAsc, .nameDesc:
+            query?.sort(\Product.$name, sort.direction)
+
+        case .index:
+            break
+
+        }
+
+        return query
+    }
+
+    private func getFilteredProductsQuery(saleID: UUID? = nil,
+                                          categoriesIDs: [UUID]?,
+                                          productsIDs: [UUID]?) -> QueryBuilder<Product>? {
 
         let productsQuery = Product.query(on: database)
 
         if let saleID {
             productsQuery.filter(\.$sale.$id == saleID)
+        } else if let productsIDs {
+            productsQuery
+                .filter(\.$id ~~ productsIDs)
         } else if let categoriesIDs {
             productsQuery
                 .join(siblings: \.$categories)
@@ -163,58 +183,14 @@ final class ProductsRepository: ProductsRepositoryProtocol {
             return nil
         }
 
-        if full {
-            return addFilters(filters, to: productsQuery)
-                .with(\.$images)
-                .with(\.$variants) { variant in
-                    variant
-                        .with(\.$price)
-                        .with(\.$availabilityInfo)
-                        .with(\.$badges)
-                }
-        } else {
-            return addFilters(filters, to: productsQuery)
-        }
-    }
-
-    private func addFilters(_ filters: FilterQueryRequest?, to query: QueryBuilder<Product>) -> QueryBuilder<Product> {
-        query
-            .join(ProductVariant.self,
-                  on: \Product.$id == \ProductVariant.$product.$id
-                    && \ProductVariant.$article == \Product.$defaultVariantArticle)
-            .join(ProductVariantsPropertyValues.self,
-                  on: \ProductVariant.$id == \ProductVariantsPropertyValues.$productVariant.$id)
-            .join(PropertyValue.self,
-                  on: \ProductVariantsPropertyValues.$propertyValue.$id == \PropertyValue.$id)
-            .join(ProductProperty.self, on: \PropertyValue.$productProperty.$id == \ProductProperty.$id)
-
-        filters?.filters?.forEach { key, values in
-            query
-                .filter(ProductProperty.self, \.$code == key)
-                .filter(PropertyValue.self, \.$value ~~ values)
-        }
-
-        switch filters?.sort {
-        case "price": query
-                .join(Price.self, on: \ProductVariant.$id == \Price.$productVariant.$id)
-                .sort(Price.self, \.$price, .ascending)
-
-        case "-price": query
-                .join(Price.self, on: \ProductVariant.$id == \Price.$productVariant.$id)
-                .sort(Price.self, \.$price, .descending)
-
-        case "name": 
-            query.sort(\Product.$name)
-
-        case "-name":
-            query.sort(\Product.$name, .descending)
-
-        default:
-            break
-
-        }
-
-        return query
+        return productsQuery
+            .with(\.$images)
+            .with(\.$variants) { variant in
+                variant
+                    .with(\.$price)
+                    .with(\.$availabilityInfo)
+                    .with(\.$badges)
+            }
     }
 
     private func getCategoriesIDs(for category: Category) async throws -> [UUID] {
@@ -233,31 +209,26 @@ final class ProductsRepository: ProductsRepositoryProtocol {
         return result
     }
 
-    private func getRawSQL(for categoriesIDs: [UUID], productsIDs: [UUID]?) -> SQLQueryString {
-        """
-        SELECT
-            P_PROPERTY.CODE AS PROPERTY_CODE,
-            P_PROPERTY.NAME AS PROPERTY_NAME,
-            P_VALUE.VALUE AS PROPERTY_VALUE,
-            COUNT(DISTINCT P.ID) AS COUNT
-        FROM
-            PROPERTY_VALUES P_VALUE
-            JOIN "product_variants+property_values" PVPV ON P_VALUE.ID = PVPV.PROPERTY_VALUE_ID
-            JOIN PRODUCT_VARIANTS PV ON PVPV.PRODUCT_VARIANT_ID = PV.ID
-            JOIN PRODUCTS P ON PV.PRODUCT_ID = P.ID
-            JOIN "categories+products" CPP ON P.ID = CPP.PRODUCT_ID
-            JOIN PRODUCT_PROPERTIES P_PROPERTY ON P_VALUE.PRODUCT_PROPERTY_ID = P_PROPERTY.ID
-        WHERE
-            \(unsafeRaw: productsIDs == nil || productsIDs?.isEmpty == true
-                ? ""
-                : "P.ID IN (\(productsIDs!.map { "'\($0.uuidString)'" }.joined(separator: ","))) AND")
-            CPP.CATEGORY_ID IN (\(unsafeRaw: categoriesIDs.map { "'\($0.uuidString)'" }.joined(separator: ",")))
-        GROUP BY
-            P_PROPERTY.CODE,
-            P_PROPERTY.NAME,
-            P_VALUE.VALUE
-        """
+    private func getFilteredProducts(for categoriesIDs: [UUID]?, filters: FilterQueryRequest?) async throws -> [UUID]? {
+        guard filters?.filters != nil || filters?.sort != nil else { return nil }
+
+        let rawBuilder = FilteredProductsBuilder()
+
+        if let categoriesIDs {
+            rawBuilder.setCategoriesWhereCondition(for: categoriesIDs)
+        }
+
+        if let filters = filters?.filters {
+            rawBuilder.setFiltersWhereCondition(for: filters)
+        }
+
+        guard let rawSQL = rawBuilder.build(), let sqlDatabase = database as? SQLDatabase else {
+            return nil
+        }
+
+        return try? await sqlDatabase.raw(rawSQL)
+            .all(decodingFluent: Product.self)
+            .map({ try  $0.requireID() })
     }
 
 }
-
