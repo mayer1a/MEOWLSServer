@@ -10,6 +10,7 @@ import Vapor
 struct DaDataRequest: Content {
 
     let query: String
+    let ip: String?
     let fromBound: Bound?
     let toBound: Bound?
     let locations: [Location]?
@@ -19,6 +20,7 @@ struct DaDataRequest: Content {
 
     enum CodingKeys: String, CodingKey {
         case query
+        case ip
         case fromBound = "from_bound"
         case toBound = "to_bound"
         case locations
@@ -27,6 +29,7 @@ struct DaDataRequest: Content {
     }
 
     init(query: String,
+         ip: String? = nil,
          from fromBound: Bound? = nil,
          to toBound: Bound? = nil,
          locations: [Location]? = nil,
@@ -34,6 +37,7 @@ struct DaDataRequest: Content {
          parts: [Part]? = nil) {
 
         self.query = query
+        self.ip = ip
         self.fromBound = fromBound
         self.toBound = toBound
         self.locations = locations

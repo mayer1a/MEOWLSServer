@@ -19,7 +19,13 @@ extension DTOFactory {
     }
 
     static func makeCity(from city: City) throws -> CityDTO {
-        CityDTO(id: try city.requireID(), name: city.name)
+        CityDTO(id: try city.requireID(), name: city.name, location: makeLocation(from: city.location))
+    }
+
+    static func makeLocation(from location: Location?) -> LocationDTO? {
+        guard let location else { return nil }
+
+        return LocationDTO(latitude: location.latitude, longitude: location.longitude)
     }
 
 }
