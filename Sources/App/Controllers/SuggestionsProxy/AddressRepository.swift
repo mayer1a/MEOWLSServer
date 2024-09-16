@@ -7,7 +7,6 @@
 
 import Vapor
 import Fluent
-import CoreLocation
 
 protocol AddressRepositoryProtocol: Sendable {
 
@@ -114,14 +113,12 @@ final class AddressRepository: AddressRepositoryProtocol {
     }
 
     private func sortCities(_ cities: [CityDTO], by location: LocationDTO?) -> [CityDTO] {
-        guard let location = location?.location else {
-            return cities
-        }
-        
+        guard let location else { return cities }
+
         return nearest(of: cities, to: location)
     }
 
-    func nearest(of cities: [CityDTO], to location: CLLocation) -> [CityDTO] {
+    func nearest(of cities: [CityDTO], to location: LocationDTO) -> [CityDTO] {
         cities.sorted {
             guard
                 let leftCoordinate = $0.location?.coordinate,
@@ -130,10 +127,10 @@ final class AddressRepository: AddressRepositoryProtocol {
                 return false
             }
 
-            let leftLocation = CLLocation(latitude: leftCoordinate.latitude, longitude: leftCoordinate.longitude)
-            let rightLocation = CLLocation(latitude: rightCoordinate.latitude, longitude: rightCoordinate.longitude)
-            
-            return leftLocation.distance(from: location) < rightLocation.distance(from: location)
+            let leftDistance = DistanceHelper.distanceBetween(leftCoordinate, location)
+            let rightDistance = DistanceHelper.distanceBetween(rightCoordinate, location)
+
+            return leftDistance < rightDistance
         }
     }
 
