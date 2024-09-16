@@ -5,7 +5,7 @@
 //  Created by Artem Mayer on 16.09.2024.
 //
 
-import MapKit
+import CoreLocation
 
 public protocol Coordinatable {
 
