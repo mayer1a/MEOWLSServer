@@ -7,7 +7,7 @@
 
 import Vapor
 import Fluent
-import MapKit
+import CoreLocation
 
 protocol AddressRepositoryProtocol: Sendable {
 
