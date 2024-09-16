@@ -7,13 +7,9 @@
 
 import Vapor
 
-extension AddressDTO {
+struct LocationDTO: Content, Coordinatable {
 
-    struct LocationDTO: Content {
-
-        let latitude: Double
-        let longitude: Double
-
-    }
+    let latitude: Double
+    let longitude: Double
 
 }

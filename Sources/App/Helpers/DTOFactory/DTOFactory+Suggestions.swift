@@ -64,18 +64,20 @@ extension DTOFactory {
                           entrance: entrance,
                           floor: floor,
                           formatted: formatted,
-                          location: address.location)
+                          location: address.location ?? suggestion.location)
     }
 
     static func makeAddress(from address: Address?, for type: AddressDTO.SaveType) throws -> AddressDTO {
 
         guard let address else { throw ErrorFactory.badRequest(.addressNotFound, failures: [.addressType(type)]) }
 
-        let city = try AddressDTO.CityDTO(id: address.city.requireID(), name: address.city.name)
-        var location: AddressDTO.LocationDTO?
+        let city = try AddressDTO.CityDTO(id: address.city.requireID(),
+                                          name: address.city.name,
+                                          location: makeLocation(from: address.location))
+        var location: LocationDTO?
 
         if let latitude = address.location?.latitude, let longitude = address.location?.longitude {
-            location = AddressDTO.LocationDTO(latitude: latitude, longitude: longitude)
+            location = LocationDTO(latitude: latitude, longitude: longitude)
         }
 
         return AddressDTO(city: city,

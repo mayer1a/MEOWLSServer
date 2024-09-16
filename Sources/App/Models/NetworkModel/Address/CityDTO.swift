@@ -13,6 +13,7 @@ extension AddressDTO {
 
         let id: UUID
         let name: String
+        let location: LocationDTO?
 
     }
 

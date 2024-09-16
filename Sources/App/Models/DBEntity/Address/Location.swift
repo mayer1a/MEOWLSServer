@@ -8,33 +8,34 @@
 import Vapor
 import Fluent
 
-extension Address {
+final class Location: Model, Content, @unchecked Sendable, Coordinatable {
 
-    final class Location: Model, Content, @unchecked Sendable {
+    static let schema = "locations"
 
-        static let schema = "locations"
+    @ID(key: .id)
+    var id: UUID?
 
-        @ID(key: .id)
-        var id: UUID?
+    @OptionalParent(key: "address_id")
+    var address: Address?
 
-        @Parent(key: "address_id")
-        var address: Address
+    @OptionalParent(key: "city_id")
+    var city: City?
 
-        @Field(key: "latitude")
-        var latitude: Double
+    @Field(key: "latitude")
+    var latitude: Double
 
-        @Field(key: "longitude")
-        var longitude: Double
+    @Field(key: "longitude")
+    var longitude: Double
 
-        init() {}
+    init() {}
 
-        init(id: UUID? = nil, addressID: Address.IDValue, latitude: Double, longitude: Double) {
-            self.id = id
-            self.$address.id = addressID
-            self.latitude = latitude
-            self.longitude = longitude
-        }
-
+    init(id: UUID? = nil, addressID: Address.IDValue? = nil, cityID: City.IDValue? = nil, latitude: Double, longitude: Double) {
+        self.id = id
+        self.$address.id = addressID
+        self.$city.id = cityID
+        self.latitude = latitude
+        self.longitude = longitude
     }
 
 }
+
