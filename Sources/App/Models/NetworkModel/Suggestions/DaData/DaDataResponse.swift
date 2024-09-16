@@ -10,6 +10,13 @@ import Vapor
 struct DaDataResponse: Content {
 
     let suggestions: [Suggestion]
+    let location: Suggestion?
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.suggestions = try container.decodeIfPresent([Suggestion].self, forKey: .suggestions) ?? []
+        self.location = try? container.decodeIfPresent(Suggestion.self, forKey: .location)
+    }
 
 }
 
@@ -33,8 +40,18 @@ extension DaDataResponse {
         var patronymic: String? {
             data["patronymic"] ?? nil
         }
+        var location: LocationDTO? {
+            guard
+                let latitude = data["geo_lat"] ?? nil, let latitudeDouble = Double(latitude),
+                let longitude = data["geo_lon"] ?? nil, let longitudeDouble = Double(longitude)
+            else {
+                return nil
+            }
+
+            return LocationDTO(latitude: latitudeDouble, longitude: longitudeDouble)
+        }
         var gender: User.Gender? {
-            
+
             switch data["gender"] {
             case "MALE": 
                 return .man

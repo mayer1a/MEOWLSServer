@@ -32,7 +32,12 @@ struct SuggestionsController: RouteCollection {
     }
 
     @Sendable func getCities(_ request: Request) async throws -> [CityDTO] {
-        try await addressRepository.getCities()
+        let clientIP = request.headers.forwarded.first?.for ?? request.remoteAddress?.ipAddress
+        let body = DaDataRequest(query: "", ip: clientIP)
+        let response = try? await send(request: request, url: AppConstants.shared.daDataIPAddressURI, body: body)
+        let daDataResponse = try? response?.content.decode(DaDataResponse.self)
+
+        return try await addressRepository.getCities(for: daDataResponse?.location?.location)
     }
 
     // MARK: - Address

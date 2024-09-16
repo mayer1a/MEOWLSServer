@@ -27,6 +27,9 @@ final class City: Model, Content, @unchecked Sendable {
     @Children(for: \.$city)
     var addresses: [Address]
 
+    @OptionalChild(for: \.$city)
+    var location: Location?
+
     init() {}
 
     init(id: UUID? = nil, regionID: Region.IDValue, name: String, cityTimeZone: String) {

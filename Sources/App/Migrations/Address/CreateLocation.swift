@@ -13,7 +13,8 @@ struct CreateLocation: AsyncMigration {
         
         try await database.schema("locations")
             .id()
-            .field("address_id", .uuid, .required, .references("addresses", "id", onDelete: .cascade))
+            .field("address_id", .uuid, .references("addresses", "id", onDelete: .cascade))
+            .field("city_id", .uuid, .references("cities", "id", onDelete: .cascade))
             .field("latitude", .double, .required)
             .field("longitude", .double, .required)
             .unique(on: "address_id")

@@ -13,11 +13,13 @@ struct AppConstants {
 
     private init() {
         daDataAddressURI = URI(string: "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address")
+        daDataIPAddressURI = URI(string: "https://suggestions.dadata.ru/suggestions/api/4_1/rs/iplocate/address")
         daDataFullnameURI = URI(string: "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/fio")
         token = ""
     }
 
     let daDataAddressURI: URI
+    let daDataIPAddressURI: URI
     let daDataFullnameURI: URI
 
     var daDataToken: String {
