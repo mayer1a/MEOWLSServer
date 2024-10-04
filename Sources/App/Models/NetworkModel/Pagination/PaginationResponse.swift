@@ -12,4 +12,9 @@ struct PaginationResponse<D: Codable>: Content {
     var results: [D]
     let paginationInfo: PaginationInfo
 
+    enum CodingKeys: String, CodingKey {
+        case results
+        case paginationInfo = "pagination_info"
+    }
+
 }
