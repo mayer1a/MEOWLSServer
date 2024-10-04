@@ -6,6 +6,7 @@
 - [Избранное](#избранное)
 - [Главная / Баннеры](#главная--баннеры)
 - [Товары](#товары)
+- [Фильтры и сортировка](#фильтры-и-сортировка)
 - [Акции](#акции)
 - [Поиск](#поиск)
 - [Подсказки. Адреса](#подсказки-адреса)
@@ -31,16 +32,28 @@ curl --location 'localhost:8080/api/v1/cities'
 [
   {
     "name": "Новосибирск",
-    "id": "8DEA00E3-9AAB-4D8E-887C-EF2AAA546456"
+    "id": "8DEA00E3-9AAB-4D8E-887C-EF2AAA546456",
+    "location": {
+      "latitude": 55.028141,
+      "longitude": 82.921117
+    }
   },
   {
     "id": "140E31DA-27BF-4519-9EA0-6185D681D44E",
-    "name": "Омск"
+    "name": "Омск",
+    "location": {
+      "latitude": 54.984912,
+      "longitude": 73.367525
+    }
   },
   ...,
   {
     "name": "Самара",
-    "id": "BB035CC3-1DC2-4627-9D25-A1BF2D4B936B"
+    "id": "BB035CC3-1DC2-4627-9D25-A1BF2D4B936B",
+    "location": {
+      "latitude": 53.195096,
+      "longitude": 50.106868
+    }
   }
 ]
 ```
@@ -407,12 +420,12 @@ curl --location 'localhost:8080/api/v1/categories?category_id=E4960D2C-CA4C-466A
 
 ## Избранное
 
-### Избранные товары пользователя `GET api/v1/favorites`
+### Избранные товары пользователя `GET api/v1/favorites?per_page={PAGE_SIZE}&page={PAGE_NUMBER}`
 
 **Request**
 
 ```zsh
-curl --location 'localhost:8080/api/v1/favorites' \
+curl --location 'localhost:8080/api/v1/favorites?per_page=20&page=1' \
 --header 'Authorization: Token Ld0J7jrtrJMnsL2dVMTINP2n/9e7Ps472125NTESOeg='
 ```
   
@@ -420,8 +433,7 @@ curl --location 'localhost:8080/api/v1/favorites' \
 
 ```json
 {
-  "id": "82D6FA5A-EE1A-4E21-97A7-71B7C83AEDE8",
-  "products": [
+  "results": [
     {
       "images": [
         {
@@ -562,7 +574,12 @@ curl --location 'localhost:8080/api/v1/favorites' \
       "code": "wonderfur_sterilised_indeyka_telyatina_dlya_koshek",
       "id": "4FB41070-155F-416A-8996-325AB9B48506"
     }
-  ]
+  ],
+  "pagination_info": {
+    "per_page": 20,
+    "page": 1,
+    "total_count": 4
+  }
 }
 ```
 
@@ -628,14 +645,14 @@ curl --location 'localhost:8080/api/v1/main_page'
 [
   {
     "ui_settings": {
-      "cornerRadiuses": {
+      "corner_radiuses": {
         "top_right": 16,
         "bottom_left": 0,
         "top_left": 16,
         "bottom_right": 0
       },
-      "backgroundColor": "#ffffff",
-      "autoSlidingTimeout": 5000,
+      "background_color": "#ffffff",
+      "auto_sliding_timeout": 5000,
       "spasings": {
         "bottom": 0,
         "top": 0
@@ -718,13 +735,13 @@ curl --location 'localhost:8080/api/v1/main_page'
     "title": "Мы рекомендуем",
     "id": "18DE2CC4-386D-46D2-B3B2-7A75DCC4119D",
     "ui_settings": {
-      "cornerRadiuses": {
+      "corner_radiuses": {
         "bottom_right": 16,
         "bottom_left": 16,
         "top_right": 16,
         "top_left": 16
       },
-      "backgroundColor": "#ffffff",
+      "background_color": "#ffffff",
       "spasings": {
         "bottom": 12,
         "top": 0
@@ -840,7 +857,7 @@ curl --location 'localhost:8080/api/v1/products?category_id=CC924CC5-9A10-4EC4-9
       "default_variant_article": "15279"
     }
   ],
-  "paginationInfo": {
+  "pagination_info": {
     "per_page": 20,
     "next_page": 2,
     "page": 1,
@@ -943,7 +960,7 @@ curl --location 'localhost:8080/api/v1/products?sale_id=4c36584a-a423-420d-9804-
       "code": "vertlyug_2_sredniy_otech_razborn"
     }
   ],
-  "paginationInfo": {
+  "pagination_info": {
     "next_page": 2,
     "page": 1,
     "total_count": 34,
@@ -1057,6 +1074,290 @@ curl --location 'localhost:8080/api/v1/products/D7D1492D-850F-4B72-B60C-9CB9B3B9
 
 ---
 
+## Фильтры и сортировка
+
+### Доступные фильтры для уже выбранных фильтров
+### `GET api/v1/filters?category_id={CATEGORY_ID}&filters[{FILTER_NAME}]={FILTER_VALUE}[&sort=[SORT_VALUE]]`
+### | Поддерживается и кириллица. Обязательный параметр только category_id |
+
+**Request**
+
+```zsh
+curl --location 'localhost:8080/api/v1/filters?category_id=2f509f23-57f7-49d6-b1b6-abec6e1f0a46&filters[brand]=Grandorf&filters[brand]=%D0%9C%D0%B8%D1%80%D0%B0%D1%82%D0%BE%D1%80%D0%B3&filters[weight]=400%20%D0%B3&filters[age]=%D0%B2%D0%B7%D1%80%D0%BE%D1%81%D0%BB%D1%8B%D0%B5%20(1-6)'
+```
+
+**Response**
+
+```json
+[
+  {
+    "type": "single",
+    "values": [
+      {
+        "value": "index",
+        "display_name": "По умолчанию"
+      },
+      {
+        "value": "price",
+        "display_name": "Сначала дешевые"
+      },
+      ...,
+      {
+        "value": "-name",
+        "display_name": "По названию (Я-а)"
+      }
+    ],
+    "display_name": "Сортировка",
+    "default_value": "index",
+    "name": "sort"
+  },
+  {
+    "type": "multiple",
+    "values": [
+      {
+        "value": "AJO",
+        "count": 4,
+        "display_name": "AJO"
+      },
+      {
+        "value": "Alleva",
+        "count": 3,
+        "display_name": "Alleva"
+      },
+      ...,
+      {
+        "value": "Наша Марка",
+        "count": 1,
+        "display_name": "Наша Марка"
+      }
+    ],
+    "display_name": "Бренд",
+    "name": "brand"
+  },
+  {
+    "type": "multiple",
+    "values": [
+      {
+        "display_name": "1,2 кг",
+        "count": 4,
+        "value": "1,2 кг"
+      },
+      {
+        "display_name": "1,5 кг",
+        "count": 48,
+        "value": "1,5 кг"
+      },
+      ...,
+      {
+        "display_name": "80 г",
+        "count": 12,
+        "value": "80 г"
+      }
+    ],
+    "display_name": "Вес",
+    "name": "weight"
+  },
+  {
+    "type": "multiple",
+    "values": [
+      {
+        "value": "взрослые (1-6)",
+        "display_name": "взрослые (1-6)",
+        "count": 109
+      },
+      {
+        "value": "для всех возрастов",
+        "display_name": "для всех возрастов",
+        "count": 1
+      },
+      ...,
+      {
+        "value": "от 1 года",
+        "display_name": "от 1 года",
+        "count": 11
+      }
+    ],
+    "display_name": "Возраст",
+    "name": "age"
+  },
+  {
+    "type": "multiple",
+    "values": [
+      {
+        "display_name": "беззерновой",
+        "count": 7,
+        "value": "беззерновой"
+      },
+      {
+        "display_name": "ветеринарная диета",
+        "count": 8,
+        "value": "ветеринарная диета"
+      },
+      ...,
+      {
+        "display_name": "чувствительное пищеварение",
+        "count": 16,
+        "value": "чувствительное пищеварение"
+      }
+    ],
+    "display_name": "Свойства корма",
+    "name": "feed_properties"
+  },
+  {
+    "type": "multiple",
+    "values": [
+      {
+        "value": "для котят",
+        "count": 1,
+        "display_name": "для котят"
+      },
+      {
+        "value": "для кошек",
+        "count": 114,
+        "display_name": "для кошек"
+      }
+    ],
+    "display_name": "Тип животного",
+    "name": "pet_type"
+  },
+  {
+    "type": "multiple",
+    "values": [
+      {
+        "count": 4,
+        "value": "конс.",
+        "display_name": "конс."
+      },
+      {
+        "count": 12,
+        "value": "пауч",
+        "display_name": "пауч"
+      }
+    ],
+    "display_name": "Тип упаковки",
+    "name": "pack_type"
+  }
+]
+```
+
+---
+
+### Отсортированные товары удовлетворяющие фильтрам `GET localhost:8080/api/v1/products?category_id={CATEGORY_ID}&filters[{FILTER_NAME1}]={FILTER_VALUE1}&filters[{FILTER_NAME2}]={FILTER_VALUE2}&per_page={PAGE_SIZE}&page={PAGE_NUMBER}`
+### | Поддерживается и кириллица. Обязательный параметр только category_id |
+
+**Request**
+
+```zsh
+curl --location --globoff 'localhost:8080/api/v1/products?category_id=2f509f23-57f7-49d6-b1b6-abec6e1f0a46&filters[brand]=Grandorf&filters[brand]=%D0%9C%D0%B8%D1%80%D0%B0%D1%82%D0%BE%D1%80%D0%B3&filters[weight]=400%20%D0%B3&filters[age]=%D0%B2%D0%B7%D1%80%D0%BE%D1%81%D0%BB%D1%8B%D0%B5%20(1-6)&per_page=20&page=1' \
+--header 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8'
+```
+
+**Response**
+
+```json
+{
+  "pagination_info": {
+    "page": 1,
+    "per_page": 20,
+    "total_count": 5
+  },
+  "results": [
+    {
+      "allow_quick_buy": false,
+      "default_variant_article": "36783",
+      "name": "Мираторг Extra Meat Телятина для стерилизованных кошек",
+      "variants": [
+        {
+          "availability_info": {
+            "count": 2,
+            "type": "available"
+          },
+          "article": "36783",
+          "short_name": "400 г",
+          "badges": [],
+          "price": {
+            "original_price": 258,
+            "price": 258
+          },
+          "id": "DD0930FF-A4B4-44F7-A456-DF8EE3B5C88C"
+        },
+        {
+          "availability_info": {
+            "count": 0,
+            "type": "delivery"
+          },
+          "article": "36771",
+          "short_name": "1,2 кг",
+          "badges": [],
+          "price": {
+            "price": 593,
+            "original_price": 593
+          },
+          "id": "9C4632EF-33A0-40B0-A0C1-DD4115158D63"
+        }
+      ],
+      "code": "miratorg_extra_meat_telyatina_dlya_sterilizovannykh_koshek",
+      "images": [
+        {
+          "medium": "https://static.artemayer.ru/images/site/catalog/480x480/2_36624_1670309718.jpeg",
+          "small": "https://static.artemayer.ru/images/site/catalog/192x200/2_36624_1670309718.jpeg",
+          "large": "https://static.artemayer.ru/images/site/catalog/700x700/2_36624_1670309718.jpeg",
+          "original": "https://static.artemayer.ru/images/site/catalog/2_36624_1670309718.jpeg"
+        }
+      ],
+      "id": "59F56561-B8F4-48DD-88A7-DC37D2C426E9"
+    },
+    ...,
+    {
+      "allow_quick_buy": false,
+      "default_variant_article": "36785",
+      "name": "Мираторг Pro Meat Кролик для стерилизованных кошек",
+      "variants": [
+        {
+          "price": {
+            "original_price": 382,
+            "price": 382
+          },
+          "short_name": "400 г",
+          "availability_info": {
+            "count": 2,
+            "type": "available"
+          },
+          "id": "7152459C-54CF-4D67-805F-442AA3398189",
+          "badges": [],
+          "article": "36785"
+        },
+        {
+          "price": {
+            "original_price": 1228,
+            "price": 1228
+          },
+          "short_name": "1,5 кг",
+          "availability_info": {
+            "type": "available",
+            "count": 3
+          },
+          "id": "5364BBBF-4C71-4ED2-A868-73FFF31D2A5C",
+          "badges": [],
+          "article": "36784"
+        }
+      ],
+      "code": "miratorg_pro_meat_krolik_dlya_sterilizovannykh_koshek",
+      "images": [
+        {
+          "original": "https://static.artemayer.ru/images/site/catalog/2_36623_1670307196.jpeg",
+          "medium": "https://static.artemayer.ru/images/site/catalog/480x480/2_36623_1670307196.jpeg",
+          "small": "https://static.artemayer.ru/images/site/catalog/192x200/2_36623_1670307196.jpeg",
+          "large": "https://static.artemayer.ru/images/site/catalog/700x700/2_36623_1670307196.jpeg"
+        }
+      ],
+      "id": "E288F6E0-0E57-48C2-95F0-3C5F19F7FB82"
+    }
+  ]
+}
+```
+---
+
 ## Акции
 
 ### Список акций `GET api/v1/sales?sale_type={online|offline}&page=1&per_page=20`
@@ -1098,7 +1399,7 @@ curl --location 'localhost:8080/api/v1/sales?sale_type=online&page=1&per_page=20
       "end_date": "2024-10-31T00:00:00Z"
     }
   ],
-  "paginationInfo": {
+  "pagination_info": {
     "per_page": 20,
     "page": 1,
     "total_count": 12
@@ -1804,7 +2105,7 @@ curl --location 'localhost:8080/api/v1/checkout/available_dates' \
 ```json
 [
   {
-    "availableTimeIntervals": [
+    "available_time_intervals": [
       {
         "to": "14:00",
         "from": "10:00",
@@ -1825,7 +2126,7 @@ curl --location 'localhost:8080/api/v1/checkout/available_dates' \
   },
   ...,
   {
-    "availableTimeIntervals": [
+    "available_time_intervals": [
       {
         "from": "10:00",
         "to": "14:00",
@@ -2018,7 +2319,7 @@ curl --location 'localhost:8080/api/v1/orders' \
 
 ```json
 {
-  "paginationInfo": {
+  "pagination_info": {
     "total_count": 4,
     "page": 1,
     "per_page": 20

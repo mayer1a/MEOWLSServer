@@ -12,4 +12,9 @@ struct AvailableDateDTO: Content {
     let date: String
     let availableTimeIntervals: [DeliveryDTO.DeliveryTimeIntervalDTO]
 
+    enum CodingKeys: String, CodingKey {
+        case date
+        case availableTimeIntervals = "available_time_intervals"
+    }
+
 }

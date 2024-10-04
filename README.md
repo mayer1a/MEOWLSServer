@@ -223,7 +223,7 @@ docker run --restart=always \
 ### Примеры использования API
 
 > [!TIP]
-> Все запросы описаны в [файле ROUTES.MD](.github/Resources/ROUTES.MD)
+> Все запросы описаны в [файле ROUTES.MD](ROUTES.MD)
 
 #### Регистрация пользователя
 

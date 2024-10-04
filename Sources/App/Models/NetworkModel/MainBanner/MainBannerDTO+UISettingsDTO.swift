@@ -17,6 +17,14 @@ extension MainBannerDTO {
         let autoSlidingTimeout: Int?
         let metrics: [MetricDTO]?
 
+        enum CodingKeys: String, CodingKey {
+            case backgroundColor = "background_color"
+            case spasings
+            case cornerRadiuses = "corner_radiuses"
+            case autoSlidingTimeout = "auto_sliding_timeout"
+            case metrics
+        }
+
     }
 
 }
