@@ -11,4 +11,8 @@ struct PurchaseResultDTO: Content {
 
     let orderNumber: String
 
+    enum CodingKeys: String, CodingKey {
+        case orderNumber = "order_number"
+    }
+
 }
