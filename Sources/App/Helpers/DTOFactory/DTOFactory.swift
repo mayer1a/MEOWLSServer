@@ -38,10 +38,9 @@ struct DTOFactory {
 
     // MARK: - Favorites
 
-    static func makeFavorites(from model: Favorites) throws -> FavoritesDTO {
-
-        let products = try makeProducts(from: model.products)
-        return FavoritesDTO(id: try model.requireID(), products: products?.reversed() ?? [])
+    static func makeFavorites(from products: [Product]) throws -> [ProductDTO] {
+        let products = try makeProducts(from: products)
+        return products?.reversed() ?? []
     }
 
     // MARK: - Category

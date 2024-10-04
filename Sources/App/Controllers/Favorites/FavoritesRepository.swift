@@ -11,7 +11,7 @@ import Fluent
 protocol FavoritesRepositoryProtocol: Sendable {
 
     func add(_ user: User) async throws
-    func get(for user: User) async throws -> FavoritesDTO
+    func get(for user: User, with page: PageRequest) async throws -> PaginationResponse<ProductDTO>
     func update(productsIDs: [Product.IDValue], for user: User) async throws
     func delete(productsIDs: [Product.IDValue], for user: User) async throws
 
@@ -30,9 +30,11 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
         try await favorites.save(on: database)
     }
 
-    func get(for user: User) async throws -> FavoritesDTO {
-        let favorites = try await eagerLoadFavorites(userID: user.requireID())
-        return try DTOFactory.makeFavorites(from: favorites)
+    func get(for user: User, with page: PageRequest) async throws -> PaginationResponse<ProductDTO> {
+        let paginationFavorites = try await eagerLoadFavorites(for: user.requireID(), with: page)
+        let productsDTO = try DTOFactory.makeFavorites(from: paginationFavorites.results)
+
+        return PaginationResponse(results: productsDTO, paginationInfo: paginationFavorites.paginationInfo)
     }
 
     func update(productsIDs: [Product.IDValue], for user: User) async throws {
@@ -65,24 +67,23 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
         }
     }
 
-    private func eagerLoadFavorites(userID: UUID) async throws -> Favorites {
-        let favorites = try await Favorites.query(on: database)
-            .filter(\.$user.$id == userID)
-            .with(\.$products, { product in
-                product
-                    .with(\.$images)
-                    .with(\.$variants) { variant in
-                        variant
-                            .with(\.$price)
-                            .with(\.$availabilityInfo)
-                            .with(\.$badges)
-                    }
+    private func eagerLoadFavorites(for userID: UUID,
+                                    with page: PageRequest) async throws -> PaginationResponse<Product> {
+
+        let products = try await Product.query(on: database)
+            .join(FavoritesProductsPivot.self, on: \Product.$id == \FavoritesProductsPivot.$product.$id)
+            .join(Favorites.self, on: \FavoritesProductsPivot.$favorites.$id == \Favorites.$id)
+            .filter(Favorites.self, \.$user.$id == userID)
+            .with(\.$images)
+            .with(\.$variants, { variant in
+                variant
+                    .with(\.$price)
+                    .with(\.$availabilityInfo)
+                    .with(\.$badges)
             })
-            .first()
+            .paginate(with: page)
 
-        guard let favorites else { throw ErrorFactory.internalError(.fetchFavoritesError) }
-
-        return favorites
+        return products
     }
 
 }
