@@ -13,7 +13,10 @@ struct DTOFactory {
 
     // MARK: - User
 
-    static func makeUser(from model: User, with token: Token? = nil, fullModel: Bool = true) throws -> User.PublicDTO {
+    static func makeUser(from model: User,
+                         with token: Token? = nil,
+                         favorites: [UUID]? = nil,
+                         fullModel: Bool = true) throws -> User.PublicDTO {
 
         var userBuilder = UserPublicBuilder()
             .setSurname(model.surname)
@@ -27,6 +30,7 @@ struct DTOFactory {
                 .setId(try model.requireID())
                 .setBirthday(model.birthday)
                 .setGender(model.gender)
+                .setFavoritesItems(favorites)
         }
 
         if let token {
@@ -42,6 +46,11 @@ struct DTOFactory {
         let products = try makeProducts(from: products)
         return products?.reversed() ?? []
     }
+
+    static func makeFavoritesCount(from count: Int) -> FavoritesCountDTO {
+        FavoritesCountDTO(favoritesProductsCount: count)
+    }
+
 
     // MARK: - Category
 
