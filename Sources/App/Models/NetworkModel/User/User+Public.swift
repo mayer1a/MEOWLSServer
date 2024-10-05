@@ -20,6 +20,12 @@ extension User {
         let email: String?
         let phone: String
         let authentication: Authentication?
+        let favoriteItems: [UUID]?
+
+        enum CodingKeys: String, CodingKey {
+            case id, surname, name, patronymic, birthday, gender, email, phone, authentication
+            case favoriteItems = "favorite_items"
+        }
 
     }
 

@@ -18,6 +18,7 @@ final class UserPublicBuilder {
     private var email: String?
     private var phone: String?
     private var authentication: Authentication?
+    private var favoritesItems: [UUID]?
 
     func setId(_ id: UUID?) -> UserPublicBuilder {
         self.id = id
@@ -64,6 +65,11 @@ final class UserPublicBuilder {
         return self
     }
 
+    func setFavoritesItems(_ favoritesItems: [UUID]?) -> UserPublicBuilder {
+        self.favoritesItems = favoritesItems
+        return self
+    }
+
     func build() throws -> User.PublicDTO {
         guard let phone else { throw ErrorFactory.badRequest(.phoneRequired) }
 
@@ -75,7 +81,8 @@ final class UserPublicBuilder {
                               gender: gender,
                               email: email,
                               phone: phone,
-                              authentication: authentication)
+                              authentication: authentication,
+                              favoriteItems: favoritesItems)
     }
 
 }
