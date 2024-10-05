@@ -17,6 +17,7 @@ struct FavoritesController: RouteCollection {
 
         let tokenAuthGroup = favorites.grouped(Token.authenticator(), User.guardMiddleware())
         tokenAuthGroup.get("", use: get)
+        tokenAuthGroup.get("count", use: getCount)
         tokenAuthGroup.post("star", use: starProduct)
         tokenAuthGroup.post("unstar", use: unstarProduct)
     }
@@ -25,6 +26,12 @@ struct FavoritesController: RouteCollection {
         guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
         let page = try request.query.decode(PageRequest.self)
         return try await favoritesRepository.get(for: user, with: page)
+    }
+
+    @Sendable private func getCount(_ request: Request) async throws -> FavoritesCountDTO {
+        guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
+
+        return try await favoritesRepository.getCount(for: user)
     }
 
     @Sendable private func starProduct(_ request: Request) async throws -> DummyResponse {

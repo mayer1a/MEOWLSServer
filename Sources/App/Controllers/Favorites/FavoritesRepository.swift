@@ -12,6 +12,8 @@ protocol FavoritesRepositoryProtocol: Sendable {
 
     func add(_ user: User) async throws
     func get(for user: User, with page: PageRequest) async throws -> PaginationResponse<ProductDTO>
+    func get(for user: User) async throws -> [UUID]?
+    func getCount(for user: User) async throws -> FavoritesCountDTO
     func update(productsIDs: [Product.IDValue], for user: User) async throws
     func delete(productsIDs: [Product.IDValue], for user: User) async throws
 
@@ -35,6 +37,14 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
         let productsDTO = try DTOFactory.makeFavorites(from: paginationFavorites.results)
 
         return PaginationResponse(results: productsDTO, paginationInfo: paginationFavorites.paginationInfo)
+    }
+
+    func get(for user: User) async throws -> [UUID]? {
+        try await buildQuery(for: user.requireID()).all(\.$id)
+    }
+
+    func getCount(for user: User) async throws -> FavoritesCountDTO {
+        DTOFactory.makeFavoritesCount(from: try await buildQuery(for: user.requireID()).aggregate(.count, \.$id))
     }
 
     func update(productsIDs: [Product.IDValue], for user: User) async throws {
@@ -70,10 +80,7 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
     private func eagerLoadFavorites(for userID: UUID,
                                     with page: PageRequest) async throws -> PaginationResponse<Product> {
 
-        let products = try await Product.query(on: database)
-            .join(FavoritesProductsPivot.self, on: \Product.$id == \FavoritesProductsPivot.$product.$id)
-            .join(Favorites.self, on: \FavoritesProductsPivot.$favorites.$id == \Favorites.$id)
-            .filter(Favorites.self, \.$user.$id == userID)
+        let products = try await buildQuery(for: userID)
             .with(\.$images)
             .with(\.$variants, { variant in
                 variant
@@ -84,6 +91,13 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
             .paginate(with: page)
 
         return products
+    }
+
+    private func buildQuery(for userID: UUID) -> QueryBuilder<Product> {
+        Product.query(on: database)
+            .join(FavoritesProductsPivot.self, on: \Product.$id == \FavoritesProductsPivot.$product.$id)
+            .join(Favorites.self, on: \FavoritesProductsPivot.$favorites.$id == \Favorites.$id)
+            .filter(Favorites.self, \.$user.$id == userID)
     }
 
 }

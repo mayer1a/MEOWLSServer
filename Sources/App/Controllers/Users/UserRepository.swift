@@ -55,12 +55,14 @@ final class UserRepository: UserRepositoryProtocol {
 
     func get(_ user: User, withToken: Bool = false) async throws -> User.PublicDTO {
         let token = try await user.$token.get(on: database)
-        return try DTOFactory.makeUser(from: user, with: withToken ? token : nil)
+        let favorites = try? await favoritesRepository.get(for: user)
+        return try DTOFactory.makeUser(from: user, with: withToken ? token : nil, favorites: favorites)
     }
 
     func refreshToken(for user: User) async throws -> User.PublicDTO {
         let token = try await tokenRepository.update(for: user)
-        return try DTOFactory.makeUser(from: user, with: token)
+        let favorites = try? await favoritesRepository.get(for: user)
+        return try DTOFactory.makeUser(from: user, with: token, favorites: favorites)
     }
 
     @discardableResult
