@@ -40,6 +40,7 @@ final class BannersRepository: BannersRepositoryProtocol {
         }
 
         let banners = try await eagerLoadRelations()
+
         let bannersDTO = try DTOFactory.makeBanners(from: banners)
         try await setCache(bannersDTO)
 
@@ -56,7 +57,9 @@ final class BannersRepository: BannersRepositoryProtocol {
             bannerQuery = bannerQuery
                 .filter(\.$parent.$id == nil)
                 .with(\.$redirect)
-                .with(\.$categories)
+                .with(\.$categories, { category in
+                    category.with(\.$image)
+                })
                 .with(\.$image)
                 .with(\.$uiSettings, { uiSettings in
                     uiSettings

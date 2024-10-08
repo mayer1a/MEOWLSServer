@@ -13,9 +13,13 @@ extension DTOFactory {
 
     static func makeBanners(from banners: [MainBanner], fullModel: Bool = true) throws -> [MainBannerDTO] {
 
-        try banners.map { mainBanner in
+        var bannersDTO = try banners.map { mainBanner in
             try makeBanner(from: mainBanner, fullModel: fullModel)
         }
+
+        moveCategoryBannerToSecondPlace(in: &bannersDTO)
+
+        return bannersDTO
     }
 
     static func makeBanner(from mainBanner: MainBanner, fullModel: Bool) throws -> MainBannerDTO {
@@ -29,7 +33,7 @@ extension DTOFactory {
         if fullModel {
             let bannerCategories = try mainBanner.categories.map { category in
 
-                guard let categoryDTO = try makeCategory(from: category) else {
+                guard let categoryDTO = try makeCategory(from: category, fullModel: true, withParent: false) else {
                     throw ErrorFactory.internalError(.bannerCategoriesError, failures: [.ID(category.id)])
                 }
                 return categoryDTO
@@ -90,6 +94,17 @@ extension DTOFactory {
 
         return metric?.map { metric in
             MetricDTO(width: metric.width)
+        }
+    }
+
+}
+
+private extension DTOFactory {
+
+    static func moveCategoryBannerToSecondPlace(in banners: inout [MainBannerDTO]) {
+        if let index = banners.firstIndex(where: { $0.categories != nil }), index != 1 {
+            let element = banners.remove(at: index)
+            banners.insert(element, at: 1)
         }
     }
 
