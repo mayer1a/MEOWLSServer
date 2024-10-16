@@ -17,6 +17,7 @@ struct CreateMainBanner: AsyncMigration {
             .id()
             .field("title", .string)
             .field("place_type", placeType)
+            .field("place_index", .int, .required)
             .field("parent_id", .uuid, .references("main_banners", "id", onDelete: .cascade))
             .create()
     }
