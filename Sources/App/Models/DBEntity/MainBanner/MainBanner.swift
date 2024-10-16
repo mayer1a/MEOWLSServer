@@ -21,6 +21,9 @@ final class MainBanner: Model, Content, @unchecked Sendable {
     @OptionalEnum(key: "place_type")
     var placeType: PlaceType?
 
+    @Field(key: "place_index")
+    var placeIndex: Int
+
     @OptionalChild(for: \.$mainBanner)
     var redirect: Redirect?
 
@@ -44,10 +47,11 @@ final class MainBanner: Model, Content, @unchecked Sendable {
 
     init() {}
 
-    init(id: UUID? = nil, title: String?, placeType: PlaceType?, parentID: MainBanner.IDValue? = nil) {
+    init(id: UUID? = nil, title: String?, placeType: PlaceType?, placeIndex: Int, parentID: MainBanner.IDValue? = nil) {
         self.id = id
         self.title = title
         self.placeType = placeType
+        self.placeIndex = placeIndex
         self.$parent.id = parentID
     }
 
