@@ -37,14 +37,15 @@ final class SearchRepository: SearchRepositoryProtocol {
             throw ErrorFactory.serviceUnavailable(failures: [.databaseConnection])
         }
 
-        var limit = suggestionsLimit
+        let queries = query.components(separatedBy: "&")
+        var limit = suggestionsLimit * queries.count
 
-        var categoriesRaw = try await getSQLForQuery(postgres, query: query, for: Category.self, limit: limit)
+        var categoriesRaw = try await getSQLForQuery(postgres, queries: queries, for: Category.self, limit: limit)
         limit -= categoriesRaw.result.count
 
         let productsRaw: SQLRawResponse<Product>
         if limit > 0 {
-            productsRaw = try await getSQLForQuery(postgres, query: query, for: Product.self, limit: limit)
+            productsRaw = try await getSQLForQuery(postgres, queries: queries, for: Product.self, limit: limit)
         } else {
             productsRaw = .init()
         }
@@ -101,20 +102,27 @@ final class SearchRepository: SearchRepositoryProtocol {
     }
 
     private func getSQLForQuery<T: Model>(_ postgres: any SQLDatabase,
-                                          query: String,
+                                          queries: [String],
                                           for type: T.Type,
                                           limit: Int) async throws -> SQLRawResponse<T> {
 
         guard type is Category.Type || type is Product.Type else { fatalError(queryBuilder.errorMessage) }
 
         let tableName = String(describing: type).pluralize()
-        let select: SQLQueryString? = type is Category.Type ? "SELECT ID" : nil
+        var decodedResult: [T] = []
+        var highlightedText: [String] = []
 
-        let rawSQL = queryBuilder.build(query: query, tableName: tableName, limit: limit, selectPart: select)
-        let result = postgres.raw("\(rawSQL)")
+        try await queries.asyncForEach { query in
+            let select: SQLQueryString? = type is Category.Type ? "SELECT ID" : nil
 
-        let decodedResult = try await result.all(decodingFluent: type)
-        let highlightedText = try await result.all(decodingColumn: queryBuilder.tsQueryColumn, as: String.self)
+            let rawSQL = queryBuilder.build(query: query, tableName: tableName, limit: limit, selectPart: select)
+            let result = postgres.raw("\(rawSQL)")
+
+            let decoded = try await result.all(decodingFluent: type)
+            let highlighted = try await result.all(decodingColumn: queryBuilder.tsQueryColumn, as: String.self)
+            decodedResult.append(contentsOf: decoded)
+            highlightedText.append(contentsOf: highlighted)
+        }
 
         return SQLRawResponse(result: decodedResult, highlightedText: highlightedText)
     }

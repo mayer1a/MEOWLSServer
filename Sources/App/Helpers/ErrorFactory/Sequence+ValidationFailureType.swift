@@ -16,6 +16,9 @@ extension Sequence where Element == ValidationFailureType {
             case .ID(let uuid):
                 return .init(field: "ID", failure: uuid?.uuidString)
 
+            case .IDs(let uuids):
+                return .init(field: "IDs", failure: uuids.map({ $0.uuidString }).joined(separator: ","))
+
             case .addressType(let addressType):
                 let type = addressType == .order ? "delivery" : "user"
                 return .init(field: "Type", failure: type)

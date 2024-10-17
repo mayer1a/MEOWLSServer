@@ -19,6 +19,8 @@ protocol ProductsRepositoryProtocol: Sendable {
                      with page: PageRequest,
                      filters: FilterQueryRequest?) async throws -> PaginationResponse<ProductDTO>
 
+    func getProducts(by productsIDs: [String], with page: PageRequest) async throws -> PaginationResponse<ProductDTO>
+
     func get(for productID: UUID) async throws -> Product
     func getDTO(for productID: UUID) async throws -> ProductDTO
     func getFilters(for categoryID: UUID, filters: FilterQueryRequest?) async throws -> [FilterDTO]
@@ -48,6 +50,14 @@ final class ProductsRepository: ProductsRepositoryProtocol {
                      filters: FilterQueryRequest?) async throws -> PaginationResponse<ProductDTO> {
 
         let paginationPoducts = try await eagerLoadRelations(saleID: saleID, page)
+        let productsDTOs = try DTOFactory.makeProducts(from: paginationPoducts.results) ?? []
+
+        return PaginationResponse(results: productsDTOs, paginationInfo: paginationPoducts.paginationInfo)
+    }
+
+    func getProducts(by productsIDs: [String], with page: PageRequest) async throws -> PaginationResponse<ProductDTO> {
+        let productsUUIDs = productsIDs.compactMap { $0.toUUID }
+        let paginationPoducts = try await eagerLoadRelations(productsIDs: productsUUIDs, page)
         let productsDTOs = try DTOFactory.makeProducts(from: paginationPoducts.results) ?? []
 
         return PaginationResponse(results: productsDTOs, paginationInfo: paginationPoducts.paginationInfo)
@@ -123,8 +133,19 @@ final class ProductsRepository: ProductsRepositoryProtocol {
         return products
     }
 
+    private func eagerLoadRelations(productsIDs: [UUID], _ page: PageRequest) async throws -> PaginationResponse<Product> {
+        guard
+            let products = try await eagerLoadProducts(productsIDs: productsIDs, with: page)
+        else {
+            throw ErrorFactory.internalError(.fetchProductByIdError, failures: [.IDs(productsIDs)])
+        }
+
+        return products
+    }
+
     private func eagerLoadProducts(saleID: UUID? = nil,
                                    categoriesIDs: [UUID]? = nil,
+                                   productsIDs: [UUID]? = nil,
                                    filters: FilterQueryRequest? = nil,
                                    with page: PageRequest) async throws -> PaginationResponse<Product>? {
 
@@ -137,7 +158,7 @@ final class ProductsRepository: ProductsRepositoryProtocol {
                 query = addSort(sort, to: query)
             }
         } else {
-            query = getFilteredProductsQuery(saleID: saleID, categoriesIDs: categoriesIDs, productsIDs: nil)
+            query = getFilteredProductsQuery(saleID: saleID, categoriesIDs: categoriesIDs, productsIDs: productsIDs)
         }
 
         return try await query?.paginate(with: page)

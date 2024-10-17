@@ -12,6 +12,8 @@ struct ProductsController: RouteCollection {
 
     private let categoryQuery = "category_id"
     private let saleQuery = "sale_id"
+    private let idsQuery = "products_ids"
+    private let idParameter = "product_id"
 
     let productsRepository: ProductsRepositoryProtocol
 
@@ -20,7 +22,7 @@ struct ProductsController: RouteCollection {
         let filters = routes.grouped("api", "v1", "filters")
 
         products.get("", use: getProducts)
-        products.get(":product_id", use: getProduct)
+        products.get(":\(idParameter)", use: getProduct)
 
         filters.get("", use: getFilters)
     }
@@ -37,13 +39,18 @@ struct ProductsController: RouteCollection {
         } else if let saleID: UUID = request.query[saleQuery] {
 
             return try await productsRepository.getProducts(saleID: saleID, with: page, filters: filters)
+
+        } else if let productsIDs: String = request.query[idsQuery] {
+
+            let productsIDs = productsIDs.components(separatedBy: ",")
+            return try await productsRepository.getProducts(by: productsIDs, with: page)
         }
 
-        throw ErrorFactory.badRequest(.categoryIDRequired)
+        throw ErrorFactory.badRequest(.categoryIDOrProductsIDsRequired)
     }
 
     @Sendable func getProduct(_ request: Request) async throws -> ProductDTO {
-        guard let productID = request.parameters.get("product_id", as: UUID.self) else {
+        guard let productID = request.parameters.get(idParameter, as: UUID.self) else {
             throw ErrorFactory.badRequest(.productIdRequired)
         }
 

@@ -10,6 +10,7 @@ import Foundation
 enum ValidationFailureType {
     
     case ID(UUID?)
+    case IDs([UUID])
     case addressType(AddressDTO.SaveType)
     case environments
     case unavailableProduct(name: String?, quantity: Int)
