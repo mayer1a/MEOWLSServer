@@ -17,7 +17,7 @@ struct SearchController: RouteCollection {
     @Sendable func boot(routes: RoutesBuilder) throws {
         let search = routes.grouped("api", "v1", "search")
 
-        search.get("popular_searches", use: getPopular)
+        search.get("popular", use: getPopular)
         search.get("suggestions", use: getSuggestions)
     }
 
