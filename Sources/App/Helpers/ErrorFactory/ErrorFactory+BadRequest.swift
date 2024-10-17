@@ -12,6 +12,7 @@ enum BadRequest: String {
     case productUnavailable = "error.productUnavailable"
     case oneProductUnavailable = "error.oneProductUnavailable"
     case categoryIDRequired = "error.categoryIDRequired"
+    case categoryIDOrProductsIDsRequired = "error.categoryIDOrProductsIDsRequired"
     case productAlreadyStarred = "error.productAlreadyStarred"
     case xCityIdParameterRequired = "error.xCityIdParameterRequired"
     case orderNumberRequired = "error.orderNumberRequired"
@@ -26,6 +27,7 @@ enum BadRequest: String {
     case invalidReceivedAddress = "error.invalidReceivedAddress"
     case invalidOrderNumber = "error.invalidOrderNumber"
     case productIdRequired = "error.productIdRequired"
+    case productsIdsRequired = "error.productsIdsRequired"
     case requestQueryParameterRequired = "error.requestQueryParameterRequired"
     case phoneAlreadyUsed = "error.phoneAlreadyUsed"
     case incorrectAddressNotFound = "error.incorrectAddressNotFound"
@@ -51,6 +53,9 @@ extension BadRequest {
 
         case .categoryIDRequired:
             return "Category ID is required."
+
+        case .categoryIDOrProductsIDsRequired:
+            return "Category ID or products IDs is required."
 
         case .productAlreadyStarred:
             return "Attempting to add a product to favorites that has already been added."
@@ -93,6 +98,9 @@ extension BadRequest {
 
         case .productIdRequired:
             return "Product ID query parameter is required."
+
+        case .productsIdsRequired:
+            return "Products IDs query parameter is required."
 
         case .requestQueryParameterRequired:
             return "Request query parameter is required."
