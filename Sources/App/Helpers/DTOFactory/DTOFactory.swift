@@ -63,6 +63,7 @@ struct DTOFactory {
 
         var parent: CategoryDTO?
         var image: ImageDTO?
+        let count: Int? = category.$products.value?.count
 
         if fullModel {
 
@@ -80,7 +81,8 @@ struct DTOFactory {
                            name: category.name,
                            parent: parent,
                            hasChildren: category.hasChildren,
-                           image: image)
+                           image: image,
+                           productsCount: count)
     }
 
     // MARK: - Sale
