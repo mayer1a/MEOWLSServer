@@ -133,6 +133,7 @@ final class SearchRepository: SearchRepositoryProtocol {
             .with(\.$parent, { parent in
                 parent.with(\.$parent)
             })
+            .with(\.$products)
             .all()
     }
 
