@@ -13,13 +13,9 @@ extension DTOFactory {
 
     static func makeBanners(from banners: [MainBanner], fullModel: Bool = true) throws -> [MainBannerDTO] {
 
-        var bannersDTO = try banners.sorted(by: { $0.placeIndex < $1.placeIndex }).map { mainBanner in
+        try banners.sorted(by: { $0.placeIndex < $1.placeIndex }).map { mainBanner in
             try makeBanner(from: mainBanner, fullModel: fullModel)
         }
-
-//        moveBannersPlace(in: &bannersDTO)
-
-        return bannersDTO
     }
 
     static func makeBanner(from mainBanner: MainBanner, fullModel: Bool) throws -> MainBannerDTO {
