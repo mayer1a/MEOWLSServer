@@ -17,19 +17,13 @@ extension DTOFactory {
 
         return try products.map { product in
 
-            var image: [ImageDTO] = []
-
-            if let imageDTO = makeImage(from: product.images.first) {
-                image = [imageDTO]
-            }
-
-            return ProductDTO(id: try product.requireID(),
-                              name: product.name,
-                              code: product.code,
-                              images: image,
-                              allowQuickBuy: product.allowQuickBuy,
-                              variants: try makeVariants(from: product.variants),
-                              defaultVariantArticle: product.defaultVariantArticle)
+            ProductDTO(id: try product.requireID(),
+                       name: product.name,
+                       code: product.code,
+                       images: makeImages(from: product.images) ?? [],
+                       allowQuickBuy: product.allowQuickBuy,
+                       variants: try makeVariants(from: product.variants),
+                       defaultVariantArticle: product.defaultVariantArticle)
         }
     }
 
