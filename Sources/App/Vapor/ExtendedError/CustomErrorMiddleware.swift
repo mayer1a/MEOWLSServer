@@ -113,7 +113,7 @@ final class CustomErrorMiddleware: Middleware {
         let code: String
         let reason: String
 
-        if error.status == .unauthorized, url.path.components(separatedBy: "/").last == "login" {
+        if error.status == .unauthorized, url.path.pathComponents.last == "login" {
 
             code = "authError"
             reason = "Invalid phone or password"
