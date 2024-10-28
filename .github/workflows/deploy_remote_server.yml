@@ -111,6 +111,7 @@ jobs:
             docker run --restart=always \
               --name "${{ secrets.CONTAINER_NAME }}" \
               --network meowls_network \
+              --ip "${{ secrets.CONTAINER_IP }}" \
               -e DATABASE_HOST="${{ secrets.DATABASE_HOST }}" \
               -e DATABASE_NAME="${{ secrets.DATABASE_NAME }}" \
               -e DATABASE_PASSWORD="${{ secrets.DATABASE_PASSWORD }}" \
