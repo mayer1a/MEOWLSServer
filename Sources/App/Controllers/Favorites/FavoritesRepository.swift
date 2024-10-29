@@ -54,13 +54,17 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
                 .all()
 
             let favorites = try await user.$favorites.get(on: transaction)
-
+            var productAlreadyStarred = false
             try await products.asyncForEach { product in
                 if try await favorites?.$products.isAttached(to: product, on: transaction) == true {
-                    throw ErrorFactory.badRequest(.productAlreadyStarred)
+                    productAlreadyStarred = true
                 } else {
                     try await favorites?.$products.attach(product, on: transaction)
                 }
+            }
+
+            if productAlreadyStarred {
+                throw ErrorFactory.successWarning(.productAlreadyStarred)
             }
         }
     }
