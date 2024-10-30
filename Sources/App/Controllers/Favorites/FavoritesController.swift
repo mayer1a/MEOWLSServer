@@ -38,7 +38,9 @@ struct FavoritesController: RouteCollection {
         guard let user = request.auth.get(User.self) else { throw ErrorFactory.unauthorized() }
 
         let productsIDs = try request.content.decode([UUID].self)
-        try await favoritesRepository.update(productsIDs: productsIDs, for: user)
+        if let error = try await favoritesRepository.update(productsIDs: productsIDs, for: user) {
+            throw error
+        }
 
         return DummyResponse()
     }
