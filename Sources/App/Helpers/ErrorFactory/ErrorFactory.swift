@@ -20,6 +20,10 @@ struct ErrorFactory {
         CustomError(.unauthorized, reason: "Access is denied. Please authenticate and try again.")
     }
 
+    static func successWarning(_ type: SuccessWarning) -> CustomError {
+        CustomError(.alreadyReported, code: type.rawValue, reason: type.description)
+    }
+
     static func internalError(_ type: InternalServerError, failures: [ValidationFailureType]? = nil) -> CustomError {
         CustomError(.internalServerError, code: type.rawValue, reason: type.description, failures: failures?.toFailures)
     }

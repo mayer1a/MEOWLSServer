@@ -13,7 +13,6 @@ enum BadRequest: String {
     case oneProductUnavailable = "oneProductUnavailable"
     case categoryIDRequired = "categoryIDRequired"
     case categoryIDOrProductsIDsRequired = "categoryIDOrProductsIDsRequired"
-    case productAlreadyStarred = "productAlreadyStarred"
     case xCityIdParameterRequired = "xCityIdParameterRequired"
     case orderNumberRequired = "orderNumberRequired"
     case orderIdRequired = "orderIdRequired"
@@ -56,9 +55,6 @@ extension BadRequest {
 
         case .categoryIDOrProductsIDsRequired:
             return "Category ID or products IDs is required."
-
-        case .productAlreadyStarred:
-            return "Attempting to add a product to favorites that has already been added."
 
         case .xCityIdParameterRequired:
             return "X-City-Id parameter is required."
