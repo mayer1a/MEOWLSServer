@@ -14,7 +14,7 @@ protocol FavoritesRepositoryProtocol: Sendable {
     func get(for user: User, with page: PageRequest) async throws -> PaginationResponse<ProductDTO>
     func get(for user: User) async throws -> [UUID]?
     func getCount(for user: User) async throws -> FavoritesCountDTO
-    func update(productsIDs: [Product.IDValue], for user: User) async throws
+    func update(productsIDs: [Product.IDValue], for user: User) async throws -> CustomError?
     func delete(productsIDs: [Product.IDValue], for user: User) async throws
 
 }
@@ -47,21 +47,23 @@ final class FavoritesRepository: FavoritesRepositoryProtocol {
         DTOFactory.makeFavoritesCount(from: try await buildQuery(for: user.requireID()).aggregate(.count, \.$id))
     }
 
-    func update(productsIDs: [Product.IDValue], for user: User) async throws {
+    func update(productsIDs: [Product.IDValue], for user: User) async throws -> CustomError? {
         try await database.transaction { transaction in
             let products = try await Product.query(on: transaction)
                 .filter(\.$id ~~ productsIDs.reversed())
                 .all()
 
             let favorites = try await user.$favorites.get(on: transaction)
-
+            var productAlreadyStarred = false
             try await products.asyncForEach { product in
                 if try await favorites?.$products.isAttached(to: product, on: transaction) == true {
-                    throw ErrorFactory.badRequest(.productAlreadyStarred)
+                    productAlreadyStarred = true
                 } else {
                     try await favorites?.$products.attach(product, on: transaction)
                 }
             }
+
+            return productAlreadyStarred ? ErrorFactory.successWarning(.productAlreadyStarred) : nil
         }
     }
 
